@@ -474,23 +474,24 @@ color: var(--white); /* Ensures text color stays white on hover */
     }
 
     .nav__btns {
-      display: flex;
+      display: grid;
       justify-content: center;
-      width: 100%;
+      width: 80%;
       margin-top: 1rem;
+      margin-right: 20px;
+      padding: 3px;
     }
 
     .nav__btns .btn {
       width: 70%;
       padding: 0.5rem;
-      font-size: 1rem;
+      font-size: 0.9rem;
       max-width: 200px;
       border-radius: 5rem;
       margin-left: 50px;
       margin-right: 15px;
       margin-bottom: 12px;
       background-color: var(--secondary-color);
-      align-items: center; /* Center text vertically */
     }
 
 
