@@ -89,7 +89,7 @@ def index():
 #log in
 
 # Route for student login in the root folder
-@app.route('/student_login')
+@app.route('/student_login', methods=['GET'])
 def student_login():
     # Add your login logic here for students
     return render_template('login.html')  # Render the student login page
@@ -120,14 +120,14 @@ def login():
 
 
 # Route for faculty login in the admin folder
-@app.route('/faculty_login')
+@app.route('/faculty_login', methods=['GET', 'POST'])
 def faculty_login():
  
     return render_template('faculty/login.html')  # Render the faculty login page
 
 
 # Route for admin login in the admin folder
-@app.route('/admin_login')
+@app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
    
     return render_template('admin/login.html')  # Render the admin login page
@@ -168,7 +168,7 @@ def admin_login_dashboard():
 # admin dashboard =====================
     
 # Admin route for admin dashboard
-@app.route('/admin_dashboard')
+@app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     username = session.get('username')
     
@@ -257,8 +257,7 @@ def management():
 
 
 
-
-@app.route('/admin/dashboard/')
+@app.route('/admin/management', methods=['GET', 'POST'])
 def home():
     # Count users with the role of "user"
     user_count = users_collection.count_documents({'role': 'user'})
@@ -276,7 +275,7 @@ def home():
                            feedbacks_count=feedback_count)
 
 
-@app.route('/admin/data/')
+@app.route('/admin/data', methods=['GET'])
 def data():
     # Fetch total responses from the response collection
     total_responses = response_collection.count_documents({})
@@ -772,7 +771,7 @@ def process_mongo_responses(mongo_response, question_mapping):
     return student_df
 
 # Route for Stress Result Page
-@app.route('/stress_result/')
+@app.route('/stress_result/', methods=['GET', 'POST'])
 def stress_result():
     username = session.get('username')
     if not username:
@@ -923,7 +922,7 @@ def no_data():
 
 
 # Route to display detailed assessment and responses
-@app.route('/result')
+@app.route('/result', methods=['GET', 'POST'])
 def result():
     username = session.get('username')
 
@@ -1025,7 +1024,7 @@ def result():
         return redirect(url_for('login'))
 
 # Route for Recommendation Page
-@app.route('/recommendation/')
+@app.route('/recommendation/', methods=['GET', 'POST'])
 def recommendation():
     username = session.get('username')
     if not username:
@@ -1181,7 +1180,7 @@ def feedback():
     # Render the form template for GET requests
     return render_template('feedback.html', username=username)
 
-@app.route('/analytics/')
+@app.route('/analytics/', methods=['GET'])
 def analytics():
     username = session.get('username')
 
@@ -1266,7 +1265,7 @@ def analytics():
     
 
 # View Assessment History
-@app.route('/assessment/<assessment_id>')
+@app.route('/assessment/<assessment_id>', methods=['GET'])
 def view_assessment(assessment_id):
     try:
         # Fetch the assessment from the assessment_result collection
@@ -1435,7 +1434,7 @@ def change_password():
 
 
 # Route for dashboard
-@app.route('/dashboard/<username>')
+@app.route('/dashboard/<username>', methods=['GET'])
 def dashboard(username):
 
     # Ensure the user is logged in
@@ -1523,7 +1522,7 @@ def signup():
 
 # faqs
 
-@app.route('/faqs/')
+@app.route('/faqs/', methods=['GET'])
 def faqs():
     # Fetch username from session
     username = session.get('username')
@@ -1539,18 +1538,20 @@ def faqs():
 
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
     # Clear session variables
     session.pop('username', None)
     return redirect(url_for('login'))
 
 
-@app.route('/admin/logout')
+@app.route('/admin/logout', methods=['GET'])
 def admin_logout():
     # Clear session variables
     session.pop('username', None)
     return redirect(url_for('admin_login'))
 
+import os
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
+
