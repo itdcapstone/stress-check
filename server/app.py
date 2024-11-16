@@ -132,35 +132,40 @@ def admin_login():
    
     return render_template('admin/login.html')  # Render the admin login page
 
-
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login_dashboard():
-    username = session.get('username')
-    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         
         # Check if user exists in MongoDB
-        existing_user = users_collection.find_one({'username': username, 'password': password})
+        existing_user = users_collection.find_one({'username': username})
 
-        if existing_user and existing_user.get('role') == 'admin':
-            # Store username in session
-            session['username'] = username
+        if existing_user:
+            # Verify the password hash
+            if check_password_hash(existing_user.get('password'), password):
+                # Check if the user has admin role
+                if existing_user.get('role') == 'admin':
+                    # Store username in session
+                    session['username'] = username
 
-            # Count users with the role of "user"
-            user_count = users_collection.count_documents({'role': 'user'})
+                    # Count users with the role of "user"
+                    user_count = users_collection.count_documents({'role': 'user'})
 
-            # Count the total number of assessments in the `assessment_result` collection
-            assessment_count = assessment_collection.count_documents({})
+                    # Count the total number of assessments in the assessment_result collection
+                    assessment_count = assessment_collection.count_documents({})
 
-            # You can pass these counts to the dashboard or store them in the session
-            session['user_count'] = user_count
-            session['assessment_count'] = assessment_count
+                    # Store counts in the session or pass them to the dashboard
+                    session['user_count'] = user_count
+                    session['assessment_count'] = assessment_count
 
-            return redirect(url_for('admin_dashboard', username=username))
+                    return redirect(url_for('admin_dashboard', username=username))
+                else:
+                    return 'Insufficient permissions'
+            else:
+                return 'Invalid password'
         else:
-            return 'Invalid username or password or insufficient permissions'
+            return 'Invalid username'
 
     # Render the login template for GET requests
     return render_template('admin/login.html')

@@ -75,16 +75,10 @@
     <section id="content">
         <!-- NAVBAR -->
         <nav>
-            <i class='bx bx-menu' ></i>
+            <i class="bx bx-menu"></i>
             <form action="#">
-                <div class="form-input">
-                    <input type="search" placeholder="Search...">
-                    <button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
-                </div>
-            </form>
-            <input type="checkbox" id="switch-mode" hidden>
-            <label for="switch-mode" class="switch-mode"></label>
-        </nav>
+              
+          </nav>
         <!-- NAVBAR -->
 
         <!-- QUIZ CONTAINER -->
@@ -406,7 +400,13 @@
             function confirmLeave() {
                 leaveIntent = true;
                 closeModal();
-                window.location.href = leaveIntentLink; // Navigate to the intended link
+
+                // Check if leaveIntentLink is valid before navigating
+                if (leaveIntentLink) {
+                    window.location.href = leaveIntentLink;
+                } else {
+                    console.error('No valid leaveIntentLink set.');
+                }
             }
 
             // Listen for navigation attempts before the quiz is complete
@@ -418,12 +418,17 @@
             });
 
             // Intercept internal link clicks
-            let leaveIntentLink;
             document.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', function (event) {
                     if (!isQuizCompleted) {
                         event.preventDefault();
-                        leaveIntentLink = event.target.href;
+
+                        // Ensure we capture the correct href
+                        leaveIntentLink = this.href;
+                        
+                        // Debugging to ensure the link is correct
+                        console.log('Captured leaveIntentLink:', leaveIntentLink);
+
                         openModal();
                     }
                 });

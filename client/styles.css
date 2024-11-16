@@ -1238,76 +1238,149 @@ textarea {
 	background: var(--light);
 }
 
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F2F2F2;
+    color: #1A4D2E;
+    margin: 0;
+    padding: 0;
+}
+
+/* Wrapper */
+.wrapper {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
 /* Feedback form textarea */
 #feedback-form textarea {
-	width: 100%; /* Change to percentage for responsiveness */
-	height: 300px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	padding: 10px;
-	margin-bottom: 10px;
-	resize: vertical;
-	box-sizing: border-box; /* Ensures padding is included in the width */
+    width: 100%;
+    height: 200px;
+    border: 1px solid #DEE9E5;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    resize: vertical;
+    box-sizing: border-box;
+    font-size: 1rem;
+    color: #475569;
+    background-color: #F2F2F2;
 }
 
 /* Feedback form select */
 #feedback-form select {
-	width: 100%; /* Change to percentage for responsiveness */
-	max-width: 200px; /* Maximum width */
-	padding: 8px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	box-sizing: border-box; /* Ensures padding is included in the width */
-	margin-bottom: 10px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #DEE9E5;
+    border-radius: 8px;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    color: #475569;
+    background-color: #F2F2F2;
 }
 
-/* Feedback form button */
+/* Feedback form buttons */
 #feedback-form button {
-	background-color: #007bff;
-	color: #fff;
-	border: none;
-	padding: 10px 20px;
-	border-radius: 5px;
-	cursor: pointer;
-	width: 100%; /* Make button full width for smaller screens */
-	max-width: 200px; /* Maximum width */
+    background-color: #7ABA78;
+    color: #ffffff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#feedback-form button:hover {
+    background-color: #1A4D2E;
+}
+
+#feedback-form .btn.cancel {
+    background-color: #DEE9E5;
+    color: #475569;
+    margin-left: 10px;
+}
+
+#feedback-form .btn.cancel:hover {
+    background-color: #7ABA78;
+    color: #ffffff;
+}
+
+/* Rating container */
+.rating-container {
+    margin-bottom: 15px;
+}
+
+/* Navbar */
+nav {
+    background-color: #1A4D2E;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+}
+
+nav .form-input input {
+    border: 1px solid #DEE9E5;
+    padding: 8px;
+    border-radius: 5px;
+    width: 200px;
+    margin-right: 10px;
+    color: #475569;
+    background-color: #F2F2F2;
+}
+
+nav .form-input button {
+    background-color: #7ABA78;
+    border: none;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+nav .form-input button:hover {
+    background-color: #1A4D2E;
+}
+
+/* Header */
+.head-title-center h1 {
+    text-align: center;
+    color: #1A4D2E;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 /* Responsive styles */
 @media (max-width: 768px) {
     .wrapper {
-        padding: 1.5rem; /* Reduce padding on smaller screens */
+        padding: 1.5rem;
     }
 
-    #feedback-form textarea {
-        height: 200px; /* Adjust height for smaller screens */
-    }
-
-    #feedback-form select {
-        max-width: 100%; /* Allow full width on smaller screens */
-    }
-
-    #feedback-form button {
-        max-width: 100%; /* Allow full width on smaller screens */
-    }
-
-    .btn-group {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: stretch; /* Stretch buttons to full width */
+    nav .form-input input {
+        width: 150px;
     }
 }
 
 @media (max-width: 480px) {
     .wrapper {
-        padding: 1rem; /* Further reduce padding for very small screens */
+        padding: 1rem;
     }
 
-    .rating {
-        font-size: 1.5rem; /* Adjust rating size for smaller screens */
+    nav .form-input input {
+        width: 100px;
     }
 
-    .btn-group .btn {
-        padding: .5rem 1rem; /* Reduce padding on buttons */
+    nav .form-input button {
+        padding: 6px 10px;
     }
 }
 
@@ -1895,42 +1968,44 @@ a.retake-btn:hover {
   }
 
 
-  
-  
-
-/* faqs */
-
-/* FAQ Section Styling */
+  /* FAQ Section Styling */
 .faq-section {
-    max-width: 10000px;
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 15px;
+    background: linear-gradient(145deg, #F2F2F2, #ffffff);
+    box-shadow: 6px 6px 12px #d1d1d1, -6px -6px 12px #ffffff;
+    background-color: #DEE9E5; /* Light mint green */
 }
 
 /* FAQ Item Styling */
 .faq-section details {
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 30px;
-    padding: 15px;
-    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    padding: 20px;
+    background: linear-gradient(145deg, #ffffff, #F2F2F2); /* Lighter gradients */
+    background-color: #F9F9F9; /* Subtle off-white to keep it fresh */
+    transition: all 0.3s ease-in-out;
 }
 
 .faq-section details:hover {
-    background-color: #f1f1f1;
+    background: linear-gradient(145deg, #ffffff, #E8F1E8); /* Light mint green hover */
+    box-shadow: 4px 4px 12px #d1d1d1, -4px -4px 12px #ffffff; /* Light box-shadow */
 }
 
 .faq-section summary {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: #333;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1A4D2E; /* Fresh green */
     cursor: pointer;
-    outline: none;
     position: relative;
-    padding-right: 20px;
+    padding-right: 25px;
+    transition: color 0.3s ease;
+}
+
+.faq-section summary:hover {
+    color: #7ABA78; /* Soft green on hover */
 }
 
 .faq-section summary::after {
@@ -1938,24 +2013,62 @@ a.retake-btn:hover {
     font-size: 1rem;
     position: absolute;
     right: 0;
-    transition: transform 0.3s;
+    transition: transform 0.3s, color 0.3s ease;
 }
 
 .faq-section details[open] summary::after {
-    transform: rotate(180deg); /* Rotate arrow on open */
+    transform: rotate(180deg);
+    color: #7ABA78; /* Change arrow color on open */
 }
 
 .faq-section p {
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 1rem;
-    color: #666;
-    line-height: 1.5;
+    color: #475569; /* Muted blue-gray */
+    line-height: 1.6;
+}
+
+.faq-section ul {
+    padding-left: 20px;
+    list-style-type: disc;
+    margin-top: 10px;
+    color: #475569;
+}
+
+.faq-section ul li {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+/* Specific List Style for FAQ items */
+.faq-list {
+    padding-left: 25px;
+    list-style-type: disc;
+    margin-top: 10px;
+    color: #475569;
+}
+
+.faq-list li {
+    margin-bottom: 8px;
+}
+
+/* Info Section Styling */
+.info__item {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    color: #1A4D2E;
+}
+
+.info__item i {
+    margin-right: 10px;
+    color: #7ABA78;
 }
 
 /* Responsive Styling */
 @media (max-width: 768px) {
     .faq-section {
-        padding: 15px;
+        padding: 20px;
     }
 
     .faq-section summary {
@@ -1969,15 +2082,102 @@ a.retake-btn:hover {
 
 @media (max-width: 480px) {
     .faq-section {
-        padding: 10px;
+        padding: 15px;
     }
 
     .faq-section summary {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
     .faq-section p {
+        font-size: 0.85rem;
+    }
+}
+
+
+
+/* Info Section Styling */
+.info__item {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    color: #1A4D2E;
+}
+
+.info__item i {
+    margin-right: 10px;
+    color: #7ABA78;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .faq-section {
+        padding: 20px;
+    }
+
+    .faq-section summary {
+        font-size: 1rem;
+    }
+
+    .faq-section p {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .faq-section {
+        padding: 15px;
+    }
+
+    .faq-section summary {
         font-size: 0.9rem;
+    }
+
+    .faq-section p {
+        font-size: 0.85rem;
+    }
+}
+
+
+/* Info Section Styling */
+.info__item {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    color: #333;
+}
+
+.info__item i {
+    margin-right: 10px;
+    color: #007bff;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .faq-section {
+        padding: 20px;
+    }
+
+    .faq-section summary {
+        font-size: 1rem;
+    }
+
+    .faq-section p {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .faq-section {
+        padding: 15px;
+    }
+
+    .faq-section summary {
+        font-size: 0.9rem;
+    }
+
+    .faq-section p {
+        font-size: 0.85rem;
     }
 }
 

@@ -30,11 +30,23 @@ header {
   align-items: center;
 }
 
+.nav__logo a {
+  display: flex;
+  align-items: center;
+  margin-left: 0.8rem;
+  font-size: 3rem;
+  font-weight: 200;
+  color: var(--white);
+  text-decoration: none; /* Remove underline */
+}
+
 .nav__logo {
   display: flex;
   align-items: center;
   font-size: 2rem; /* Adjusted for better mobile display */
+  color: #1A4D2E;
 }
+  
 
 .nav__menu__btn {
   display: none; /* Mobile menu button */

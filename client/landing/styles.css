@@ -78,13 +78,6 @@ nav {
   color: var(--white);
 }
 
-.nav__logo a span {
-  padding: 3px 7px;
-  margin-inline: 5px;
-  font-size: 1rem;
-  background-color: var(--secondary-color);
-  border-radius: 100%;
-}
 
 .nav__menu__btn {
   font-size: 1.5rem;
@@ -189,7 +182,23 @@ nav {
   background-color: var(--text-dark); /* Matches other button style */
   text-decoration: none;
   border-radius: 5rem;
+  transition: all 0.3s ease; /* Smooth animation for hover/click */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow effect */
 }
+
+.header__btns .login:hover {
+  background-color: #1A4D2E; /* Slightly lighter green */
+  color: #ffffff; /* White text on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+.header__btns .login:active {
+  transform: scale(0.95); /* Slight press effect */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* Softer shadow */
+  background-color: #7ABA78; /* Brighter green on click */
+}
+
 
 .header__btns img {
   max-width: 150px;
@@ -481,6 +490,7 @@ color: var(--white); /* Ensures text color stays white on hover */
       margin-right: 15px;
       margin-bottom: 12px;
       background-color: var(--secondary-color);
+      align-items: center; /* Center text vertically */
     }
 
 
@@ -1003,3 +1013,4 @@ border-radius: 10px;
     font-size: 0.9rem;
   }
 }
+
