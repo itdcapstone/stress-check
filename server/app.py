@@ -1552,5 +1552,5 @@ def admin_logout():
     session.pop('username', None)
     return redirect(url_for('admin_login'))
 
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+    app.run(debug=True)
