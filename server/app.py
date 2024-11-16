@@ -80,6 +80,8 @@ else:
     raise FileNotFoundError(f"Preprocessor file not found at {preprocessor_path}")
 
 
+
+
 # Landing page
 @app.route('/')
 def index():
@@ -120,20 +122,21 @@ def login():
 
 
 # Route for faculty login in the admin folder
-@app.route('/faculty_login', methods=['GET', 'POST'])
+@app.route('/faculty_login')
 def faculty_login():
  
     return render_template('faculty/login.html')  # Render the faculty login page
 
 
 # Route for admin login in the admin folder
-@app.route('/admin_login', methods=['GET', 'POST'])
+@app.route('/admin_login')
 def admin_login():
    
     return render_template('admin/login.html')  # Render the admin login page
 
 @app.route('/admin_login', methods=['GET', 'POST'])
-def admin_login_dashboard():
+def admin_login_dashboard(): 
+    username = session.get('username')
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -173,7 +176,7 @@ def admin_login_dashboard():
 # admin dashboard =====================
     
 # Admin route for admin dashboard
-@app.route('/admin_dashboard', methods=['GET'])
+@app.route('/admin_dashboard')
 def admin_dashboard():
     username = session.get('username')
     
@@ -262,7 +265,7 @@ def management():
 
 
 
-@app.route('/admin/management', methods=['GET', 'POST'])
+@app.route('/admin/dashboard/')
 def home():
     # Count users with the role of "user"
     user_count = users_collection.count_documents({'role': 'user'})
@@ -280,7 +283,7 @@ def home():
                            feedbacks_count=feedback_count)
 
 
-@app.route('/admin/data', methods=['GET'])
+@app.route('/admin/data/')
 def data():
     # Fetch total responses from the response collection
     total_responses = response_collection.count_documents({})
@@ -776,7 +779,7 @@ def process_mongo_responses(mongo_response, question_mapping):
     return student_df
 
 # Route for Stress Result Page
-@app.route('/stress_result/', methods=['GET', 'POST'])
+@app.route('/stress_result/')
 def stress_result():
     username = session.get('username')
     if not username:
@@ -924,10 +927,8 @@ def no_data():
         return redirect(url_for('login'))
 
 
-
-
 # Route to display detailed assessment and responses
-@app.route('/result', methods=['GET', 'POST'])
+@app.route('/result')
 def result():
     username = session.get('username')
 
@@ -1027,9 +1028,10 @@ def result():
         )
     else:
         return redirect(url_for('login'))
+    
 
 # Route for Recommendation Page
-@app.route('/recommendation/', methods=['GET', 'POST'])
+@app.route('/recommendation/')
 def recommendation():
     username = session.get('username')
     if not username:
@@ -1148,7 +1150,7 @@ def handle_no_responses(request):
 def handle_no_valid_responses(request):
     if request.args.get('format') == 'json':
         return jsonify({"error": "No valid responses found for this user. harsh"}), 404
-    return "No valid responses found for this user  bogsh45."
+    return "No valid responses found for this user."
 
 
 @app.route('/feedback', methods=['GET', 'POST'])
@@ -1185,7 +1187,7 @@ def feedback():
     # Render the form template for GET requests
     return render_template('feedback.html', username=username)
 
-@app.route('/analytics/', methods=['GET'])
+@app.route('/analytics/')
 def analytics():
     username = session.get('username')
 
@@ -1270,7 +1272,7 @@ def analytics():
     
 
 # View Assessment History
-@app.route('/assessment/<assessment_id>', methods=['GET'])
+@app.route('/assessment/<assessment_id>')
 def view_assessment(assessment_id):
     try:
         # Fetch the assessment from the assessment_result collection
@@ -1439,7 +1441,7 @@ def change_password():
 
 
 # Route for dashboard
-@app.route('/dashboard/<username>', methods=['GET'])
+@app.route('/dashboard/<username>')
 def dashboard(username):
 
     # Ensure the user is logged in
@@ -1527,7 +1529,7 @@ def signup():
 
 # faqs
 
-@app.route('/faqs/', methods=['GET'])
+@app.route('/faqs/')
 def faqs():
     # Fetch username from session
     username = session.get('username')
@@ -1543,14 +1545,14 @@ def faqs():
 
 
 
-@app.route('/logout', methods=['GET'])
+@app.route('/logout')
 def logout():
     # Clear session variables
     session.pop('username', None)
     return redirect(url_for('login'))
 
 
-@app.route('/admin/logout', methods=['GET'])
+@app.route('/admin/logout')
 def admin_logout():
     # Clear session variables
     session.pop('username', None)

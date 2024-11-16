@@ -153,28 +153,6 @@
           });
         });
       });
-
-      // Intersection Observer for triggering animations
-      document.addEventListener("DOMContentLoaded", () => {
-        const animatedElements = document.querySelectorAll(".animate-on-scroll");
-
-        const observer = new IntersectionObserver(
-          (entries, observer) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("in-view"); // Add class when in view
-                observer.unobserve(entry.target); // Stop observing once triggered
-              }
-            });
-          },
-          {
-            threshold: 0.2, // Trigger when 20% of the element is visible
-          }
-        );
-
-        animatedElements.forEach((el) => observer.observe(el));
-      });
-
     </script>
   </body>
 </html>

@@ -9,6 +9,7 @@
 	<!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
+	<title>AdminHub</title>
 </head>
 <body>
 
@@ -73,10 +74,9 @@
 	<section id="content">
 		<!-- NAVBAR -->
 		<nav>
-			<i class="bx bx-menu"></i>
+			<i class='bx bx-menu' ></i>
 			<form action="#">
-			  
-		  </nav>
+		</nav>
 		<!-- NAVBAR -->
 
 		<!-- MAIN -->
@@ -92,13 +92,13 @@
 			</div>
 
 			<div class="profile-username">
-				<p class="profile-username">@{{ user.username }}</p>
+				<p class="profile-username">@{{ user.username }}</p><br><br>
 			</div>
 		
 			<div class="profile-container">
 				<form id="profile-form" method="POST" action="{{ url_for('profile') }}">
 					<div class="profile-details">
-						<h3>General Information</h3>
+						<h3>General Information</h3><br><br>
 						<div class="form-row">
 							<div class="form-group">
 								<label for="name">DISPLAY NAME:</label>
@@ -112,6 +112,10 @@
 									<option value="female">Female</option>
 									<option value="other">Other</option>
 								</select>
+							</div>
+							<div class="form-group">
+								<label for="email">EMAIL:</label>
+								<input type="email" id="email" name="email" value="{{ user.email }}" disabled>
 							</div>
 							<div class="form-group">
 								<label for="year-level">YEAR LEVEL:</label>
@@ -130,31 +134,30 @@
 							</div>
 						</div>
 						<div class="form-buttons" id="form-buttons" style="display: none;">
-							<button type="submit" id="submit-button">Save Changes</button>
+							<button type="submit" id="submit-button">Save Changes</button> <!-- Moved submit button here -->
 							<button type="button" id="cancel-button">Cancel</button>
 						</div>
 					</div>
 				</form>
 			</div>
-			
-	
-			
-			<div class="profile-security">
-				<h3>Security</h3>
-				<div class="form-row">
-					<div class="form-group">
-						<label for="email">Email:</label>
-						<input type="email" id="email" name="email" value="{{ user.email }}" disabled>
-						<button class="change-button">Change Email</button>
-					</div>
-					<div class="form-group">
-						<label for="password">Password:</label>
-						<input type="password" id="password" name="password" value="*****" disabled>
-						<button class="change-password-button">Change Password</button>
+		
+				<div class="profile-security">
+					<h3>Security</h3>
+					<div class="form-row">
+						<div class="form-group">
+							<label for="email">Email:</label>
+							<input type="email" id="email" name="email" value="{{ user.email }}" disabled>
+							<button class="change-button">Change Email</button>
+						</div>
+						<div class="form-group">
+							<label for="password">Password:</label>
+							<input type="password" id="password" name="password" value="***" disabled>
+							<button class="change-button">Change Password</button>
+						</div>
 					</div>
 				</div>
 			</div>
-			
+
 			<div id="save-modal" class="modal">
 				<div class="modal-content">
 					<span class="close-modal" id="close-save-modal">&times;</span>
@@ -163,6 +166,7 @@
 				</div>
 			</div>
 			
+			<!-- Cancel Confirmation Modal -->
 			<div id="cancel-modal" class="modal">
 				<div class="modal-content">
 					<span class="close-modal" id="close-cancel-modal">&times;</span>
@@ -173,7 +177,8 @@
 					</div>
 				</div>
 			</div>
-			
+
+			<!-- Change Email Modal -->
 			<div id="change-email-modal" class="modal">
 				<div class="modal-content">
 					<span class="close-modal" id="close-change-email-modal">&times;</span>
@@ -181,13 +186,15 @@
 					<form id="change-email-form" method="POST" action="{{ url_for('change_email') }}">
 						<label for="new-email">New Email:</label>
 						<input type="email" id="new-email" name="new_email" required>
+						
 						<label for="email-password">Password:</label>
 						<input type="password" id="email-password" name="password" required>
+						
 						<button type="submit">Change Email</button>
 					</form>
 				</div>
 			</div>
-			
+			<!-- Change Password Modal -->
 			<div id="change-password-modal" class="modal">
 				<div class="modal-content">
 					<span class="close-modal" id="close-change-password-modal">&times;</span>
@@ -195,72 +202,25 @@
 					<form id="change-password-form" method="POST" action="{{ url_for('change_password') }}">
 						<label for="current-password">Current Password:</label>
 						<input type="password" id="current-password" name="current_password" required>
-						<span id="current-password-error" class="error-message" style="display: none;">Incorrect password</span>
+						
 						<label for="new-password">New Password:</label>
 						<input type="password" id="new-password" name="new_password" required>
+						
 						<label for="confirm-new-password">Confirm New Password:</label>
 						<input type="password" id="confirm-new-password" name="confirm_new_password" required>
+						
 						<button type="submit">Change Password</button>
 					</form>
 				</div>
 			</div>
-			
-			
+
 		</main>
 		<!-- MAIN -->
 
 
 	</section>
 	<!-- CONTENT -->
-	 <script>
-		document.querySelector("#submit-button").addEventListener("click", (event) => {
-			// Prevent default form submission behavior
-			event.preventDefault();
-		
-			// Logic for saving changes
-			// Add your form submission logic here (e.g., an AJAX call if needed)
-		
-			// Show toast notification
-			showToast("Profile successfully updated!");
-		
-			// Keep the modal open if necessary or explicitly manage its closure
-			const saveModal = document.getElementById("save-modal");
-			if (saveModal) {
-				saveModal.style.display = "block"; // Ensure the modal remains open
-			}
-		});
-		
-		// Add event listener for closing the modal
-		document.getElementById("close-save-modal").addEventListener("click", () => {
-			const saveModal = document.getElementById("save-modal");
-			if (saveModal) {
-				saveModal.style.display = "none"; // Close the modal when the close button is clicked
-			}
-		});
-		
-		function showToast(message) {
-			const toast = document.createElement("div");
-			toast.className = "toast";
-			toast.textContent = message;
-			document.body.appendChild(toast);
-		
-			setTimeout(() => {
-				toast.classList.add("show");
-			}, 100);
-		
-			// Extend the display duration to 5 seconds
-			setTimeout(() => {
-				toast.classList.add("fade-out");
-			}, 5000);
-		
-			// Remove the toast after it fades out
-			setTimeout(() => {
-				document.body.removeChild(toast);
-			}, 5500);
-		}
-		
-		
-	 </script>	
+	
 
 	<script src="{{ url_for('static', filename='script.js') }}"></script>
 

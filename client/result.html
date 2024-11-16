@@ -20,6 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
 </head>
 
 <body>
@@ -32,7 +33,7 @@
         </a>
         <ul class="side-menu top">
             <li class="active">
-                <a href="#">
+                <a href="{{ url_for('dashboard', username=username) }}">
                     <i class='bx bxs-dashboard' ></i>
                     <span class="text">Dashboard</span>
                 </a>
@@ -53,6 +54,12 @@
                 <a href="{{ url_for('profile') }}">
                     <i class='bx bxs-user-circle' ></i>
                     <span class="text">My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('faqs') }}">
+                    <i class='bx bxs-user-circle' ></i>
+                    <span class="text">FAQ's</span>
                 </a>
             </li>
         </ul>
@@ -78,10 +85,16 @@
     <section id="content">
         <!-- NAVBAR -->
         <nav>
-            <i class="bx bx-menu"></i>
+            <i class='bx bx-menu' ></i>
             <form action="#">
-              
-          </nav>
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="switch-mode" hidden>
+            <label for="switch-mode" class="switch-mode"></label>
+        </nav>
         <!-- NAVBAR -->
 
 
@@ -115,41 +128,41 @@
                 <div class="flow-card" data-response="{{ response }}" data-context="{{ question_id }}">
                     <div class="flow-card-content">
                         <h4>
-                            <!-- Dynamic Question Display based on ID -->
-                            {% if question_id == "66f032b953b0c89697587dc3" %}
-                                Do you often experience feelings of sadness or depression related to your academic performance?
-                            {% elif question_id == "66f032ce53b0c89697587dc4" %}
-                                How often do you feel anxious or worried about your academic performance?
-                            {% elif question_id == "66f032df53b0c89697587dc5" %}
-                                How often do you feel peer pressure affects your academic decisions?
-                            {% elif question_id == "66f032ea53b0c89697587dc6" %}
-                                How often does poor sleep quality negatively impact your academic performance?
-                            {% elif question_id == "66f032f653b0c89697587dc7" %}
-                                How often does your reliance on AI tools (e.g., chatbots, educational platforms) impact your academic performance?
-                            {% elif question_id == "66f0438553b0c89697587dcc" %}
-                                How often do you feel stressed due to family-related issues?
-                            {% elif question_id == "66f1862354b2d5c39d77d08a" %}
-                                How satisfied are you with your current financial situation as a student?
-                            {% elif question_id == "66f1866c54b2d5c39d77d08c" %}
-                                I feel that I can rely on my friends when I need help.
-                            {% elif question_id == "66f186c754b2d5c39d77d08d" %}
-                                How would you rate your access to resources (e.g., textbooks, technology) for your academic success?
-                            {% elif question_id == "66f18770f01df7a4f47917e9" %}
-                                I often feel stressed because I am unable to get proper rest at home.
-                            {% elif question_id == "66f187aff01df7a4f47917ea" %}
-                                Long commutes due to traffic congestion add to my daily stress.
-                            {% elif question_id == "66f187d0f01df7a4f47917eb" %}
-                                How do you feel about the noise level in your living environment during your study time?
-                            {% elif question_id == "66f187f3f01df7a4f47917ec" %}
-                                Extreme weather conditions (too hot or too cold) make it difficult for me to focus on my academic work.
-                            {% elif question_id == "66f1881df01df7a4f47917ed" %}
-                                Do you feel confident in your program choice?
-                            {% elif question_id == "66f18847f01df7a4f47917ee" %}
-                                How would you rate your level of stress related to academic demands such as deadlines, exams, and workload?
-                            {% elif question_id == "66f18865f01df7a4f47917ef" %}
-                                Do you feel supported by your academic advisors or mentors in managing your academic stress?
+                            <!-- Dynamic Question Display based on new IDs -->
+                            {% if question_id == "6735a37be761ac9bd6d7abf2" %}
+                            Do you often experience feelings of sadness or depression related to your academic workload?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abf3" %}
+                            How often do you feel anxious or worried about your academic performance?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abf4" %}
+                            How often do you feel peer pressure affects your academic decisions?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abf5" %}
+                            How often does poor sleep quality negatively impact your academic performance (e.g., due to insomnia or other sleep issues)?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abf6" %}
+                            How often does your reliance on AI tools (e.g., chatbots, educational apps) for academic tasks cause you stress?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abf7" %}
+                            How often do you feel stressed due to family-related issues?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abf8" %}
+                            How satisfied are you with your current financial situation as a student?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abf9" %}
+                            I feel that I can rely on my friends when I need help.
+                            {% elif question_id == "6735a37ce761ac9bd6d7abfa" %}
+                            How would you rate your access to resources (e.g., textbooks, technology) necessary for your academic success?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abfb" %}
+                            I often feel stressed because I am unable to get proper rest at home.
+                            {% elif question_id == "6735a37ce761ac9bd6d7abfc" %}
+                            Long commutes due to traffic congestion add to my daily stress.
+                            {% elif question_id == "6735a37ce761ac9bd6d7abfd" %}
+                            How do you feel about the noise level in your living environment during study hours?
+                            {% elif question_id == "6735a37ce761ac9bd6d7abfe" %}
+                            Extreme weather conditions (too hot or too cold) make it difficult for me to focus on my studies.
+                            {% elif question_id == "6735a37ce761ac9bd6d7abff" %}
+                            Do you feel confident in your program choice?
+                            {% elif question_id == "6735a37ce761ac9bd6d7ac00" %}
+                            How would you rate your level of stress related to academic demands such as exams, assignments, and deadlines?
+                            {% elif question_id == "6735a37ce761ac9bd6d7ac01" %}
+                            Do you feel supported by your academic advisors or mentors in managing stress related to your studies?
                             {% else %}
-                                Question not available
+                            Question not available
                             {% endif %}
                         </h4>
                         <p>{{ response }}</p>
@@ -197,22 +210,22 @@
         
                 // Mapping for severity levels by context and response
                 const mappings = {
-                    '66f032b953b0c89697587dc3': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Sadness
-                    '66f032ce53b0c89697587dc4': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Anxiety
-                    '66f032df53b0c89697587dc5': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Peer Pressure
-                    '66f032ea53b0c89697587dc6': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Sleep Quality
-                    '66f032f653b0c89697587dc7': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // AI Tools Impact
-                    '66f0438553b0c89697587dcc': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Family Stress
-                    '66f1862354b2d5c39d77d08a': {'Very Satisfied': 1, 'Satisfied': 2, 'Neutral': 3, 'Dissatisfied': 4, 'Very Dissatisfied': 5}, // Financial Satisfaction
-                    '66f1866c54b2d5c39d77d08c': {'Strongly Agree': 1, 'Agree': 2, 'Neutral': 3, 'Disagree': 4, 'Strongly Disagree': 5}, // Friends Support
-                    '66f186c754b2d5c39d77d08d': {'Excellent': 1, 'Good': 2, 'Adequate': 3, 'Poor': 4, 'Very Poor': 5}, // Resources Access
-                    '66f18770f01df7a4f47917e9': {'Strongly Disagree': 1, 'Disagree': 2, 'Neutral': 3, 'Agree': 4, 'Strongly Agree': 5}, // Home Stress
-                    '66f187aff01df7a4f47917ea': {'Not at all': 1, 'A little': 2, 'Moderately': 3, 'Significantly': 4, 'Extremely': 5}, // Commute Stress
-                    '66f187d0f01df7a4f47917eb': {'Very Manageable': 1, 'Manageable': 2, 'Neutral': 3, 'Disturbing': 4, 'Very Disturbing': 5}, // Noise Level
-                    '66f187f3f01df7a4f47917ec': {'Strongly Disagree': 1, 'Disagree': 2, 'Neutral': 3, 'Agree': 4, 'Strongly Agree': 5}, // Weather Conditions
-                    '66f1881df01df7a4f47917ed': {'Yes': 1, 'No': 5}, // Program Confidence
-                    '66f18847f01df7a4f47917ee': {'Not at all': 1, 'A little': 2, 'Moderately': 3, 'Significantly': 4, 'Extremely': 5}, // Academic Stress
-                    '66f18865f01df7a4f47917ef': {'Completely': 1, 'Very Much': 2, 'Moderately': 3, 'Somewhat': 4, 'Not at all': 5} // Advisor Support
+                    '6735a37be761ac9bd6d7abf2': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Sadness
+                    '6735a37ce761ac9bd6d7abf3': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Anxiety
+                    '6735a37ce761ac9bd6d7abf4': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Peer Pressure
+                    '6735a37ce761ac9bd6d7abf5': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Sleep Quality
+                    '6735a37ce761ac9bd6d7abf6': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // AI Tools Impact
+                    '6735a37ce761ac9bd6d7abf7': {'Never': 1, 'Rarely': 2, 'Sometimes': 3, 'Often': 4, 'Always': 5}, // Family Stress
+                    '6735a37ce761ac9bd6d7abf8': {'Very Satisfied': 1, 'Satisfied': 2, 'Neutral': 3, 'Dissatisfied': 4, 'Very Dissatisfied': 5}, // Financial Satisfaction
+                    '6735a37ce761ac9bd6d7abf9': {'Strongly Agree': 1, 'Agree': 2, 'Neutral': 3, 'Disagree': 4, 'Strongly Disagree': 5}, // Friends Support
+                    '6735a37ce761ac9bd6d7abfa': {'Excellent': 1, 'Good': 2, 'Adequate': 3, 'Poor': 4, 'Very Poor': 5}, // Resources Access
+                    '6735a37ce761ac9bd6d7abfb': {'Strongly Disagree': 1, 'Disagree': 2, 'Neutral': 3, 'Agree': 4, 'Strongly Agree': 5}, // Home Stress
+                    '6735a37ce761ac9bd6d7abfc': {'Not at all': 1, 'A little': 2, 'Moderately': 3, 'Significantly': 4, 'Extremely': 5}, // Commute Stress
+                    '6735a37ce761ac9bd6d7abfd': {'Very Manageable': 1, 'Manageable': 2, 'Neutral': 3, 'Disturbing': 4, 'Very Disturbing': 5}, // Noise Level
+                    '6735a37ce761ac9bd6d7abfe': {'Strongly Disagree': 1, 'Disagree': 2, 'Neutral': 3, 'Agree': 4, 'Strongly Agree': 5}, // Weather Conditions
+                    '6735a37ce761ac9bd6d7abff': {'Yes': 1, 'No': 5}, // Program Confidence
+                    '6735a37ce761ac9bd6d7ac00': {'Not at all': 1, 'A little': 2, 'Moderately': 3, 'Significantly': 4, 'Extremely': 5}, // Academic Stress
+                    '6735a37ce761ac9bd6d7ac01': {'Completely': 1, 'Very Much': 2, 'Moderately': 3, 'Somewhat': 4, 'Not at all': 5} // Advisor Support
                 };
                 
         
@@ -310,12 +323,12 @@
                 }
             }
 
-            // Format the date to appear as "Month Day, Year"
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            const currentDate = new Date().toLocaleDateString(undefined, options);
-
-           
-            document.getElementById("test-date").innerText = currentDate;
+            document.addEventListener('DOMContentLoaded', () => {
+                const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                const currentDate = new Date().toLocaleDateString(undefined, options);
+                document.getElementById("test-date").innerText = currentDate;
+            });
+            
             
         </script>            
         

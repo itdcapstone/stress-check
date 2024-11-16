@@ -62,7 +62,7 @@
         <img src="{{ url_for('static', filename='assets/ofiice.png') }}" alt="header" class="header-image" />
       </div>
       <div class="wrapper">
-        <form id="signinForm" action="http://127.0.0.1:5000/signin" method="POST" onsubmit="event.preventDefault(); openAgreementModal();">
+        <form id="signinForm" action="{{ url_for('login') }}" method="POST" onsubmit="event.preventDefault(); openAgreementModal();">
           <h1>Sign In</h1>
           <div class="input-box">
             <input type="text" id="username" name="username" placeholder="Username" required>

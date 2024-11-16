@@ -13,72 +13,76 @@
 </head>
 <body>
 
+    <!-- SIDEBAR -->
     <section id="sidebar">
         <a href="#" class="brand">
-          <i class="bx bx-badge-check"></i>
-          <span class="text">Stress Check</span>
+            <i class='bx bx-badge-check'></i>
+            <span class="text">Stress Check</span>
         </a>
         <ul class="side-menu top">
-          <li>
-            <a href="{{ url_for('dashboard', username=username) }}">
-              <i class="bx bxs-dashboard"></i>
-              <span class="text">Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('analytics') }}">
-              <i class="bx bxs-doughnut-chart"></i>
-              <span class="text">History</span>
-            </a>
-          </li>
-          <li class="active">
-            <a href="{{ url_for('recommendation') }}">
-              <i class="bx bxs-message-rounded-dots"></i>
-              <span class="text">Recommendation</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('profile') }}">
-              <i class="bx bxs-user-circle"></i>
-              <span class="text">My Profile</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('profile') }}">
-              <i class="bx bxs-user-circle"></i>
-              <span class="text">FAQ's</span>
-            </a>
-          </li>
+            <li class="active">
+                <a href="{{ url_for('dashboard', username=username) }}">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('analytics') }}">
+                    <i class='bx bxs-doughnut-chart' ></i>
+                    <span class="text">History</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('recommendation') }}">
+                    <i class='bx bxs-message-rounded-dots'></i>
+                    <span class="text">Recommendation</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('profile') }}">
+                    <i class='bx bxs-user-circle' ></i>
+                    <span class="text">My Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('faqs') }}">
+                    <i class='bx bxs-user-circle' ></i>
+                    <span class="text">FAQ's</span>
+                </a>
+            </li>
         </ul>
         <ul class="side-menu">
-          <li>
-            <a href="{{ url_for('feedback') }}">
-              <i class="bx bxs-user-pin"></i>
-              <span class="text">Feedback</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('logout') }}" class="logout">
-              <i class="bx bxs-log-out-circle"></i>
-              <span class="text">Logout</span>
-            </a>
-          </li>
+            <li>
+                <a href="{{ url_for('feedback') }}">
+                    <i class='bx bxs-user-pin'></i>
+                    <span class="text">Feedback</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
         </ul>
-        <img
-          src="{{ url_for('static', filename='assets/plants.png') }}"
-          alt="Image Description"
-        />
-      </section>
+        <img src="{{ url_for('static', filename='assets/plants.png') }}" alt="Image Description">
+    </section>
     <!-- SIDEBAR -->
 
     <!-- CONTENT -->
     <section id="content">
         <!-- NAVBAR -->
         <nav>
-            <i class="bx bx-menu"></i>
+            <i class='bx bx-menu' ></i>
             <form action="#">
-              
-          </nav>
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="switch-mode" hidden>
+            <label for="switch-mode" class="switch-mode"></label>
+        </nav>
         <!-- NAVBAR -->
 
         <!-- QUIZ CONTAINER -->
@@ -270,19 +274,6 @@
             </form>
         </div>
 
-         <!-- Modal Structure -->
-        <div id="exitModal" class="modalExit" style="display: none;">
-            <div class="exitModal-content">
-                <p class="exitModal-text">You have unfinished quiz progress. Are you sure you want to leave?</p>
-                <div class="exitModal-buttons">
-                    <button onclick="stayOnPage()" class="btn-stay">Stay</button>
-                    <button onclick="confirmLeave()" class="btn-leave">Leave</button>
-                </div>
-            </div>
-        </div>
-
-
-
         <!-- JavaScript code for question navigation -->
         <script>
             const questions = document.querySelectorAll('.question-container');
@@ -348,112 +339,34 @@
                 }
             });
             
-         // Custom alert function
+            // Custom alert function
             function showCustomAlert(message) {
                 const alertBox = document.querySelector('.custom-alert.error-alert'); // Target the error alert box
                 const alertMsg = alertBox.querySelector('.msg'); // Get the message span inside the alert
-
+            
                 // Set the custom message
                 alertMsg.innerText = message;
-
+            
                 // Make the alert visible
                 alertBox.classList.add('active');
                 alertBox.classList.remove('fade-out'); // Ensure it doesn't have 'fade-out' when showing it
-
+            
+                
                 setTimeout(() => {
                     alertBox.classList.add('fade-out'); // Start fading out
                     setTimeout(() => {
                         alertBox.classList.remove('active'); // Hide the alert (but don't remove from DOM)
                         alertBox.classList.remove('fade-out'); // Remove fade-out class so it can be reused
-                    }, 1000);
-                }, 1500);
+                    }, 1000); 
+                }, 1500); 
             }
-
+            
             updateQuestionDisplay(); // Initial call to set up display
+        </script>
+        
+        
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </section>
 
-            let isQuizCompleted = false;
-            let leaveIntent = false;
-            let isSubmittingQuiz = true; // Track form submission
-
-            // Mark quiz as completed
-            function markQuizComplete() {
-                isQuizCompleted = true;
-            }
-
-            // Function to open the modal
-            function openModal() {
-                document.getElementById('exitModal').style.display = 'flex';
-            }
-
-            // Function to close the modal
-            function closeModal() {
-                document.getElementById('exitModal').style.display = 'none';
-            }
-
-            // When the user chooses to stay on the page
-            function stayOnPage() {
-                leaveIntent = false;
-                closeModal();
-            }
-
-            // When the user confirms to leave the page
-            function confirmLeave() {
-                leaveIntent = true;
-                closeModal();
-
-                // Check if leaveIntentLink is valid before navigating
-                if (leaveIntentLink) {
-                    window.location.href = leaveIntentLink;
-                } else {
-                    console.error('No valid leaveIntentLink set.');
-                }
-            }
-
-            // Listen for navigation attempts before the quiz is complete
-            window.addEventListener('beforeunload', function (event) {
-                if (!isQuizCompleted && !leaveIntent && !isSubmittingQuiz) {
-                    event.preventDefault();
-                    openModal();
-                }
-            });
-
-            // Intercept internal link clicks
-            document.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function (event) {
-                    if (!isQuizCompleted) {
-                        event.preventDefault();
-
-                        // Ensure we capture the correct href
-                        leaveIntentLink = this.href;
-                        
-                        // Debugging to ensure the link is correct
-                        console.log('Captured leaveIntentLink:', leaveIntentLink);
-
-                        openModal();
-                    }
-                });
-            });
-
-            // Handle quiz form submission
-            document.querySelector('form#quizForm').addEventListener('submit', function () {
-                isSubmittingQuiz = true; // Mark that the quiz is being submitted
-            });
-
-            // Prevent unintended navigation
-            window.addEventListener('beforeunload', function (event) {
-                if (!isQuizCompleted && !leaveIntent && !isSubmittingQuiz) {
-                    event.preventDefault();
-                    openModal();
-                }
-            });
-
-
-         </script>
-                
-                    
-                    <script src="{{ url_for('static', filename='script.js') }}"></script>
-                </section>
-
-            </body>
-
+</body>
 </html>
