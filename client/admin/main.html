@@ -12,15 +12,15 @@
     <h1>Select Your Role:</h1>
     <ul class="role-list">
         <li>
-            <a href="http://127.0.0.1:5000/student_login">Student</a>
+            <a href="{{ url_for('student_login') }}">Student</a>
         </li>
         <li>
-            <a href="http://127.0.0.1:5000/faculty_login">Faculty</a>
+            <a href="{{ url_for('faculty_login') }}">Faculty</a>
         </li>
         <li>
-            <a href="http://127.0.0.1:5000/admin_login">Admin</a>
+            <a href="{{ url_for('admin_login') }}">Admin</a>
         </li>
-    </ul>
+    </ul>   
 </div>
 
 </body>

@@ -32,7 +32,7 @@
 </head>
 <body>
     <div class="container">
-        <form action="http://127.0.0.1:5000/signin" method="POST" onsubmit="return validateForm()">
+        <form action="{{ url_for('signin') }}" method="POST" onsubmit="return validateForm()">
             <h2>Sign In</h2>
             <div class="input-group">
                 <label for="username">Username:</label>
