@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Stress</title>
+</head>
+<body>
+    <h2>Test Stress</h2>
+    <form method="POST" action="/test">
+        <label for="stress_level">Stress Level:</label><br>
+        <input type="number" id="stress_level" name="stress_level" required><br><br>
+        
+        <label for="stressors">Stressors (comma-separated):</label><br>
+        <input type="text" id="stressors" name="stressors" required><br><br>
+
+        <label for="recommendations">Recommendations:</label><br>
+        <textarea id="recommendations" name="recommendations" rows="4" required></textarea><br><br>
+
+        <a href="/stress_level" class="submit-btn">Submit</a>
+    </form>
+</body>
+</html>

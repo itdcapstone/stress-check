@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand">
+			<i class='bx bx-badge-check'></i>
+			<span class="text">Stress Check</span>
+		</a>
+		<ul class="side-menu top">
+			<li>
+				<a href="{{ url_for('dashboard', username=username) }}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('analytics') }}">
+					<i class='bx bxs-doughnut-chart' ></i>
+					<span class="text">History</span>
+				</a>
+			</li>
+			<li>
+                <a href="{{ url_for('recommendation') }}">
+					<i class='bx bxs-message-rounded-dots'></i>
+                    <span class="text">Recommendation</span>
+                </a>
+            </li>
+			<li class="active">
+				<a href="{{ url_for('profile') }}">
+					<i class='bx bxs-user-circle' ></i>
+					<span class="text">My Profile</span>
+				</a>
+			</li>
+			<li>
+                <a href="{{ url_for('faqs') }}">
+                    <i class='bx bxs-user-circle' ></i>
+                    <span class="text">FAQ's</span>
+                </a>
+            </li>
+		</ul>
+		<ul class="side-menu">
+			<li>
+                <a href="{{ url_for('feedback') }}">
+					<i class='bx bxs-user-pin'></i>
+                    <span class="text">Feedback</span>
+                </a>
+            </li>
+			<li>
+				<a href="{{ url_for('logout') }}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+		<img src="{{ url_for('static', filename='assets/plants.png') }}" alt="Image Description">
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			<form action="#">
+				<div class="form-input">
+					<input type="search" placeholder="Search...">
+					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+				</div>
+			</form>
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Profile</h1>
+				</div>
+				<a href="#" class="btn-download" id="edit-profile-link">
+					<i class='bx bxs-check-circle'></i>
+					<span class="text">Edit Profile</span>
+				</a>
+			</div>
+
+			<div class="profile-username">
+				<p class="profile-username">@{{ user.username }}</p>
+			</div>
+		
+			<div class="profile-container">
+				<form id="profile-form" method="POST" action="{{ url_for('profile') }}">
+					<div class="profile-details">
+						<h3>General Information</h3>
+						<div class="form-row">
+							<div class="form-group">
+								<label for="name">DISPLAY NAME:</label>
+								<input type="text" id="name" name="name" value="{{ user.name }}" disabled>
+							</div>
+							<div class="form-group">
+								<label for="gender">GENDER:</label>
+								<select id="gender" name="gender" required disabled>
+									<option value="{{ user.gender }}">{{ user.gender }}</option>
+									<option value="male">Male</option>
+									<option value="female">Female</option>
+									<option value="other">Other</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="year-level">YEAR LEVEL:</label>
+								<select id="year-level" name="year-level" required disabled>
+									<option value="{{ user.year_level }}">{{ user.year_level }}</option>
+									<option value="1st">1st year</option>
+									<option value="2nd">2nd year</option>
+									<option value="3rd">3rd year</option>
+									<option value="4th">4th year</option>
+									<option value="other">Other</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="age">AGE:</label>
+								<input type="number" id="age" name="age" value="{{ user.age }}" disabled>
+							</div>
+						</div>
+						<div class="form-buttons" id="form-buttons" style="display: none;">
+							<button type="submit" id="submit-button">Save Changes</button>
+							<button type="button" id="cancel-button">Cancel</button>
+						</div>
+					</div>
+				</form>
+			</div>
+			
+	
+			
+			<div class="profile-security">
+				<h3>Security</h3>
+				<div class="form-row">
+					<div class="form-group">
+						<label for="email">Email:</label>
+						<input type="email" id="email" name="email" value="{{ user.email }}" disabled>
+						<button class="change-button">Change Email</button>
+					</div>
+					<div class="form-group">
+						<label for="password">Password:</label>
+						<input type="password" id="password" name="password" value="*****" disabled>
+						<button class="change-password-button">Change Password</button>
+					</div>
+				</div>
+			</div>
+			
+			<div id="save-modal" class="modal">
+				<div class="modal-content">
+					<span class="close-modal" id="close-save-modal">&times;</span>
+					<p>Your profile has been successfully saved!</p>
+					<button id="close-save-modal">Close</button>
+				</div>
+			</div>
+			
+			<div id="cancel-modal" class="modal">
+				<div class="modal-content">
+					<span class="close-modal" id="close-cancel-modal">&times;</span>
+					<p>Are you sure you want to cancel? Unsaved changes will be lost.</p>
+					<div class="modal-buttons">
+						<button id="confirm-cancel">Yes, Cancel</button>
+						<button id="cancel-modal-button">No, Go Back</button>
+					</div>
+				</div>
+			</div>
+			
+			<div id="change-email-modal" class="modal">
+				<div class="modal-content">
+					<span class="close-modal" id="close-change-email-modal">&times;</span>
+					<h3>Change Email</h3>
+					<form id="change-email-form" method="POST" action="{{ url_for('change_email') }}">
+						<label for="new-email">New Email:</label>
+						<input type="email" id="new-email" name="new_email" required>
+						<label for="email-password">Password:</label>
+						<input type="password" id="email-password" name="password" required>
+						<button type="submit">Change Email</button>
+					</form>
+				</div>
+			</div>
+			
+			<div id="change-password-modal" class="modal">
+				<div class="modal-content">
+					<span class="close-modal" id="close-change-password-modal">&times;</span>
+					<h3>Change Password</h3>
+					<form id="change-password-form" method="POST" action="{{ url_for('change_password') }}">
+						<label for="current-password">Current Password:</label>
+						<input type="password" id="current-password" name="current_password" required>
+						<span id="current-password-error" class="error-message" style="display: none;">Incorrect password</span>
+						<label for="new-password">New Password:</label>
+						<input type="password" id="new-password" name="new_password" required>
+						<label for="confirm-new-password">Confirm New Password:</label>
+						<input type="password" id="confirm-new-password" name="confirm_new_password" required>
+						<button type="submit">Change Password</button>
+					</form>
+				</div>
+			</div>
+			
+			
+		</main>
+		<!-- MAIN -->
+
+
+	</section>
+	<!-- CONTENT -->
+	 <script>
+		document.querySelector("#submit-button").addEventListener("click", (event) => {
+			// Prevent default form submission behavior
+			event.preventDefault();
+		
+			// Logic for saving changes
+			// Add your form submission logic here (e.g., an AJAX call if needed)
+		
+			// Show toast notification
+			showToast("Profile successfully updated!");
+		
+			// Keep the modal open if necessary or explicitly manage its closure
+			const saveModal = document.getElementById("save-modal");
+			if (saveModal) {
+				saveModal.style.display = "block"; // Ensure the modal remains open
+			}
+		});
+		
+		// Add event listener for closing the modal
+		document.getElementById("close-save-modal").addEventListener("click", () => {
+			const saveModal = document.getElementById("save-modal");
+			if (saveModal) {
+				saveModal.style.display = "none"; // Close the modal when the close button is clicked
+			}
+		});
+		
+		function showToast(message) {
+			const toast = document.createElement("div");
+			toast.className = "toast";
+			toast.textContent = message;
+			document.body.appendChild(toast);
+		
+			setTimeout(() => {
+				toast.classList.add("show");
+			}, 100);
+		
+			// Extend the display duration to 5 seconds
+			setTimeout(() => {
+				toast.classList.add("fade-out");
+			}, 5000);
+		
+			// Remove the toast after it fades out
+			setTimeout(() => {
+				document.body.removeChild(toast);
+			}, 5500);
+		}
+		
+		
+	 </script>	
+
+	<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

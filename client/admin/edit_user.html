@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+
+	<title>AdminHub</title>
+</head>
+<body>
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<nav>
+		<a href="#" class="brand">
+			<i class='bx bxs-smile'></i>
+			<span class="text">Stress Check</span>
+		</a>
+		<ul class="side-menu top">
+			<li >
+				<a href="{{ url_for('admin_dashboard', username=username) }}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+			<li class="active">
+				<a href="{{ url_for('management') }}">
+					<i class='bx bxs-shopping-bag-alt' ></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('data') }}">
+					<i class='bx bxs-data'></i>
+					<span class="text">Data Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('stress_questions') }}">
+					<i class='bx bxs-message-square-edit'></i>
+					<span class="text">Questionnaire Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('admin_feedback') }}">
+					<i class='bx bxs-user-pin'></i>
+					<span class="text">User Feedback</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="#">
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('login') }}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+		</nav>
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+    <nav>
+        <i class='bx bx-menu'></i>
+        <form action="#">
+            <div class="form-input">
+                <input type="search" placeholder="Search...">
+                <button type="submit" class="search-btn"><i class='bx bx-search'></i></button>
+            </div>
+        </form>
+        <input type="checkbox" id="switch-mode" hidden>
+        <label for="switch-mode" class="switch-mode"></label>
+    </nav>
+
+    <main>
+        <div class="head-title">
+            <div class="left">
+                <a href="{{ url_for('management') }}" class="btn-edituser-back">
+					<i class="bx bx-arrow-back"></i>
+                <h1>Edit User</h1>
+                <ul class="breadcrumb">
+                    <li>
+                        <a href="#">Dashboard</a>
+                    </li>
+                    <li><i class='bx bx-chevron-right'></i></li>
+                    <li>
+                        <a class="active" href="#">Edit User</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="edit-user">
+            <form method="POST" action="{{ url_for('edit_user', user_id=user._id) }}">
+                
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <i class='bx bx-user'></i>
+                    <input type="text" id="username" name="username" value="{{ user.username }}" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <i class='bx bx-envelope'></i>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="role">Role</label>
+                    <i class='bx bx-user-circle'></i>
+                    <input type="text" id="role" name="role" value="{{ user.role }}" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <i class='bx bx-lock-alt'></i>
+                    <input type="text" id="password" name="password" value="{{ user.password }}" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="age">Age</label>
+                    <i class='bx bx-calendar'></i>
+                    <input type="int" id="age" name="age" value="{{ user.age }}" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="gender">Gender</label>
+                    <i class='bx bx-male-female'></i>
+                    <input type="text" id="gender" name="gender" value="{{ user.gender }}" required>
+                </div>
+                
+                <button type="submit">Update User</button>
+            </form>
+        </div>
+
+
+    </main>
+</section>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

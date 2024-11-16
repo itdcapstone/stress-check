@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+    <title>Dashboard</title>
+</head>
+<body>
+
+
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+			<i class='bx bx-badge-check'></i>
+            <span class="text">Stress Check</span>
+        </a>
+        <ul class="side-menu top">
+            <li class="active">
+                <a href="#">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('analytics') }}">
+                    <i class='bx bxs-doughnut-chart' ></i>
+                    <span class="text">History</span>
+                </a>
+            </li>
+			<li>
+                <a href="{{ url_for('recommendation') }}">
+					<i class='bx bxs-message-rounded-dots'></i>
+                    <span class="text">Recommendation</span>
+                </a>
+            </li>
+			<li>
+                <a href="{{ url_for('profile') }}">
+                    <i class='bx bxs-user-circle' ></i>
+                    <span class="text">My Profile</span>
+                </a>
+            </li>
+			<li>
+                <a href="{{ url_for('faqs') }}">
+                    <i class='bx bxs-user-circle' ></i>
+                    <span class="text">FAQ's</span>
+                </a>
+            </li>
+        </ul>
+        </ul>
+        <ul class="side-menu">
+			<li>
+                <a href="{{ url_for('feedback') }}">
+                    <i class='bx bxs-user-pin'></i>
+                    <span class="text">Feedback</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+		<img src="{{ url_for('static', filename='assets/plants.png') }}" alt="Image Description">
+    </section>
+    <!-- SIDEBAR -->
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- NAVBAR -->
+        <nav>
+            <i class='bx bx-menu' ></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="switch-mode" hidden>
+            <label for="switch-mode" class="switch-mode"></label>
+        </nav>
+        <!-- NAVBAR -->
+
+        <!-- MAIN -->
+        <main>
+            <div class="head-title">
+                <div class="left">
+                    <h1>Dashboard</h1>
+                </div>
+                <a href="/test_stress" class="btn-download">
+                    <i class='bx bxs-check-circle'></i>
+                    <span class="text">Test Stress</span>
+                </a>
+            </div>
+
+			<ul class="box-info">
+				<li>
+					<i class='bx bxs-user'></i>
+					<span class="text">
+						<h3>Hello  {{ user.name or user.username }}</h3>
+						<p>Last tested date: 
+							{% if latest_assessment and not latest_assessment == "No stress record" %}
+								{{ latest_assessment.date_tested.strftime('%d-%m-%Y') }}
+							{% else %}
+								N/A
+							{% endif %}
+						</p>
+					</span>
+					<!-- <img src="{{ url_for('static', filename='assets/leaves.png') }}" alt="Image Description"> -->
+				</li>
+			</ul>
+
+			<div class="table-data">
+
+                <div class="stress-history-box">
+                    <div id="chart_div" style="width: 300px; height: 200px;"></div>
+                    <div class="container">
+                        <h2>Top Stressors</h2>
+                        {% if top_stressors and top_stressors|length > 0 %}
+                            {% set total_count = top_stressors|map(attribute='count')|sum %}
+                            {% set colors = ['red', 'orange', 'yellow', 'green'] %} <!-- You can add more colors if needed -->
+                        
+                            {% for index in range(0, top_stressors|length) %}
+                                {% if index < colors|length %}
+                                    <div class="skill-box">
+                                        <span class="title">Top {{ index + 1 }}: {{ top_stressors[index]._id }} ({{ top_stressors[index].count }} records)</span>
+                                        <div class="skill-bar">
+                                            <span class="skill-per" style="width: {{ (top_stressors[index].count / total_count * 100)|round(2) }}%; background-color: {{ colors[index] }};">
+                                                <!-- {{ (top_stressors[index].count / total_count * 100)|round(2) }}% -->
+                                            </span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-stressors">
+                                <img src="{{ url_for('static', filename='assets/free.png') }}" alt="No stressors available">
+                                <p>No stressors recorded yet!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+				<div class="stress-level-card">
+					<h2>Stress Level</h2>
+						<div class="text-center">
+							{% if stress_level is not none %}
+								{% if stress_level <= 1 %}
+									<img src="{{ url_for('static', filename='assets/calm.png') }}" alt="Calm">
+									<p class="text-lg" style="color: rgb(160, 255, 160);">Relaxed</p>
+								{% elif stress_level <= 2 %}
+									<img src="{{ url_for('static', filename='assets/happy.png') }}" alt="Happy">
+									<p class="text-lg" style="color: rgb(113, 113, 244);">Mildly Stressed</p>
+								{% elif stress_level <= 3 %}
+									<img src="{{ url_for('static', filename='assets/sad.png') }}" alt="Sad">
+									<p class="text-lg" style="color: rgb(255, 255, 144);">Quite Stressed</p>
+								{% elif stress_level <= 4 %}
+									<img src="{{ url_for('static', filename='assets/super.png') }}" alt="Stressed">
+									<p class="text-lg" style="color: rgb(255, 195, 84);">Highly Stressed</p>
+								{% else %}
+									<img src="{{ url_for('static', filename='assets/stress.png') }}" alt="Very High Stress">
+									<p class="text-lg" style="color: rgb(255, 124, 124);">Extremely Stressed</p>
+								{% endif %}
+								<div class="text-center">
+									<p>Stress level score: {{ stress_level }}</p>
+							{% else %}
+								<img src="{{ url_for('static', filename='assets/calm.png') }}" alt="Calm">
+								<div class="text-center">
+									<p tyle="color: green;"></p>
+								<p class="text-lg" style="color: green;">No Stress Record</p>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+				
+				<div class="recommendation-box">
+					<h2>Recommendation</h2>
+					<img src="{{ url_for('static', filename='assets/girl.png') }}" alt="Recommendation Image">
+					<p>Make time to unwind.</p>
+				</div>
+			</div>   
+			
+        </main>
+        <!-- MAIN -->
+    </section>
+    <!-- CONTENT -->
+
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

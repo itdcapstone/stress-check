@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='landing/styles.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Stress Check</title>
+  </head>
+  <body>
+
+    <!-- Navigation -->
+    <nav>
+      <div class="nav__header">
+        <div class="nav__logo">
+          <a href="#" class="brand">
+            <i class="bx bx-badge-check"></i>
+          </a>
+        </div>
+      </div>
+      <ul class="nav__links" id="nav-links">
+        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="nav__btns">
+        <a href="{{ url_for('signup') }}" class="btn">Sign Up</a>
+      </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="section__container header__container">
+      <div class="header__image">
+        <img src="{{ url_for('static', filename='assets/meditate.png') }}" alt="header" />
+      </div>
+      <div class="header__content">
+        <h2>Assess and Manage Your Stress Levels</h2>
+        <h1>STRESS CHECK</h1>
+        <p>
+          Stress Check is designed to help students at the University of Cabuyao understand and manage their stress. Our goal is to give you the insights and resources you need to create a healthier, more balanced lifestyle, both in and out of the classroom.
+        </p>
+        <!-- Container for buttons -->
+        <div class="header__btns">
+          <a href="http://127.0.0.1:5000/student_login" class="login">Check here</a>
+          <a href="#features" class="features-btn">Explore Features</a>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- About Section -->
+    <section class="about__container" id="about">
+      <div class="about__content">
+        <h2 class="about__title">About Stress Check</h2>
+        <p class="about__description">
+          Stress Check is a comprehensive tool designed specifically for college students at the University of Cabuyao to assess and manage their stress levels. With personalized recommendations, our platform helps users understand their mental well-being and offers solutions to reduce stress. By leveraging data analysis, we aim to create a stress-free environment for students to thrive academically and personally.
+        </p><br>
+        <h2 class="about__title">Is this quiz accurate?</h2>
+        <p class="about__description">
+          This stress level test is not meant to be used as a diagnostic tool.
+        </p>
+        <p class="about__description">
+          Based on your answers to the questions, you’ll receive a result that gives you an idea of how stressed you are. <br> <br> But the results won’t tell you whether your health is at risk from the stress you’re experiencing. While the results can offer some insight, they won’t determine if your stress is impacting your health. If you’re feeling concerned about your stress or its physical effects, it’s important to reach out to a healthcare professional, such as a doctor or mental health specialist, who can offer support and guidance. Your well-being matters.
+        </p>
+      </div>
+      <div class="about__image">
+        <img src="{{ url_for('static', filename='assets/about-image.png') }}" alt="Stress Check" />
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features__container" id="features">
+      <div class="feature__item">
+        <i class="bx bx-chart"></i>
+        <h3>Real-Time Stress Assessment</h3>
+        <p>Track and monitor your stress levels with real-time data analysis to get immediate insights into your mental well-being.</p>
+      </div>
+      <div class="feature__item">
+        <i class="bx bx-bulb"></i>
+        <h3>Personalized Recommendations</h3>
+        <p>Get tailored suggestions and solutions to manage your stress based on your assessment results and unique needs.</p>
+      </div>
+      <div class="feature__item">
+        <i class="bx bx-mobile-alt"></i>
+        <h3>Mobile-Friendly</h3>
+        <p>Access the stress assessment system anytime, anywhere on your mobile device, ensuring convenience and flexibility.</p>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact__container" id="contact">
+      <div class="contact__content">
+        <h2>Contact Us</h2>
+        <p>If you have any questions or need assistance, feel free to reach out to us. We're here to help!</p>
+        <form action="#" method="POST" class="contact__form">
+          <div class="form__group">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" required placeholder="Enter your name" />
+          </div>
+          <div class="form__group">
+            <label for="email">Your Email</label>
+            <input type="email" id="email" name="email" required placeholder="Enter your email" />
+          </div>
+          <div class="form__group">
+            <label for="message">Your Message</label>
+            <textarea id="message" name="message" rows="5" required placeholder="Enter your message"></textarea>
+          </div>
+          <button type="submit" class="btn">Submit</button>
+        </form>
+      </div>
+      <div class="contact__info">
+        <h2>Our Office</h2>
+        <div class="info__item">
+          <i class="fas fa-map-marker-alt"></i>
+          <p>Katapatan Mutual Homes, Brgy. Banay-Banay, City of Cabuyao, Laguna, Philippines 4025</p>
+        </div>
+        <div class="info__item">
+          <i class="fas fa-envelope"></i>
+          <p>Email: <a href="mailto:pncgco@gmail.com">pncgco@gmail.com</a></p>
+        </div>
+        <div class="info__item">
+          <i class="fas fa-phone"></i>
+          <p>Phone: <a href="tel:09925769892">0992-576-9892</a></p>
+        </div>
+        <div class="info__item">
+          <i class="fab fa-facebook"></i>
+          <p><a href="https://www.facebook.com/pncgco" target="_blank">www.facebook.com/pncgco</a></p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- JavaScript for Interactive Elements -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const menuBtn = document.getElementById("menu-btn");
+        const navLinks = document.getElementById("nav-links");
+
+        // Toggle mobile menu
+        menuBtn.addEventListener("click", () => {
+          navLinks.classList.toggle("show");
+        });
+
+        // Smooth scroll and active link highlight
+        const links = document.querySelectorAll(".nav__links a");
+        links.forEach(link => {
+          link.addEventListener("click", () => {
+            links.forEach(l => l.classList.remove("active"));
+            link.classList.add("active");
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+ 

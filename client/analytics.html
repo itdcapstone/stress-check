@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Boxicons -->
+    <link
+      href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <!-- My CSS -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+
+    <title>History</title>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+      <a href="#" class="brand">
+        <i class="bx bx-badge-check"></i>
+        <span class="text">Stress Check</span>
+      </a>
+      <ul class="side-menu top">
+        <li>
+          <a href="{{ url_for('dashboard', username=username) }}">
+            <i class="bx bxs-dashboard"></i>
+            <span class="text">Dashboard</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="{{ url_for('analytics') }}">
+            <i class="bx bxs-doughnut-chart"></i>
+            <span class="text">History</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('recommendation') }}">
+            <i class="bx bxs-message-rounded-dots"></i>
+            <span class="text">Recommendation</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('profile') }}">
+            <i class="bx bxs-user-circle"></i>
+            <span class="text">My Profile</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('faqs') }}">
+            <i class="bx bxs-user-circle"></i>
+            <span class="text">FAQ's</span>
+          </a>
+        </li>
+      </ul>
+      <ul class="side-menu">
+        <li>
+          <a href="{{ url_for('feedback') }}">
+            <i class="bx bxs-user-pin"></i>
+            <span class="text">Feedback</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('logout') }}" class="logout">
+            <i class="bx bxs-log-out-circle"></i>
+            <span class="text">Logout</span>
+          </a>
+        </li>
+      </ul>
+      <img
+        src="{{ url_for('static', filename='assets/plants.png') }}"
+        alt="Image Description"
+      />
+    </section>
+    <!-- SIDEBAR -->
+
+    <div id="sidebar-overlay"></div>
+
+    <!-- CONTENT -->
+    <section id="content">
+      <!-- NAVBAR -->
+      <nav>
+        <i class="bx bx-menu"></i>
+        <form action="#">
+          <div class="form-input">
+            <input type="search" placeholder="Search..." />
+            <button type="submit" class="search-btn">
+              <i class="bx bx-search"></i>
+            </button>
+          </div>
+        </form>
+        <input type="checkbox" id="switch-mode" hidden />
+        <label for="switch-mode" class="switch-mode"></label>
+      </nav>
+      <!-- NAVBAR -->
+
+      <!-- MAIN -->
+      <main>
+        <div class="head-title">
+          <div class="left">
+            <h1>History</h1>
+          </div>
+          <a href="/test_stress" class="btn-download">
+            <i class="bx bxs-check-circle"></i>
+            <span class="text">Test Stress</span>
+          </a>
+        </div>
+
+        <div class="chart-container">
+          <div id="columnchart_values" class="chart"></div>
+          <div id="piechart" class="chart"></div>
+        </div>
+
+        <script
+          type="text/javascript"
+          src="https://www.gstatic.com/charts/loader.js"
+        ></script>
+        <script type="text/javascript">
+                      google.charts.load("current", { packages: ['corechart'] });
+                      google.charts.setOnLoadCallback(drawColumnChart);
+                      google.charts.setOnLoadCallback(drawPieChart);
+
+                      function drawColumnChart() {
+        // Initialize data array
+        var dataArray = [["Month", "Average Stress Level", { role: "style" }]];
+
+        // Populate the data array from the template
+        {% for month, avg_stress in avg_stress_by_month %}
+            dataArray.push(["{{ month }}", {{ avg_stress }}, "#b87333"]);
+        {% endfor %}
+
+        // Create data table from the populated array
+        var data = google.visualization.arrayToDataTable(dataArray);
+
+        // Function to dynamically determine chart dimensions
+        function getChartDimensions() {
+            var chartContainer = document.getElementById("columnchart_values");
+            var chartWidth = chartContainer.offsetWidth; // Use container's width
+            var chartHeight = chartWidth * 0.66; // Maintain a 3:2 aspect ratio
+            return { width: chartWidth, height: chartHeight };
+        }
+
+        // Function to draw or redraw the chart
+        function drawChart() {
+            var dimensions = getChartDimensions();
+
+            if (data.getNumberOfRows() > 1) {
+                var view = new google.visualization.DataView(data);
+                view.setColumns([0, 1,
+                    { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" },
+                    2]);
+
+                var options = {
+                    title: "Average Stress Level per Month",
+                    width: dimensions.width,
+                    height: dimensions.height,
+                    bar: { groupWidth: "95%" },
+                    backgroundColor: "none",
+                    legend: { position: "none" },
+                    vAxis: { title: "Stress Level" },
+                    hAxis: { title: "Month" }
+                };
+
+                var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+                chart.draw(view, options);
+            } else {
+                console.log("No data available for the column chart.");
+            }
+        }
+
+        // Initial draw
+        drawChart();
+
+        // Add event listener for window resize to redraw chart
+        window.addEventListener('resize', drawChart);
+    }
+
+
+                      // Piechart
+
+                      function drawPieChart() {
+                            // Dynamically calculate chart dimensions
+                            var chartWidth = document.getElementById('piechart').offsetWidth;
+                            var chartHeight = chartWidth * 0.66; // Maintain a 3:2 aspect ratio
+
+                            // Data for the chart
+                            var data = google.visualization.arrayToDataTable([
+                                ['Stressor', 'Frequency'],
+                                {% for stressor, count in stressor_data %}
+                                    ['{{ stressor }}', {{ count }}],
+                                {% endfor %}
+                            ]);
+
+                            // Chart options
+                            var options = {
+                                title: 'Common Stressors',
+                                width: chartWidth,
+                                height: chartHeight,
+                                pieHole: 0.4,
+                                backgroundColor: "none"
+                            };
+
+                            // Draw the chart
+                            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+                            chart.draw(data, options);
+                        }
+
+                        // Redraw chart on window resize
+                        window.addEventListener('resize', drawPieChart);
+
+                        // Initial draw
+                        google.charts.setOnLoadCallback(drawPieChart);
+
+
+        </script>
+
+        
+        <ul class="box-info-stress-history">
+          <h2>Stress History</h2>
+          <!-- Filter and Sort Form -->
+          <div class="filter-container">
+            <form action="{{ url_for('analytics') }}" method="GET">
+              <label for="start-date">Start Date:</label>
+              <input type="date" id="start-date" name="start_date" />
+
+              <label for="end-date">End Date:</label>
+              <input type="date" id="end-date" name="end_date" />
+
+              <label for="sort-order">Sort Order:</label>
+              <select id="sort-order" name="sort_order">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+
+              <button type="submit">Apply Filter</button>
+            </form>
+          </div>
+          <li>
+            <div class="assessment-cards">
+              {% for assessment in assessments %}
+              <div
+                class="assessment-card"
+                onclick="window.location.href='{{ url_for('view_assessment', assessment_id=assessment._id) }}'"
+              >
+                <div class="card-content">
+                  <div class="card-icon">
+                    {% if assessment.stress_level is not none %} {% set
+                    stress_level = assessment.stress_level|int %} {% if
+                    stress_level <= 1 %}
+                    <img
+                      src="{{ url_for('static', filename='assets/calm.png') }}"
+                      alt="Calm"
+                    />
+                    {% elif stress_level <= 2 %}
+                    <img
+                      src="{{ url_for('static', filename='assets/happy.png') }}"
+                      alt="Happy"
+                    />
+                    {% elif stress_level <= 3 %}
+                    <img
+                      src="{{ url_for('static', filename='assets/sad.png') }}"
+                      alt="Sad"
+                    />
+                    {% elif stress_level <= 4 %}
+                    <img
+                      src="{{ url_for('static', filename='assets/super.png') }}"
+                      alt="Stressed"
+                    />
+                    {% else %}
+                    <img
+                      src="{{ url_for('static', filename='assets/stress.png') }}"
+                      alt="Very High Stress"
+                    />
+                    {% endif %} {% else %}
+                    <img
+                      src="{{ url_for('static', filename='assets/calm.png') }}"
+                      alt="Calm"
+                    />
+                    <div class="text-center">
+                      <p class="text-lg" style="color: green">
+                        No Stress Record
+                      </p>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="card-details">
+                    <h4>Stress Level: {{ assessment.stress_level }}</h4>
+                    <p>
+                      <strong>Stressors:</strong>
+                      {% if assessment.stressors and assessment.stressors |
+                      length > 0 %} {{ assessment.stressors[:5] | join(", ")
+                      }}{% if assessment.stressors | length > 5 %}...{% endif %}
+                      {% else %} No stressors available. {# Handle the case
+                      where stressors are None or empty #} {% endif %}
+                    </p>
+                    <p>
+                      <strong>Recommendations:</strong>
+                      {% if assessment.recommendations and 'text' in
+                      assessment.recommendations %} {{
+                      assessment.recommendations['text'][:100] }}{% if
+                      assessment.recommendations['text']|length > 100 %}...{%
+                      endif %} {% else %} No recommendations available. {#
+                      Handle the case where recommendations are None or do not
+                      contain 'text' #} {% endif %}
+                    </p>
+                    <p>
+                      <strong>Date Tested:</strong> {{
+                      assessment.date_tested.strftime('%d-%m-%Y') }}
+                    </p>
+                  </div>
+                  <div class="card-arrow">
+                    <i class="arrow-icon">&gt;</i>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </li>
+        </ul>
+      </main>
+      <!-- MAIN -->
+    </section>
+    <!-- CONTENT -->
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>

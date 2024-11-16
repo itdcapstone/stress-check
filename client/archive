@@ -1,0 +1,551 @@
+import re
+from bson import ObjectId
+from flask import Flask, render_template, request, redirect, url_for, session
+from pymongo import MongoClient
+from datetime import datetime
+import pymongo 
+from werkzeug.security import generate_password_hash
+from flask import jsonify
+
+
+
+app = Flask(__name__, static_folder='../client', template_folder='../client')
+app.secret_key = 'your_secret_key'  # Set a secret key for session management
+
+# Connect to MongoDB Atlas
+client = MongoClient("mongodb+srv://admin:mamapapa22!@cluster0.dwtjqbj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+db = client.get_database('dbAdmin')
+users_collection = db.users
+assessment_collection = db.assessment_result
+feedback_collection = db.feedback
+questionnaires = db.stress_questions
+
+
+# Landing page
+@app.route('/')
+def index():
+    return render_template('landing/landing.html')
+
+
+#log in
+
+# Route for student login in the root folder
+@app.route('/student_login')
+def student_login():
+    # Add your login logic here for students
+    return render_template('login.html')  # Render the student login page
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Check if user exists in MongoDB
+        existing_user = users_collection.find_one({'username': username, 'password': password})
+        if existing_user:
+            # Check if the user has the role "user"
+            if existing_user.get('role') == 'user':
+                # Store username in session
+                session['username'] = username
+                return redirect(url_for('dashboard', username=username))
+            else:
+                return 'Access denied. You do not have permission to login.'
+        else:
+            return 'Invalid username or password'
+
+    # Render the login template for GET requests
+    return render_template('login.html')
+    
+
+# Route for faculty login in the admin folder
+@app.route('/faculty_login')
+def faculty_login():
+ 
+    return render_template('faculty/login.html')  # Render the faculty login page
+
+
+# Route for admin login in the admin folder
+@app.route('/admin_login')
+def admin_login():
+   
+    return render_template('admin/login.html')  # Render the admin login page
+
+# Route for admin login in the admin folder
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login_dashboard():
+    username = session.get('username')
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Check if user exists in MongoDB
+        existing_user = users_collection.find_one({'username': username, 'password': password})
+
+        if existing_user and existing_user.get('role') == 'admin':
+            # Store username in session
+            session['username'] = username
+            return redirect(url_for('admin_dashboard', username=username))
+        else:
+            return 'Invalid username or password or insufficient permissions'
+
+    # Render the login template for GET requests
+    return render_template('admin/login.html')
+
+
+# Route for admin login in the admin folder
+@app.route('/faculty_login', methods=['GET', 'POST'])
+def faculty_login_dashboard():
+    username = session.get('username')
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Check if user exists in MongoDB
+        existing_user = users_collection.find_one({'username': username, 'password': password})
+
+        if existing_user and existing_user.get('role') == 'faculty':
+            # Store username in session
+            session['username'] = username
+            return redirect(url_for('faculty_dashboard', username=username))
+        else:
+            return 'Invalid username or password or insufficient permissions'
+
+    # Render the login template for GET requests
+    return render_template('faculty/login.html')
+
+@app.route('/faculty/dashboard/<username>')
+def faculty_dashboard(username):
+    # Fetch user data from the database or perform any other necessary actions
+    return render_template('faculty/dashboard.html', username=username)
+
+
+
+# admin dashboard =====================
+    
+# Admin route for admin dashboard
+@app.route('/admin/dashboard/<username>')
+def admin_dashboard(username):
+    # Fetch user data from the database or perform any other necessary actions
+    return render_template('admin/dashboard.html', username=username)
+
+# Route for management in the admin folder
+@app.route('/admin/management/', methods=['GET', 'POST'])
+def management():
+    # Fetch username from session
+    username = session.get('username')
+
+    if username:
+        # Fetch user management data
+        users = users_collection.find()
+
+        if request.method == 'POST':
+            # Handle POST request for editing or deleting users
+            if 'edit_user' in request.form:
+                # Get the user ID from the form
+                user_id = request.form['user_id']
+
+                # Fetch the user's data from the database
+                user_data = users_collection.find_one({'_id': ObjectId(user_id)})
+
+                # Render the edit user form with the user's data
+                return render_template('admin/edit_user.html', username=username, user=user_data)
+            elif 'delete_user' in request.form:
+                # Get the user ID from the form
+                user_id = request.form['user_id']
+
+                # Delete the user from the database
+                users_collection.delete_one({'_id': ObjectId(user_id)})
+
+                # Redirect to the management page with a success message
+                return redirect(url_for('management', success_message="User successfully deleted."))
+
+        # Render the management template with user data
+        return render_template('admin/management.html', username=username, users=users)
+    else:
+        # Redirect to login if the user is not logged in
+        return redirect(url_for('login'))
+
+
+@app.route('/admin/dashboard/')
+def home():
+    # Fetch user data from the database or perform any other necessary actions
+    return render_template('admin/dashboard.html')
+
+
+@app.route('/admin/dashboard/', methods=['GET'])
+def admin_dashboard_user():
+    # Count the number of users in the database
+    user_count = users_collection.count_documents({})
+
+    # Print the user count to the terminal
+    print(f"User count: {user_count}")
+
+    # Return the dashboard HTML template and pass the user_count to it
+    return render_template('admin_dashboard.html', user_count=user_count)
+
+
+@app.route('/admin/questionnaire/')
+def questionnaire():
+    # Fetch user data from the database or perform any other necessary actions
+    return render_template('admin/stress_questions.html')
+
+@app.route('/admin/data/')
+def data():
+    # Fetch user data from the database or perform any other necessary actions
+    return render_template('admin/data.html')
+
+@app.route('/admin/feedback/')
+def admin_feedback():
+    # Fetch user data from the database or perform any other necessary actions
+    return render_template('admin/feedback.html')
+
+@app.route('/admin/edit_user/<user_id>', methods=['POST'])
+def edit_user(user_id):
+    username = request.form['username']
+    email = request.form['email']
+    role = request.form['role']
+    password = request.form['password']
+    age = request.form['age']
+    gender = request.form['gender']
+    users_collection.update_one(
+        {'_id': ObjectId(user_id)},
+        {'$set': {'username': username, 'email': email, 'role': role, 'password' : password, 'age' : age, 'gender' : gender}}
+    )
+    return redirect(url_for('management', success_message="User successfully updated."))
+
+@app.route('/admin/add_user', methods=['GET'])
+def add_user_to():
+    return render_template('/admin/add_user.html')
+
+@app.route('/admin/add_user', methods=['GET', 'POST'])
+def add_user():
+    username = request.form.get('username')
+    email = request.form.get('email')
+    role = request.form.get('role')
+    password = request.form.get('password')
+    age = request.form.get('age')
+    gender = request.form.get('gender')
+    
+    # Input validation
+    if not username or not email or not role or not password or not age or not gender:
+        return redirect(url_for('management', error_message="All fields are required."))
+    
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return redirect(url_for('management', error_message="Invalid email address."))
+    
+    try:
+        age = int(age)
+    except ValueError:
+        return redirect(url_for('management', error_message="Age must be a number."))
+    
+    # Insert the new user into the database
+    new_user = {
+        'username': username,
+        'email': email,
+        'role': role,
+        'password': password,  # Store the plain-text password
+        'age': age,
+        'gender': gender
+    }
+    
+    try:
+        users_collection.insert_one(new_user)
+    except Exception as e:
+        return redirect(url_for('management', error_message=f"An error occurred: {str(e)}"))
+    
+    return redirect(url_for('management', success_message="User successfully added."))
+
+
+
+# @app.route('/admin/stress_questions')
+# def stress_questions():
+#     try:
+#         # Retrieve all stress questions from MongoDB
+#         stress_questions = list(questionnaires.find())
+#         app.logger.info("Retrieved stress questions:", stress_questions)  # Log retrieved data
+#         return render_template('stress_questions.html', stress_questions=stress_questions)
+#     except Exception as e:
+#         app.logger.error(f'Error retrieving stress questions: {str(e)}')
+#         return 'An error occurred while retrieving data.'
+
+# Route to display the add question form
+
+
+
+@app.route('/admin/add_question', methods=['GET'])
+def add_question():
+    return render_template('/admin/add_questions.html')
+
+# Route to handle form submission and add new question to MongoDB
+@app.route('/submit_question', methods=['POST'])
+def submit_question():
+    if request.method == 'POST':
+        question_text = request.form['question']
+        question_type = request.form['type']
+        question_category = request.form['category']
+
+        # Create a new question document
+        new_question = {
+            'question': question_text,
+            'type': question_type,
+            'category': question_category
+        }
+
+        # Insert the new question document into MongoDB
+        questionnaires.insert_one(new_question)
+
+        # Redirect back to the add question form or to a different page
+        return redirect(url_for('stress_questions'))
+
+
+
+@app.route('/admin/stress_questions', methods=['GET', 'POST'])
+def stress_questions():
+    try:
+        # Retrieve all stress questions from MongoDB
+        stress_questions = list(questionnaires.find())
+        app.logger.info(f"Retrieved stress questions: {stress_questions}")  # Log retrieved data
+
+        if request.method == 'POST':
+            # Handle POST request for adding, editing, or deleting stress questions
+            if '/admin/add_question' in request.form:
+                # Get the question data from the form
+                question_text = request.form['question_text']
+
+                # Insert the new question into the database
+                questionnaires.insert_one({'question_text': question_text})
+
+                # Redirect to the stress questions page with a success message
+                return redirect(url_for('/admin/stress_questions', success_message="Question successfully added."))
+            elif '/admin/edit_question' in request.form:
+                # Get the question ID from the form
+                question_id = request.form['question_id']
+
+                # Fetch the question's data from the database
+                question_data = questionnaires.find_one({'_id': ObjectId(question_id)})
+
+                # Render the edit question form with the question's data
+                return render_template('/admin/edit_question.html', question=question_data)
+            elif 'delete_question' in request.form:
+                # Get the question ID from the form
+                question_id = request.form['question_id']
+
+                # Delete the question from the database
+                questionnaires.delete_one({'_id': ObjectId(question_id)})
+
+                # Redirect to the stress questions page with a success message
+                return redirect(url_for('/admin/stress_questions', success_message="Question successfully deleted."))
+
+        return render_template('/admin/stress_questions.html', stress_questions=stress_questions)
+    except Exception as e:
+        app.logger.error(f'Error retrieving stress questions: {str(e)}')
+        return 'An error occurred while retrieving data.'
+
+
+
+
+#test stress ----------------------------
+
+@app.route('/test_stress/')
+def test_stress():
+    # Fetch username from session
+    username = session.get('username')
+
+    if username:
+        # Fetch user management data
+        questions = questionnaires.find()
+        return render_template('test_stress.html', username=username, questions=questions)
+    else:
+        # Redirect to login if the user is not logged in
+        return redirect(url_for('login'))
+
+
+#dummy data for assessment
+@app.route('/stress_level', methods=['GET', 'POST'])
+def stress_level():
+    if request.method == 'POST':
+        # Get form data
+        stress_level = request.form['stress_level']
+        stressors = request.form.getlist('stressors')
+        recommendations = request.form['recommendations']
+        date_tested = datetime.now()
+        
+        # Fetch username from session
+        username = session.get('username')
+
+        # Fetch user_id based on username
+        user = users_collection.find_one({'username': username})
+        user_id = user['_id']
+
+        # Insert assessment result into the database
+        assessment_data = {
+            'stress_level': stress_level,
+            'stressors': stressors,
+            'recommendations': recommendations,
+            'user_id': user_id,
+            'date_tested': date_tested
+        }
+        assessment_collection.insert_one(assessment_data)
+        
+        # Redirect to dashboard after saving assessment
+        return redirect(url_for('dashboard', username=username))
+    
+    # Render the form template for GET requests
+    return render_template('stress_level.html')
+
+
+@app.route('/dashboard/<username>')
+def dashboard(username):
+    # Fetch user data from the database
+    user = users_collection.find_one({'username': username})
+    user_id = user['_id']
+
+    # Fetch the latest assessment result for the user
+    latest_assessment = assessment_collection.find_one({'user_id': user_id}, sort=[('date_tested', pymongo.DESCENDING)])
+
+    if latest_assessment:
+        # Extract the stress level from the latest assessment result
+        stress_level = int(latest_assessment['stress_level'])
+    else:
+        stress_level = None
+
+    # Pass the latest assessment result to the template
+    return render_template('dashboard.html', username=username, stress_level=stress_level, latest_assessment=latest_assessment, user=user or "No stress record")
+
+
+
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+
+    username = session.get('username')
+
+    if request.method == 'POST':
+        # Get form data
+        feedback_text = request.form['feedback']
+
+        # Fetch username from session
+        username = session.get('username')
+
+        # Fetch user_id based on username
+        user = users_collection.find_one({'username': username})
+        user_id = user['_id']
+
+        # Fetch name based on user_id
+        name = user.get('name', 'Unknown')
+
+        # Insert feedback into the database
+        feedback_data = {
+            'feedback': feedback_text,
+            'user_id': user_id,
+            'username': username,
+            'name': name,
+            'timestamp': datetime.now()
+        }
+        feedback_collection.insert_one(feedback_data)
+        
+        # Redirect to a different route after saving feedback
+    
+    # Render the form template for GET requests
+    return render_template('feedback.html', username=username)
+
+@app.route('/recommendation/')
+def recommendation():
+
+    username = session.get('username')
+   
+    # Fetch user data from the database or perform any other necessary actions
+    return render_template('recommendation.html', username=username)
+
+
+@app.route('/analytics/')
+def analytics():
+    # Fetch username from session
+    username = session.get('username')
+
+    if username:
+        # Fetch assessment data for the user
+        user = users_collection.find_one({'username': username})
+        user_id = user['_id']
+        assessments = assessment_collection.find({'user_id': user_id})
+
+        return render_template('analytics.html', username=username, assessments=assessments)
+    else:
+        # Redirect to login if the user is not logged in
+        return redirect(url_for('login'))
+
+    
+@app.route('/profile/', methods=['GET', 'POST'])
+def profile():
+    # Fetch user data from the database
+    username = session.get('username')
+    if username:
+        user = users_collection.find_one({'username': username})
+        if request.method == 'POST':
+            # Update user information in the database
+            name = request.form['name']
+            email = request.form['email']
+            age = int(request.form['age'])  # Convert age to integer
+            gender = request.form['gender']
+            year_level = request.form['year-level']
+            
+            # Update the user's information in the database
+            users_collection.update_one({'username': username}, {'$set': {'name': name, 'email': email, 'age': age, 'gender': gender, 'year_level': year_level}})
+            
+            # Redirect to the profile page with a success message
+            return render_template('profile.html', username=username, user=user, success_message="Profile successfully updated.")
+
+        # Render the profile template with user information
+        return render_template('profile.html', username=username, user=user)
+    else:
+        # Redirect to login if the user is not logged in
+        return redirect(url_for('login'))
+
+@app.route('/signin', methods=['POST'])
+def signin():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        gender = request.form['gender']
+        year_level = request.form['year_level']
+        age = int(request.form['age'])  # Convert age to integer
+        
+        # Set the role to 'user'
+        role = 'user'
+    
+        # Check if user exists in MongoDB
+        existing_user = users_collection.find_one({'username': username})
+        if existing_user:
+            return 'User already exists!'
+        else:
+            # Insert new user into the database with the provided role
+            new_user = {'username': username, 'password': password, 'role': role, 'email': email, 'gender': gender, 'year_level': year_level, 'age': age}
+            users_collection.insert_one(new_user)
+            # Store username in session
+            session['username'] = username
+            return redirect(url_for("login"))
+        
+@app.route('/signin')
+def signup():
+    return render_template('signin.html')
+
+
+@app.route('/logout')
+def logout():
+    # Clear session variables
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
+
+@app.route('/admin/logout')
+def admin_logout():
+    # Clear session variables
+    session.pop('username', None)
+    return redirect(url_for('admin_login'))
+
+if __name__ == '__main__':
+    app.run(debug=True)

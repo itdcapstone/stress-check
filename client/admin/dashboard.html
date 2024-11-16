@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<title>AdminHub</title>
+</head>
+<body>
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<nav>
+		<a href="#" class="brand">
+			<i class='bx bxs-smile'></i>
+			<span class="text">Stress Check</span>
+		</a>
+		<ul class="side-menu top">
+			<li class="active">
+				<a href="#">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('management') }}">
+					<i class='bx bxs-shopping-bag-alt' ></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('data') }}">
+					<i class='bx bxs-data'></i>
+					<span class="text">Data Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('stress_questions') }}">
+					<i class='bx bxs-message-square-edit'></i>
+					<span class="text">Questionnaire Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('admin_feedback') }}">
+					<i class='bx bxs-user-pin'></i>
+					<span class="text">User Feedback</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="#">
+					
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('admin_logout') }}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+		</nav>
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			<form action="#">
+				<div class="form-input">
+					<input type="search" placeholder="Search...">
+					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+				</div>
+			</form>
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+		</nav>
+		<!-- NAVBAR -->
+
+
+	<!-- MAIN -->
+	<main>
+		<div class="head-title">
+			<div class="left">
+				<h1> Admin Dashboard</h1>
+				<ul class="breadcrumb">
+					<li>
+						<a href="#">Dashboard</a>
+					</li>
+					<li><i class='bx bx-chevron-right' ></i></li>
+					<li>
+						<a class="active" href="#">Overview</a>
+					</li>
+				</ul>
+			</div>
+			
+		</div>
+		
+		<div class="dashboard-overview">
+			<div class="overview-card">
+				<i class='bx bxs-user'></i>
+				<h3>{{ user_count }}</h3>
+				<p>Users Registered</p>
+			</div>
+			<div class="overview-card">
+				<i class='bx bxs-calendar-check' ></i>
+				<h3><h3>{{ assessment_count }}</h3></h3>
+				<p>Recent Assessments</p>
+			</div>
+			<div class="overview-card">
+				<i class='bx bxs-bell' ></i>
+				<h3>{{ feedbacks_count }}</h3>
+				<p>Feedbacks</p>
+			</div>
+		</div>
+
+		<div class="dashboard-overview-graph">
+			<div class="overview-card-graph">
+				<h3>Stressor Percentage</h3>
+				<div style="width: 100%; margin: auto;">
+					<canvas id="stressorBarChart"></canvas>
+				</div>
+			</div>
+		
+			<div class="overview-card-piechart">
+				<h3>Overview of Student Stress Levels</h3>
+				<div id="piechart" style="width: 100%; height: 300px;"></div>
+			</div>
+		</div>
+	</div>
+
+		
+		<!-- Chart.js Script for Bar Chart -->
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script>
+			// Data for Bar Chart
+			const stressorData = {{ stressor_data|tojson }};
+			const labels = stressorData.map(item => item.stressor);
+			const percentages = stressorData.map(item => item.percentage);
+			const studentCounts = stressorData.map(item => item.student_count);
+		
+			const ctx = document.getElementById('stressorBarChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'bar',
+				data: {
+					labels: labels,
+					datasets: [{
+						label: 'Stressor Percentage',
+						data: percentages,
+						backgroundColor: 'rgba(75, 192, 192, 0.6)',
+						borderColor: 'rgba(75, 192, 192, 1)',
+						borderWidth: 1
+					}]
+				},
+				options: {
+					responsive: true,
+					scales: {
+						y: {
+							beginAtZero: true,
+							max: 20,
+							title: { display: true, text: 'Percentage (%)' }
+						},
+						x: {
+							title: { display: true, text: 'Stressors' }
+						}
+					},
+					plugins: {
+						legend: { display: false },
+						tooltip: {
+							callbacks: {
+								label: (context) => {
+									const percentage = context.raw;
+									const count = studentCounts[context.dataIndex];
+									return `${context.label}: ${percentage.toFixed(2)}% (${count} assessments)`;
+								}
+							}
+						}
+					}
+				}
+			});
+		</script>
+		
+	<!-- Google Charts Script for Pie Chart -->
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		google.charts.load('current', { 'packages': ['corechart'] });
+		google.charts.setOnLoadCallback(drawPieChart);
+
+		function drawPieChart() {
+			// Data passed from Flask to JavaScript
+			var stressLevelData = {{ stress_level_data | tojson }};
+
+			// Transform data to format required by Google Charts
+			var chartData = [['Stress Level', 'Number of Students']];
+			stressLevelData.forEach(function(item) {
+				chartData.push(['Level ' + item.stress_level, item.count]);
+			});
+
+			var data = google.visualization.arrayToDataTable(chartData);
+
+			var options = {
+				chartArea: { width: '100%', height: '80%' },
+				backgroundColor: 'transparent',
+				colors: ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'],
+				legend: { position: 'bottom', textStyle: { color: '#333', fontSize: 14 } }
+			};
+
+			var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+			chart.draw(data, options);
+
+			window.addEventListener('resize', drawPieChart);
+		}
+	</script>
+
+			
+		
+		
+        </main>
+        <!-- END MAIN -->
+    </section>
+
+	<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

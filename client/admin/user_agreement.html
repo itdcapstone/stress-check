@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agreement and Privacy Policy</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Basic styles for modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Button styles */
+        .agree-btn {
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        function openModal() {
+            document.getElementById('agreementModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('agreementModal').style.display = 'none';
+        }
+
+        function agreeAndProceed() {
+            closeModal();
+            // Navigate to the privacy policy
+            document.getElementById('privacyModal').style.display = 'block';
+        }
+    </script>
+</head>
+<body onload="openModal()">
+    <!-- User Agreement Modal -->
+    <div id="agreementModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h1>User Agreement</h1>
+            <p>By using the "Stress Check" tool, you agree to the following terms:</p>
+            <h2>1. Acceptance of Terms</h2>
+            <p>By creating an account and using the "Stress Check" tool, you accept and agree to be bound by this User Agreement.</p>
+            <h2>2. User Responsibilities</h2>
+            <p>You are responsible for maintaining the confidentiality of your account information.</p>
+            <h2>3. Data Usage</h2>
+            <p>Your data will be collected for personalized stress assessments. You can delete your data at any time.</p>
+            <h2>4. Modifications</h2>
+            <p>We reserve the right to modify this User Agreement at any time.</p>
+            <h2>5. Termination</h2>
+            <p>We may terminate your account if you violate any terms of this agreement.</p>
+            <h2>6. Contact Information</h2>
+            <p>If you have any questions about this User Agreement, please contact us.</p>
+            <button class="agree-btn" onclick="agreeAndProceed()">I Agree</button>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h1>Privacy Policy</h1>
+            <p>Your privacy is important to us. This Privacy Policy outlines how we collect, use, and protect your information.</p>
+            <h2>1. Information We Collect</h2>
+            <p>We collect personal information such as name, age, gender, year level, and financial data when you create an account.</p>
+            <h2>2. How We Use Your Information</h2>
+            <p>Your information is used solely to provide you with stress assessments and recommendations.</p>
+            <h2>3. Data Retention</h2>
+            <p>We retain your data as long as you have an account. You can request to delete your data at any time.</p>
+            <h2>4. Changes to This Policy</h2>
+            <p>We may update this Privacy Policy from time to time.</p>
+            <h2>5. Contact Us</h2>
+            <p>If you have any questions or concerns about our Privacy Policy, please contact us.</p>
+            <button class="agree-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</body>
+</html>

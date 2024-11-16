@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Boxicons -->
+    <link
+      href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <!-- Add FontAwesome to support stressor_mapping icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- CSS Files -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='recommendation.css') }}"
+    />
+    <title>Stress Prediction Result</title>
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+          <i class="bx bx-badge-check"></i>
+          <span class="text">Stress Check</span>
+        </a>
+        <ul class="side-menu top">
+          <li>
+            <a href="{{ url_for('dashboard', username=username) }}">
+              <i class="bx bxs-dashboard"></i>
+              <span class="text">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('analytics') }}">
+              <i class="bx bxs-doughnut-chart"></i>
+              <span class="text">History</span>
+            </a>
+          </li>
+          <li class="active">
+            <a href="{{ url_for('recommendation') }}">
+              <i class="bx bxs-message-rounded-dots"></i>
+              <span class="text">Recommendation</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('profile') }}">
+              <i class="bx bxs-user-circle"></i>
+              <span class="text">My Profile</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('profile') }}">
+              <i class="bx bxs-user-circle"></i>
+              <span class="text">FAQ's</span>
+            </a>
+          </li>
+        </ul>
+        <ul class="side-menu">
+          <li>
+            <a href="{{ url_for('feedback') }}">
+              <i class="bx bxs-user-pin"></i>
+              <span class="text">Feedback</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('logout') }}" class="logout">
+              <i class="bx bxs-log-out-circle"></i>
+              <span class="text">Logout</span>
+            </a>
+          </li>
+        </ul>
+        <img
+          src="{{ url_for('static', filename='assets/plants.png') }}"
+          alt="Image Description"
+        />
+      </section>
+
+    <!-- CONTENT -->
+    <section id="content">
+      <nav>
+        <i class="bx bx-menu"></i>
+        <form action="#">
+          <div class="form-input">
+            <input type="search" placeholder="Search..." />
+            <button type="submit" class="search-btn">
+              <i class="bx bx-search"></i>
+            </button>
+          </div>
+        </form>
+        <input type="checkbox" id="switch-mode" hidden />
+        <label for="switch-mode" class="switch-mode"></label>
+      </nav>
+
+      <!-- Result Container -->
+      <div class="result-container">
+        <h1>Stress Prediction Result</h1>
+        <p>
+          Hello, {{ username }}! Based on your responses, your predicted stress
+          level is:
+        </p>
+
+        <!-- Circular Progress Indicator -->
+        <div class="progress-container">
+          <svg viewBox="0 0 200 200" width="200" height="200">
+            <circle
+              class="progress-background"
+              cx="100"
+              cy="100"
+              r="90"
+              stroke-width="12"
+            />
+            <circle
+              class="progress-circle"
+              cx="100"
+              cy="100"
+              r="90"
+              stroke-width="12"
+              stroke-dasharray="565.48"
+            />
+          </svg>
+          <div class="progress-text">
+            <h2 id="progress-number">{{ predicted_stress_level }}</h2>
+            <p>Stress Level / 5</p>
+          </div>
+        </div>
+
+        <!-- Stressors Section -->
+        <h2>Common Stressors</h2>
+        <p class="click-instruction">
+          Click on any stressor to view personalized recommendations.
+        </p>
+        {% if common_stressors %}
+        <div class="stressors-container">
+          {% for stressor in common_stressors %}
+          <div
+            class="stressor-item {{ stressor.class }}"
+            data-stressor="{{ stressor.name }}"
+            data-recommendations="{{ stressor.recommendations | tojson | safe }}"
+          >
+            <i class="{{ stressor.icon }}"></i>
+            <span class="stressor-name">{{ stressor.name }}</span>
+            <div class="recommendation-preview">
+              {% if stressor.recommendations %} {{
+              stressor.recommendations[0].text }} {% else %} No recommendations
+              available. {% endif %}
+            </div>
+          </div>
+
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>No significant stressors identified.</p>
+        {% endif %}
+
+        <!-- Modal for Detailed Recommendations -->
+        <div id="recommendationModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-stressor-name"></h2>
+            <ul id="modal-recommendations"></ul>
+            <span class="source-icon" tabindex="0">
+              <i class="bx bx-info-circle"></i>
+              <div class="source-tooltip">Source not available</div>
+            </span>
+          </div>
+        </div>
+
+        <!-- Generate Stress Assessment Button -->
+        <form action="{{ url_for('result') }}" method="GET">
+          <button type="submit" class="assessment-btn">
+            Generate Stress Assessment
+          </button>
+        </form>
+      </div>
+
+      <!-- JavaScript for Modal and Progress Indicator -->
+      <script>
+        // JavaScript Code for Modal and Recommendations
+        document.addEventListener("DOMContentLoaded", function () {
+          const modal = document.getElementById("recommendationModal");
+          const closeModal = modal.querySelector(".close");
+          modal.style.display = "none";
+
+          function showModal(stressorName, recommendations) {
+            document.getElementById("modal-stressor-name").textContent =
+              stressorName;
+            const recommendationList = document.getElementById(
+              "modal-recommendations"
+            );
+            recommendationList.innerHTML = "";
+
+            // Populate recommendations
+            if (recommendations.length > 0) {
+              recommendations.forEach((rec) => {
+                const li = document.createElement("li");
+                li.textContent = rec.text;
+                recommendationList.appendChild(li);
+              });
+            } else {
+              const noRecommendationItem = document.createElement("li");
+              noRecommendationItem.textContent =
+                "No recommendations available.";
+              recommendationList.appendChild(noRecommendationItem);
+            }
+
+            // Set source info
+            const sourceElement = document.querySelector(".source-tooltip");
+            const source = recommendations[0]?.source || "Source not available";
+            sourceElement.textContent = source;
+            modal.style.display = "flex";
+          }
+
+          document
+            .querySelector(".result-container")
+            .addEventListener("click", function (event) {
+              const stressorItem = event.target.closest(".stressor-item");
+              if (stressorItem) {
+                const stressorName = stressorItem.getAttribute("data-stressor");
+                const recommendationsStr = stressorItem.getAttribute(
+                  "data-recommendations"
+                );
+                let recommendations = [];
+
+                // Parse recommendations safely
+                try {
+                  recommendations = JSON.parse(recommendationsStr);
+                } catch (error) {
+                  recommendations = [];
+                }
+
+                showModal(stressorName, recommendations);
+              }
+            });
+
+          // Close modal when close button or outside modal is clicked
+          closeModal.addEventListener("click", function () {
+            modal.style.display = "none";
+          });
+
+          modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+              modal.style.display = "none";
+            }
+          });
+        });
+
+        function setProgress(level) {
+          const progressCircle = document.querySelector(".progress-circle");
+          const radius = progressCircle.r.baseVal.value;
+          const circumference = 2 * Math.PI * radius;
+          const maxLevel = 5;
+          const offset = circumference - (level / maxLevel) * circumference;
+
+          const levelColors = [
+            "#4CAF50",
+            "#FFC107",
+            "#FF9800",
+            "#FF5722",
+            "#F44336",
+          ];
+
+          progressCircle.style.strokeDashoffset = offset;
+          progressCircle.style.stroke = levelColors[level - 1];
+        }
+
+        const currentStressLevel = parseInt("{{ predicted_stress_level }}", 10);
+        setProgress(currentStressLevel);
+
+        // JavaScript to toggle centered modal when sidebar is collapsed
+        document.addEventListener("DOMContentLoaded", () => {
+          const body = document.body;
+          const modalContent = document.querySelector(
+            ".result-container .modal .modal-content"
+          );
+
+          // Function to check and apply center positioning
+          function centerModal() {
+            if (body.classList.contains("sidebar-collapsed")) {
+              modalContent.style.marginLeft = "50%";
+              modalContent.style.transform = "translateX(-50%)";
+            } else {
+              // Reset styles if the sidebar is not collapsed
+              modalContent.style.marginLeft = "";
+              modalContent.style.transform = "";
+            }
+          }
+
+          // Add an event listener to toggle the 'sidebar-collapsed' class and recheck centering
+          document
+            .querySelector("#sidebar-toggle-button")
+            .addEventListener("click", () => {
+              body.classList.toggle("sidebar-collapsed");
+              centerModal();
+            });
+
+          // Initial check
+          centerModal();
+        });
+      </script>
+
+      <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </section>
+  </body>
+</html>

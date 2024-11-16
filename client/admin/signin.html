@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        function validateForm() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            // Validate username and password
+            if (username.length < 4 || username.length > 20) {
+                alert("Username must be between 4 and 20 characters.");
+                return false;
+            }
+            if (password.length < 6 || password.length > 20) {
+                alert("Password must be between 6 and 20 characters.");
+                return false;
+            }
+            if (!username.match(/^[a-zA-Z0-9]+$/)) {
+                alert("Username can only contain letters and numbers.");
+                return false;
+            }
+
+            // Successful sign-in prompt
+            alert("Sign in successful!");
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <form action="http://127.0.0.1:5000/signin" method="POST" onsubmit="return validateForm()">
+            <h2>Sign In</h2>
+            <div class="input-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Sign In</button>
+            <p>Already have an account? <a href="{{ url_for('login')}}">Log in</a></p>
+        </form>
+    </div>
+</body>
+</html>

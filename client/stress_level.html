@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Test Stress</title>
+</head>
+<body>
+    <a href="{{ url_for('dashboard', username=username) }}" class="cancel-btn">Cancel</a>
+    <div class="test-stress-container">
+        <h2>Test Stress</h2>
+        <form method="POST" action="/stress_level">
+            <label for="stress_level">Stress Level:</label><br>
+            <input type="number" id="stress_level" name="stress_level" required><br><br>
+            
+            <label for="stressors">Stressors (comma-separated):</label><br>
+            <input type="text" id="stressors" name="stressors" required><br><br>
+    
+            <label for="recommendations">Recommendations:</label><br>
+            <textarea id="recommendations" name="recommendations" rows="4" required></textarea><br><br>
+    
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

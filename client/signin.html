@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='logIn_styles.css') }}">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+
+  <script>
+    function openAgreementModal() {
+      document.getElementById('agreementModal').style.display = 'block';
+    }
+
+    function closeAgreementModal() {
+      document.getElementById('agreementModal').style.display = 'none';
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.className = "show";
+      setTimeout(function() {
+        toast.className = toast.className.replace("show", "");
+      }, 3000);
+    }
+
+    function agreeAndSignIn() {
+      const userAgreementChecked = document.getElementById('userAgreement').checked;
+      const privacyPolicyChecked = document.getElementById('privacyPolicy').checked;
+
+      if (userAgreementChecked && privacyPolicyChecked) {
+        closeAgreementModal();
+        document.getElementById('signinForm').submit();
+      } else {
+        showToast('You must agree to both the User Agreement and Privacy Policy to sign in.');
+      }
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <div class="nav__header">
+      <div class="nav__logo">
+        <a href="#" class="brand">
+          <i class='bx bx-badge-check'></i>
+        </a>
+      </div>
+      <div class="nav__menu__btn" id="menu-btn">
+        <span><i class="ri-menu-line"></i></span>
+      </div>
+    </div>
+    <ul class="nav__links" id="nav-links"></ul>
+    <div class="nav__btns">
+      <a href="/" class="btn">Home</a>
+    </div>
+  </header>
+  <div class="container">
+    <div class="content-wrapper">
+      <div class="image-wrapper">
+        <img src="{{ url_for('static', filename='assets/ofiice.png') }}" alt="header" class="header-image" />
+      </div>
+      <div class="wrapper">
+        <form id="signinForm" action="http://127.0.0.1:5000/signin" method="POST" onsubmit="event.preventDefault(); openAgreementModal();">
+          <h1>Sign In</h1>
+          <div class="input-box">
+            <input type="text" id="username" name="username" placeholder="Username" required>
+            <i class='bx bxs-user'></i>
+          </div>
+          <div class="input-box">
+            <input type="password" name="password" placeholder="Password" required id="password">
+            <i class='bx bxs-show' id="togglePassword" onclick="togglePasswordVisibility()"></i>
+          </div>
+          <div class="input-box">
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <i class='bx bxs-envelope'></i>
+          </div>
+          <div class="input-box">
+            <input type="number" id="age" name="age" min="1" placeholder="Age" required>
+            <i class='bx bxs-calendar'></i>
+          </div>
+          <div class="input-box">
+            <select id="gender" name="gender" required style="width: 100%; padding: 10px; border: 1px solid #DEE9E5; border-radius: 25px;">
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+            <i class='bx bxs-gender'></i>
+          </div>
+          <div class="input-box">
+            <input type="number" id="year-level" name="year_level" min="1" max="5" placeholder="Year Level" required>
+            <i class='bx bxs-graduation'></i>
+          </div>
+          <button type="submit" class="btn">Sign In</button>
+          <div class="register-link">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+          </div>
+          <div class="register-link">
+            <p><a href="/">Home</a></p>
+          </div>
+        </form>
+      </div>
+      <div class="image-wrapper">
+        <img src="{{ url_for('static', filename='assets/books.png') }}" alt="header" class="header-image" />
+      </div>
+    </div>
+  </div>
+
+ <!-- User Agreement and Privacy Policy Modal -->
+<div id="agreementModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAgreementModal()">&times;</span>
+    <h1>User Agreement & Privacy Policy</h1>
+    <div class="agreement-section">
+      <h2>User Agreement</h2>
+      <p>By signing in, you agree to the following terms:</p>
+      <h3>1. Purpose of the Tool</h3>
+      <p>The Stress Check tool provides insights into your stress levels based on responses. This test is not intended as a diagnostic tool and does not provide medical advice.</p>
+      <h3>2. Personal Information We Collect</h3>
+      <p>By creating an account, you provide personal information such as:</p>
+      <ul>
+        <li>Full Name</li>
+        <li>Age</li>
+        <li>Gender</li>
+        <li>Year Level</li>
+        <li>Monthly Income</li>
+        <li>Stress-related Data</li>
+      </ul>
+      <p>This data helps generate personalized results and recommendations.</p>
+      <h3>3. Data Storage and Deletion</h3>
+      <p>Your information will be stored as long as your account remains active. You can delete your account and data anytime through account management options.</p>
+      <h3>4. Data Sharing</h3>
+      <p>We do not share your data unless required by law. Any shared data will be anonymized to ensure privacy.</p>
+      <h3>5. Changes to the Agreement</h3>
+      <p>We may update this User Agreement. Continued use of the service implies acceptance of updated terms.</p>
+      <h3>6. User Responsibilities</h3>
+      <p>By using <strong>Stress Check</strong>, you agree to:</p>
+      <ul>
+        <li>Provide accurate and truthful information.</li>
+        <li>Use the tool for personal, non-commercial purposes.</li>
+        <li>Avoid misuse, interference, or manipulation.</li>
+      </ul>
+      <h3>7. Agreement to Terms</h3>
+      <p>By creating an account, you confirm that you agree to the terms.</p>
+
+      <h2>Privacy Policy</h2>
+      <p>We value your privacy. This Privacy Policy outlines how we collect, use, and protect your information.</p>
+      <h3>1. Information We Collect</h3>
+      <p>Personal details such as name, age, gender, year level, and financial data are collected upon account creation.</p>
+      <h3>2. How We Use Your Information</h3>
+      <p>Your data is used to provide personalized assessments and recommendations.</p>
+      <h3>3. Data Retention</h3>
+      <p>Your data is retained while your account is active. You may request deletion at any time.</p>
+      <h3>4. Changes to This Policy</h3>
+      <p>We may update this Privacy Policy periodically.</p>
+      <h3>5. Contact Us</h3>
+      <p>For questions or concerns, please contact us.</p>
+    </div>
+    <div class="agreement-checkboxes">
+      <label>
+        <input type="checkbox" id="userAgreement"> I agree to the User Agreement
+      </label><br>
+      <label>
+        <input type="checkbox" id="privacyPolicy"> I agree to the Privacy Policy
+      </label>
+    </div>
+    <button onclick="agreeAndSignIn()">I Agree</button>
+  </div>
+</div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <script>
+    function showToast(message) {
+      var toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.className = "show";
+      setTimeout(function() {
+        toast.className = toast.className.replace("show", "");
+      }, 3000);
+    }
+  
+    function agreeAndSignIn() {
+      const userAgreementChecked = document.getElementById('userAgreement').checked;
+      const privacyPolicyChecked = document.getElementById('privacyPolicy').checked;
+  
+      if (userAgreementChecked && privacyPolicyChecked) {
+        closeAgreementModal();
+        
+        const form = document.getElementById('signinForm');
+        const formData = new FormData(form);
+  
+        // Send form data to the server
+        fetch('/signin', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            // Display error message in toast if user exists
+            showToast(data.error);
+          } else {
+            // Display success message
+            showToast(data.success);
+            // Redirect or update the page as needed
+            setTimeout(() => {
+              window.location.href = "/login";  // Redirect to login page after success
+            }, 3000);
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      } else {
+        showToast('You must agree to both the User Agreement and Privacy Policy to sign in.');
+      }
+    }
+    
+  
+  
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.getElementById('togglePassword');
+      
+      if (passwordInput.type === 'password') {
+          passwordInput.type = 'text'; // Show password
+          toggleIcon.classList.remove('bxs-show'); // Change to hide icon
+          toggleIcon.classList.add('bxs-hide'); // Assuming you have a 'bxs-hide' icon
+      } else {
+          passwordInput.type = 'password'; // Hide password
+          toggleIcon.classList.remove('bxs-hide'); // Change back to show icon
+          toggleIcon.classList.add('bxs-show');
+      }
+    }
+  </script>
+</body>
+</html>

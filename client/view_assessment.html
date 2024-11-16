@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Details</title>
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stress_result.css') }}">
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<section id="sidebar">
+    <a href="#" class="brand">
+        <i class='bx bx-badge-check'></i>
+        <span class="text">Stress Check</span>
+    </a>
+    <ul class="side-menu top">
+        <li class="active">
+            <a href="#">
+                <i class='bx bxs-dashboard'></i>
+                <span class="text">Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('analytics') }}">
+                <i class='bx bxs-doughnut-chart'></i>
+                <span class="text">History</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('recommendation') }}">
+                <i class='bx bxs-message-rounded-dots'></i>
+                <span class="text">Recommendation</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('profile') }}">
+                <i class='bx bxs-user-circle'></i>
+                <span class="text">My Profile</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="side-menu">
+        <li>
+            <a href="{{ url_for('feedback') }}">
+                <i class='bx bxs-user-pin'></i>
+                <span class="text">Feedback</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('logout') }}" class="logout">
+                <i class='bx bxs-log-out-circle'></i>
+                <span class="text">Logout</span>
+            </a>
+        </li>
+    </ul>
+</section>
+<!-- END SIDEBAR -->
+
+<!-- CONTENT -->
+<section id="content">
+    <!-- NAVBAR -->
+    <nav>
+        <i class='bx bx-menu'></i>
+        <form action="#">
+            <div class="form-input">
+                <input type="search" placeholder="Search...">
+                <button type="submit" class="search-btn"><i class='bx bx-search'></i></button>
+            </div>
+        </form>
+        <input type="checkbox" id="switch-mode" hidden>
+        <label for="switch-mode" class="switch-mode"></label>
+    </nav>
+    <!-- END NAVBAR -->
+
+    <main>
+        <div class="result-container">
+            <h1>Assessment Details</h1>
+
+            <!-- Progress Circle for Stress Level -->
+            <div class="progress-container">
+                <svg viewBox="0 0 200 200" width="200" height="200">
+                    <!-- Background Circle -->
+                    <circle class="progress-background" cx="100" cy="100" r="90" stroke-width="12" />
+                    <!-- Progress Circle -->
+                    <circle class="progress-circle" cx="100" cy="100" r="90" stroke-width="12" stroke-dasharray="565.48" stroke-dashoffset="100" />
+                </svg>
+                <div class="progress-text">
+                    <h2 id="progress-number">{{ assessment.stress_level }}</h2>
+                    <p>Stress Level / 5</p>
+                </div>
+            </div>
+
+            <p><strong>Date Tested:</strong> {{ assessment.date_tested.strftime('%d-%m-%Y') }}</p>
+            
+            <h3>Stressors</h3>
+            <ul class="stressors-list">
+                {% for stressor in assessment.stressors %}
+                <li>{{ stressor }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Recommendations</h3>
+            <div class="recommendations">
+                <div class="recommendation-card">
+                    <p><strong>Recommendation:</strong> {{ assessment.recommendations }}</p>
+                </div>
+            </div>
+
+            <h3>Test Responses</h3>
+            <div class="responses">
+                {% for pair in question_response_pairs %}
+                <div class="response-item">
+                    <p><strong>Question:</strong> {{ pair.question }}</p>
+                    <p><strong>Your Response:</strong> {{ pair.response }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</section>
+<!-- END CONTENT -->
+
+<script>
+    function setProgress(level) {
+        const progressCircle = document.querySelector('.progress-circle');
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+        const maxLevel = 5;  // Stress level goes from 1 to 5
+        const offset = circumference - (level / maxLevel * circumference);
+
+        // Colors for each stress level: from green to red
+        const levelColors = [
+            "#4CAF50", // Level 1: Green (Low stress)
+            "#FFC107", // Level 2: Yellow (Moderate stress)
+            "#FF9800", // Level 3: Orange (High stress)
+            "#FF5722", // Level 4: Dark Orange (Very high stress)
+            "#F44336"  // Level 5: Red (Extreme stress)
+        ];
+
+        // Update the stroke-dashoffset and color based on the stress level
+        progressCircle.style.strokeDashoffset = offset;
+        progressCircle.style.stroke = levelColors[level - 1];
+    }
+
+    // Set the current stress level (from 1 to 5, dynamically fetched from backend)
+    const currentStressLevel = parseInt("{{ assessment.stress_level }}");
+    setProgress(currentStressLevel);
+</script>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

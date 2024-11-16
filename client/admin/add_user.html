@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+
+	<title>AdminHub</title>
+</head>
+<body>
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<nav>
+		<a href="#" class="brand">
+			<i class='bx bxs-smile'></i>
+			<span class="text">Stress Check</span>
+		</a>
+		<ul class="side-menu top">
+			<li >
+				<a href="{{ url_for('admin_dashboard', username=username) }}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+			<li class="active">
+				<a href="{{ url_for('management') }}">
+					<i class='bx bxs-shopping-bag-alt' ></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('data') }}">
+					<i class='bx bxs-data'></i>
+					<span class="text">Data Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('stress_questions') }}">
+					<i class='bx bxs-message-square-edit'></i>
+					<span class="text">Questionnaire Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('admin_feedback') }}">
+					<i class='bx bxs-doughnut-chart' ></i>
+					<span class="text">User Feedback</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="#">
+					<i class='bx bxs-cog' ></i>
+
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('login') }}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+		</nav>
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			<form action="#">
+				<div class="form-input">
+					<input type="search" placeholder="Search...">
+					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+				</div>
+			</form>
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+		</nav>
+		<!-- NAVBAR -->
+
+
+	<!-- MAIN -->
+	<main>
+		<div class="head-title">
+			<div class="left">
+				<a href="{{ url_for('management') }}" class="btn-adduser-back">
+					<i class="bx bx-arrow-back"></i>
+				<h1>Add User Accounts</h1>
+				<ul class="breadcrumb">
+					<li>
+						<a href="#">Dashboard</a>
+					</li>
+					<li><i class='bx bx-chevron-right' ></i></li>
+					<li>
+						<a class="active" href="#">Accounts</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="user-management">
+			<div class="user-management-header">
+				<h2>Add New User Accounts</h2>
+				</a>
+            </div>
+<!-- Add User Form (initially hidden) -->
+<div id="addUserForm"> <!-- Form hidden initially -->
+    <form method="POST" action="{{ url_for('add_user') }}">
+		<label for="username">Username:</label>
+        <input type="text" name="username" required>
+
+        <label for="email">Email:</label>
+        <input type="email" name="email" required>
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" required>
+
+        <label for="age">Age:</label>
+        <input type="number" name="age" required>
+
+        <label for="gender">Gender:</label>
+        <select name="gender" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label for="role">Role:</label>
+        <select name="role" required>
+            <option value="User">User</option>
+            <option value="Admin">Admin</option>
+        </select>
+
+        <button type="submit">Add User</button>
+    </form>
+</div>
+
+			
+		</div>
+	</main>
+	<!-- MAIN -->
+</section>
+	<!-- CONTENT -->
+	
+
+	<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

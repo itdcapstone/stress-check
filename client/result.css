@@ -1,0 +1,344 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 960px;
+    width: 100%;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 36px;
+    font-weight: 600;
+    text-align: center;
+    color: #31533e;
+    margin-bottom: 30px;
+}
+
+/* Responsive Result Container */
+.result-container {
+    max-width: 1024px;
+    margin: 0 auto;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.03);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.result-container:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12), 0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Enlarged Progress Circle Styles */
+.progress-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 30px auto;
+    background: radial-gradient(circle, #e5eeea 0%, #81b78a 100%);
+    border-radius: 50%;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.progress-container svg {
+    position: relative;
+    width: 100%;
+    height: auto;
+}
+
+.progress-container circle {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+}
+
+.progress-background {
+    stroke: #e0e0e0;
+}
+
+.progress-circle {
+    stroke: #ff9900; /* Changed stroke color to match the orange in your image */
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: calc(565.48 - (565.48 * 3 / 5)); /* Adjusted for dynamic stress level */
+    transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+}
+
+.progress-text {
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+}
+
+.progress-text h2 {
+    margin: 0;
+    font-size: 50px;
+    color: #31533e;
+    font-weight: 600;
+}
+
+.progress-text p {
+    margin: 0;
+    font-size: 16px;
+    color: #666;
+}
+
+/* Flow Card Styles (For Questions Section) */
+.flow-card {
+    background-color: #f9fafb;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column; /* Changed to column for better alignment */
+    justify-content: center; /* Center content vertically */
+    align-items: flex-start; /* Align text to the left */
+    border-left-width: 8px;
+    border-left-style: solid;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left; /* Ensure all text is aligned to the left */
+}
+
+.flow-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Flow Card Content Styles */
+.flow-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Ensure text aligns to the left */
+    width: 100%; /* Make sure content spans the full width */
+}
+
+.flow-card-content h4 {
+    margin: 0 0 8px 0;
+    font-size: 19px;
+    font-weight: 600;
+    color: #31533e;
+    text-align: left; /* Align header text to the left */
+}
+
+.flow-card-content p {
+    margin: 0;
+    font-size: 17px;
+    color: #666;
+    text-align: left; /* Align paragraph text to the left */
+}
+
+/* Border Colors for Cards */
+.flow-card.yellow {
+    border-left-color: #f7c907;
+}
+
+.flow-card.orange {
+    border-left-color: #f78e07;
+}
+
+.flow-card.red {
+    border-left-color: #f74b07;
+}
+
+/* Stressors List Styles */
+.stressors-list {
+    list-style: none; /* Remove bullets */
+    padding: 0;
+    margin: 20px 0;
+}
+
+.stressor-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border: 1px solid #dcdcdc; /* Light gray border */
+    border-radius: 8px;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    background-color: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stressor-item i {
+    color: #5a8d6b; /* Soft green for the icon */
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.stressor-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Optional styling for h3 to complement the list */
+h3 {
+    font-size: 24px;
+    color: #31533e;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+
+
+
+/* Button Style for Recommendations */
+.cta-btn {
+    display: inline-block;
+    padding: 14px 30px;
+    background: linear-gradient(135deg, #81b78a, #5f9270);
+    color: white;
+    font-weight: 500;
+    border-radius: 30px;
+    text-align: center;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-btn:hover {
+    background: linear-gradient(135deg, #5f9270, #81b78a);
+    transform: translateY(-3px);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .flow-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .flow-card-content h4 {
+        font-size: 16px;
+    }
+
+    .flow-card-content p {
+        font-size: 14px;
+    }
+
+    .progress-container {
+        width: 200px;
+        height: 200px;
+    }
+
+    .progress-text h2 {
+        font-size: 40px;
+    }
+
+    .progress-text p {
+        font-size: 14px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+}
+
+/* Extra Small Devices */
+@media (max-width: 576px) {
+    .flow-card {
+        padding: 10px;
+    }
+
+    .flow-card-content h4 {
+        font-size: 14px;
+    }
+
+    .flow-card-content p {
+        font-size: 12px;
+    }
+
+    .progress-container {
+        width: 150px;
+        height: 150px;
+    }
+
+    .progress-text h2 {
+        font-size: 30px;
+    }
+
+    .progress-text p {
+        font-size: 12px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    .test-info p{
+        font-size: 14px;
+    }
+}
+
+/* PDF-only styling for questions and stressors section */
+.pdf-mode .no-pdf {
+    display: none;
+}
+
+.pdf-mode .flow-card-content h4 {
+    font-size: 14px;    /* Smaller font size for questions */
+    line-height: 1.2;   /* Adjust line height for compact spacing */
+    margin-bottom: 5px; /* Reduce space below each question */
+}
+
+/* Reduce gap between "Common Stressors" heading and stressors list */
+.pdf-mode h3 {
+    margin-top: 10px;    /* Minimal space above "Common Stressors" */
+    margin-bottom: 5px;  /* Minimal space below "Common Stressors" */
+}
+
+.pdf-mode .stressors-list {
+    margin-top: 5px;     /* Minimal space above stressors list */
+    margin-bottom: 10px; /* Adjust as needed for better spacing */
+}
+
+/* Styling for Test Info Section */
+.test-info {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 18px;
+    color: #31533e;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.test-info p {
+    margin: 0;
+    font-weight: 500;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.test-info p strong {
+    font-weight: 600;
+    color: #31533e;
+}
+
