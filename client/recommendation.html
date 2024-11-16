@@ -23,12 +23,12 @@
             <span class="text">Stress Check</span>
         </a>
         <ul class="side-menu top">
-          <li>
-            <a href="{{ url_for('dashboard', username=username) }}">
-                <i class='bx bxs-dashboard' ></i>
-                <span class="text">Dashboard</span>
-            </a>
-        </li>
+            <li class="active">
+                <a href="{{ url_for('dashboard', username=username) }}">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
             <li><a href="{{ url_for('analytics') }}"><i class='bx bxs-doughnut-chart'></i><span class="text">History</span></a></li>
             <li class="active"><a href="{{ url_for('recommendation') }}"><i class='bx bxs-message-rounded-dots'></i><span class="text">Recommendation</span></a></li>
             <li><a href="{{ url_for('profile') }}"><i class='bx bxs-user-circle'></i><span class="text">My Profile</span></a></li>
@@ -51,6 +51,13 @@
         <nav>
             <i class='bx bx-menu'></i>
             <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="switch-mode" hidden>
+            <label for="switch-mode" class="switch-mode"></label>
         </nav>
 
         <!-- Result Container -->

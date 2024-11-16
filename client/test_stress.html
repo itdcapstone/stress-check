@@ -75,6 +75,13 @@
         <nav>
             <i class='bx bx-menu' ></i>
             <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="switch-mode" hidden>
+            <label for="switch-mode" class="switch-mode"></label>
         </nav>
         <!-- NAVBAR -->
 
@@ -104,151 +111,151 @@
                                 {% if question.type == 'rating_scale_5' %}
                                 <input type="radio" id="q{{ loop.index }}-1" name="{{ question._id }}" value="1">
                                 <label for="q{{ loop.index }}-1">1</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-2" name="{{ question._id }}" value="2">
                                 <label for="q{{ loop.index }}-2">2</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-3" name="{{ question._id }}" value="3">
                                 <label for="q{{ loop.index }}-3">3</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-4" name="{{ question._id }}" value="4">
                                 <label for="q{{ loop.index }}-4">4</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-5" name="{{ question._id }}" value="5">
                                 <label for="q{{ loop.index }}-5">5</label>
-                        
+
                             {% elif question.type == 'likert_scale_satisfaction' %}
                                 <input type="radio" id="q{{ loop.index }}-very-satisfied" name="{{ question._id }}" value="Very Satisfied">
                                 <label for="q{{ loop.index }}-very-satisfied">Very Satisfied</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-satisfied" name="{{ question._id }}" value="Satisfied">
                                 <label for="q{{ loop.index }}-satisfied">Satisfied</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-neutral" name="{{ question._id }}" value="Neutral">
                                 <label for="q{{ loop.index }}-neutral">Neutral</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-dissatisfied" name="{{ question._id }}" value="Dissatisfied">
                                 <label for="q{{ loop.index }}-dissatisfied">Dissatisfied</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-very-dissatisfied" name="{{ question._id }}" value="Very Dissatisfied">
                                 <label for="q{{ loop.index }}-very-dissatisfied">Very Dissatisfied</label>
-                        
+
                             {% elif question.type == 'yes_no' %}
                                 <input type="radio" id="q{{ loop.index }}-yes" name="{{ question._id }}" value="Yes">
                                 <label for="q{{ loop.index }}-yes">Yes</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-no" name="{{ question._id }}" value="No">
                                 <label for="q{{ loop.index }}-no">No</label>
-                        
+
                             {% elif question.type == 'likert_scale_frequency' %}
                                 <input type="radio" id="q{{ loop.index }}-never" name="{{ question._id }}" value="Never">
                                 <label for="q{{ loop.index }}-never">Never</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-rarely" name="{{ question._id }}" value="Rarely">
                                 <label for="q{{ loop.index }}-rarely">Rarely</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-sometimes" name="{{ question._id }}" value="Sometimes">
                                 <label for="q{{ loop.index }}-sometimes">Sometimes</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-often" name="{{ question._id }}" value="Often">
                                 <label for="q{{ loop.index }}-often">Often</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-always" name="{{ question._id }}" value="Always">
                                 <label for="q{{ loop.index }}-always">Always</label>
-                        
+
                             {% elif question.type == 'likert_scale_quality' %}
                                 <input type="radio" id="q{{ loop.index }}-excellent" name="{{ question._id }}" value="Excellent">
                                 <label for="q{{ loop.index }}-excellent">Excellent</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-good" name="{{ question._id }}" value="Good">
                                 <label for="q{{ loop.index }}-good">Good</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-adequate" name="{{ question._id }}" value="Adequate">
                                 <label for="q{{ loop.index }}-adequate">Adequate</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-poor" name="{{ question._id }}" value="Poor">
                                 <label for="q{{ loop.index }}-poor">Poor</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-very-poor" name="{{ question._id }}" value="Very Poor">
                                 <label for="q{{ loop.index }}-very-poor">Very Poor</label>
-                        
+
                             {% elif question.type == 'likert_scale_agreement' %}
                                 <input type="radio" id="q{{ loop.index }}-strongly-disagree" name="{{ question._id }}" value="Strongly Disagree">
                                 <label for="q{{ loop.index }}-strongly-disagree">Strongly Disagree</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-disagree" name="{{ question._id }}" value="Disagree">
                                 <label for="q{{ loop.index }}-disagree">Disagree</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-neutral" name="{{ question._id }}" value="Neutral">
                                 <label for="q{{ loop.index }}-neutral">Neutral</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-agree" name="{{ question._id }}" value="Agree">
                                 <label for="q{{ loop.index }}-agree">Agree</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-strongly-agree" name="{{ question._id }}" value="Strongly Agree">
                                 <label for="q{{ loop.index }}-strongly-agree">Strongly Agree</label>
 
                             {% elif question.type == 'likert_scale_agreement2' %}
                                 <input type="radio" id="q{{ loop.index }}-strongly-agree" name="{{ question._id }}" value="Strongly Agree">
                                 <label for="q{{ loop.index }}-strongly-agree">Strongly Agree</label>
-                                
+
                                 <input type="radio" id="q{{ loop.index }}-agree" name="{{ question._id }}" value="Agree">
                                 <label for="q{{ loop.index }}-agree">Agree</label>
-                                
+
                                 <input type="radio" id="q{{ loop.index }}-neutral" name="{{ question._id }}" value="Neutral">
                                 <label for="q{{ loop.index }}-neutral">Neutral</label>
-                                
+
                                 <input type="radio" id="q{{ loop.index }}-disagree" name="{{ question._id }}" value="Disagree">
                                 <label for="q{{ loop.index }}-disagree">Disagree</label>
-                                
+
                                 <input type="radio" id="q{{ loop.index }}-strongly-disagree" name="{{ question._id }}" value="Strongly Disagree">
                                 <label for="q{{ loop.index }}-strongly-disagree">Strongly Disagree</label>
-                        
+
                             {% elif question.type == 'likert_scale_impact' %}
                                 <input type="radio" id="q{{ loop.index }}-not-at-all" name="{{ question._id }}" value="Not at all">
                                 <label for="q{{ loop.index }}-not-at-all">Not at all</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-a-little" name="{{ question._id }}" value="A little">
                                 <label for="q{{ loop.index }}-a-little">A little</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-moderately" name="{{ question._id }}" value="Moderately">
                                 <label for="q{{ loop.index }}-moderately">Moderately</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-significantly" name="{{ question._id }}" value="Significantly">
                                 <label for="q{{ loop.index }}-significantly">Significantly</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-extremely" name="{{ question._id }}" value="Extremely">
                                 <label for="q{{ loop.index }}-extremely">Extremely</label>
-                        
+
                             {% elif question.type == 'likert_scale_disturbance' %}
                                 <input type="radio" id="q{{ loop.index }}-very-manageable" name="{{ question._id }}" value="Very Manageable">
                                 <label for="q{{ loop.index }}-very-manageable">Very Manageable</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-manageable" name="{{ question._id }}" value="Manageable">
                                 <label for="q{{ loop.index }}-manageable">Manageable</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-neutral" name="{{ question._id }}" value="Neutral">
                                 <label for="q{{ loop.index }}-neutral">Neutral</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-disturbing" name="{{ question._id }}" value="Disturbing">
                                 <label for="q{{ loop.index }}-disturbing">Disturbing</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-very-disturbing" name="{{ question._id }}" value="Very Disturbing">
                                 <label for="q{{ loop.index }}-very-disturbing">Very Disturbing</label>
-                        
+
                             {% elif question.type == 'likert_scale_completeness' %}
                                 <input type="radio" id="q{{ loop.index }}-completely" name="{{ question._id }}" value="Completely">
                                 <label for="q{{ loop.index }}-completely">Completely</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-very-much" name="{{ question._id }}" value="Very Much">
                                 <label for="q{{ loop.index }}-very-much">Very Much</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-moderately" name="{{ question._id }}" value="Moderately">
                                 <label for="q{{ loop.index }}-moderately">Moderately</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-somewhat" name="{{ question._id }}" value="Somewhat">
                                 <label for="q{{ loop.index }}-somewhat">Somewhat</label>
-                        
+
                                 <input type="radio" id="q{{ loop.index }}-not-at-all" name="{{ question._id }}" value="Not at all">
                                 <label for="q{{ loop.index }}-not-at-all">Not at all</label>
                             {% endif %}
@@ -275,7 +282,7 @@
             const submitBtn = document.querySelector('.submit-btn');
             const questionIndicator = document.getElementById('question-indicator');
             let currentQuestion = 0;
-        
+
             function updateQuestionDisplay() {
                 questions.forEach((question, index) => {
                     question.classList.toggle('active', index === currentQuestion);
@@ -285,7 +292,7 @@
                 submitBtn.style.display = currentQuestion === questions.length - 1 ? 'inline' : 'none';
                 questionIndicator.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
             }
-        
+
             document.addEventListener('DOMContentLoaded', function() {
                 const questionHeadings = document.querySelectorAll('.question h2');
                 questionHeadings.forEach(function(heading) {
@@ -296,13 +303,13 @@
                     }
                 });
             });
-        
+
             function isAnswered() {
                 const currentQuestionContainer = questions[currentQuestion];
                 const inputs = currentQuestionContainer.querySelectorAll('input[type="radio"]');
                 return Array.from(inputs).some(input => input.checked);
             }
-            
+
             nextBtn.addEventListener('click', () => {
                 if (isAnswered()) {
                     // Proceed to next question
@@ -314,37 +321,37 @@
                     // Validation failed: shake the question container and show the alert
                     const currentQuestionContainer = questions[currentQuestion];
                     currentQuestionContainer.classList.add('shake');
-            
+
                     // Timeout to remove the shake effect after animation
                     setTimeout(() => {
                         currentQuestionContainer.classList.remove('shake');
                     }, 500);
-            
+
                     // Show custom alert for unanswered question
                     showCustomAlert('Please select an answer before proceeding.');
                 }
             });
-            
+
             prevBtn.addEventListener('click', () => {
                 if (currentQuestion > 0) {
                     currentQuestion--;
                     updateQuestionDisplay();
                 }
             });
-            
+
             // Custom alert function
             function showCustomAlert(message) {
                 const alertBox = document.querySelector('.custom-alert.error-alert'); // Target the error alert box
                 const alertMsg = alertBox.querySelector('.msg'); // Get the message span inside the alert
-            
+
                 // Set the custom message
                 alertMsg.innerText = message;
-            
+
                 // Make the alert visible
                 alertBox.classList.add('active');
                 alertBox.classList.remove('fade-out'); // Ensure it doesn't have 'fade-out' when showing it
-            
-                
+
+
                 setTimeout(() => {
                     alertBox.classList.add('fade-out'); // Start fading out
                     setTimeout(() => {
@@ -353,13 +360,12 @@
                     }, 1000); 
                 }, 1500); 
             }
-            
+
             updateQuestionDisplay(); // Initial call to set up display
         </script>
-        
-        
+
+
         <script src="{{ url_for('static', filename='script.js') }}"></script>
     </section>
 
 </body>
-</html>
