@@ -261,11 +261,17 @@ header {
 @media (max-width: 480px) {
   .nav__logo {
     font-size: 1.5rem; /* Smaller logo size for mobile */
+}
+  }
+
+  .nav__logo a {
+    margin-left: -6px;
+
   }
   .wrapper h1 {
     font-size: 24px; /* Smaller heading size for mobile */
   }
-}
+  
 
 /* Modal background overlay with a subtle blur effect */
 .modal {

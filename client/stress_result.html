@@ -14,6 +14,8 @@
     <title>Stress Prediction Result</title>
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <title>Stress Result</title>
 </head>
 <body>
     <!-- SIDEBAR -->
@@ -23,7 +25,12 @@
             <span class="text">Stress Check</span>
         </a>
         <ul class="side-menu top">
-            <li><a href="{{ url_for('dashboard', username=username) }}"></i><span class="text">Dashboard</span></a></li>
+            <li>
+                <a href="{{ url_for('dashboard', username=username) }}">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
             <li><a href="{{ url_for('analytics') }}"><i class='bx bxs-doughnut-chart'></i><span class="text">History</span></a></li>
             <li class="active"><a href="{{ url_for('recommendation') }}"><i class='bx bxs-message-rounded-dots'></i><span class="text">Recommendation</span></a></li>
             <li><a href="{{ url_for('profile') }}"><i class='bx bxs-user-circle'></i><span class="text">My Profile</span></a></li>

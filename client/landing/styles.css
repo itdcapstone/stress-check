@@ -67,6 +67,8 @@ nav {
   align-items: center;
   justify-content: space-between;
   background-color: var(--text-dark);
+
+ 
 }
 
 .nav__logo a {
@@ -468,6 +470,18 @@ color: var(--white); /* Ensures text color stays white on hover */
 
 
   @media (max-width: 576px) {
+    .nav__heaader{
+    width: 100%;
+    background-color: var(--text-dark);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    }
 
     .nav__logo a {
       margin-left: 2px;

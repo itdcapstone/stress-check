@@ -193,6 +193,7 @@ body {
 
 
 /* NAVBAR */
+/* NAVBAR */
 #content nav {
 	height: 56px;
 	background: var(--sd);
@@ -202,12 +203,12 @@ body {
 	grid-gap: 24px;
 	font-family: var(--lato);
 	position: sticky;
-	top: 0;
-	left: 0;
+    top: 0;
+    left: 0;
 	z-index: 1000;
 }
 #content nav::before {
-	content: '';
+    content: '';
 	position: absolute;
 	width: 40px;
 	height: 40px;
@@ -216,6 +217,7 @@ body {
 	border-radius: 50%;
 	box-shadow: -20px -20px 0 var(--sd);
 }
+
 #content nav a {
 	color: var(--dark);
 }
@@ -236,9 +238,11 @@ body {
 	margin-right: auto;
 }
 #content nav form .form-input {
-	display: flex;
-	align-items: center;
-	height: 36px;
+    visibility: hidden; /* Hides the form input */
+    opacity: 0;         /* Makes it invisible */
+    pointer-events: none; /* Disables interaction */
+    height: 0;          /* Collapses its height */
+    overflow: hidden;   /* Ensures no content is visible */
 }
 #content nav form .form-input input {
 	flex-grow: 1;
@@ -267,14 +271,13 @@ body {
 }
 
 #content nav .switch-mode {
-	display: block;
-	min-width: 50px;
-	height: 25px;
-	border-radius: 25px;
-	background: var(--light);
-	cursor: pointer;
-	position: relative;
+    visibility: hidden; /* Hides the switch mode toggle */
+    opacity: 0;         /* Makes it invisible */
+    pointer-events: none; /* Disables interaction */
+    height: 0;          /* Collapses its height */
+    overflow: hidden;   /* Ensures no content is visible */
 }
+
 #content nav .switch-mode::before {
 	content: '';
 	position: absolute;
@@ -338,17 +341,29 @@ body {
     color: var(--dark);
 }
 
-#content main .head-title .btn-download {
+/* Styling for Profile Heading */
+#content main .head-title .left h1 {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--dark);
+    margin: 0;
+}
+
+
+/* Styling for Edit Profile Button */
+#content main .btn-download {
     height: 40px;
-    padding: 0 50px;
-    border-radius: 36px;
+    padding: 0 30px;
+    border-radius: 20px;
     background: #1A4D2E;
     color: var(--light);
-    display: flex;
-    justify-content: center;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     grid-gap: 10px;
     font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
 }
 
 #content main .box-info {
@@ -448,72 +463,135 @@ body {
 @media (max-width: 768px) {
 
 	#content main {
-		padding: 20px 24px;	
+        padding: 16px 12px;
 	}
 
     #content main .head-title .left h1,
     #content main .head-title-center .center h1 {
-        font-size: 28px; /* Smaller font size for smaller screens */
+        font-size: 26px;
     }
 
     #content main .btn-download {
-        padding: 0 30px; /* Reduced padding for smaller screens */
-        font-size: 14px; /* Smaller font size for buttons */
+        padding: 0 20px;
+        font-size: 14px;
     }
 
     #content main .box-info {
-        grid-gap: 16px; /* Reduced gap for smaller screens */
+        grid-template-columns: 1fr; /* Single column layout */
+        grid-gap: 16px;
     }
 
     #content main .box-info li {
-        padding: 16px; /* Reduced padding for smaller screens */
+        padding: 14px;
     }
 
     #content main .box-info li .text h3 {
-        font-size: 20px; /* Smaller heading size for smaller screens */
+        font-size: 18px;
+    }
+
+    #content main .box-info li .text p {
+        font-size: 13px;
     }
 
     #content main .table-data {
-        flex-direction: row; /* Keep items side-by-side on tablets */
-        gap: 16px; /* Slightly smaller gap for tablets */
+        gap: 10px;
+    }
+
+    #content main .table-data > div {
+        padding: 12px;
+    }
+
+    #content main .table-data .head h3 {
+        font-size: 18px;
     }
 }
 
+/* Responsive Adjustments for Small Mobile Screens */
 @media (max-width: 480px) {
+    #content main {
+        padding: 12px 8px;
+    }
+
     #content main .head-title .left h1,
     #content main .head-title-center .center h1 {
-        font-size: 24px; /* Further reduce font size */
+        font-size: 22px;
     }
 
     #content main .btn-download {
-        padding: 0 20px; /* Further reduced padding */
-        font-size: 14px; /* Further reduce font size for buttons */
+        padding: 0 16px;
+        font-size: 12px;
+        height: 36px;
+    }
+
+    #content main .box-info {
+        grid-gap: 12px;
+    }
+
+    #content main .box-info li {
+        padding: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #content main .box-info li .bx {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
     }
 
     #content main .box-info li .text h3 {
-        font-size: 18px; /* Further reduce heading size */
+        font-size: 16px;
+}
+
+    #content main .box-info li .text p {
+        font-size: 12px;
     }
 
+    #content main .box-info li img {
+        width: 80px;
 }
 
-#content main .table-data .head {
-	display: flex;
-	align-items: center;
-	grid-gap: 16px;
-	margin-bottom: 24px;
-}
 #content main .table-data .head h3 {
-	margin-right: auto;
-	font-size: 24px;
-	font-weight: 600;
-}
-#content main .table-data .head .bx {
-	cursor: pointer;
+        font-size: 16px;
+    }
+
+    #content main .table-data > div {
+        padding: 8px;
 }
 
+    #content main .table-data {
+        gap: 8px;
+}
+}
 
-/* Media query for small screens */
-@media (max-width: 720px) { /* Adjust the max-width as needed */
+/* Responsive Adjustments for Extra Small Mobile Screens */
+@media (max-width: 360px) {
+    #content main .head-title .left h1,
+    #content main .head-title-center .center h1 {
+        font-size: 20px;
+    }
+
+    #content main .btn-download {
+        padding: 0 10px;
+        font-size: 10px;
+    }
+
+    #content main .box-info li .text h3 {
+        font-size: 14px;
+    }
+
+    #content main .box-info li .text p {
+        font-size: 10px;
+    }
+
+    #content main .box-info li img {
+        width: 60px;
+    }
+
+    #content main .table-data .head h3 {
+        font-size: 14px;
+    }
+
     #content main .table-data > div {
         overflow-x: auto; /* Show overflow bar on small screens */
     }
@@ -1396,21 +1474,22 @@ textarea {
 }
 
 .btn-group .btn.submit {
-	background: var(--blue);
+	background: #DEE9E5;
 	color: var(--white);
 }
 
 .btn-group .btn.submit:hover {
-	background: var(--blue-d-1);
+	background: #7ABA78;
 }
 
 .btn-group .btn.cancel {
-	background: var(--white);
+	background: #DEE9E5;
 	color: var(--blue);
 }
 
 .btn-group .btn.cancel:hover {
-	background: var(--light);
+	background: #adadad;
+    color: whitesmoke;
 }
 
 /* General Styles */

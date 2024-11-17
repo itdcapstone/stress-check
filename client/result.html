@@ -20,7 +20,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
-
+     
+    <title>Assessment Result</title>
 </head>
 
 <body>
@@ -32,7 +33,7 @@
             <span class="text">Stress Check</span>
         </a>
         <ul class="side-menu top">
-            <li class="active">
+            <li>
                 <a href="{{ url_for('dashboard', username=username) }}">
                     <i class='bx bxs-dashboard' ></i>
                     <span class="text">Dashboard</span>
@@ -44,7 +45,7 @@
                     <span class="text">History</span>
                 </a>
             </li>
-			<li>
+			<li class="active">
                 <a href="{{ url_for('recommendation') }}">
 					<i class='bx bxs-message-rounded-dots'></i>
                     <span class="text">Recommendation</span>

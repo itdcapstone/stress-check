@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='stress_result.css') }}">
     <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <title>Assessment</title>
 </head>
 <body>
 
@@ -19,13 +21,13 @@
         <span class="text">Stress Check</span>
     </a>
     <ul class="side-menu top">
-        <li class="active">
-            <a href="#">
-                <i class='bx bxs-dashboard'></i>
+        <li>
+            <a href="{{ url_for('dashboard', username=username) }}">
+                <i class='bx bxs-dashboard' ></i>
                 <span class="text">Dashboard</span>
             </a>
         </li>
-        <li>
+        <li class="active">
             <a href="{{ url_for('analytics') }}">
                 <i class='bx bxs-doughnut-chart'></i>
                 <span class="text">History</span>
@@ -41,6 +43,12 @@
             <a href="{{ url_for('profile') }}">
                 <i class='bx bxs-user-circle'></i>
                 <span class="text">My Profile</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('faqs') }}">
+                <i class='bx bxs-user-circle' ></i>
+                <span class="text">FAQ's</span>
             </a>
         </li>
     </ul>

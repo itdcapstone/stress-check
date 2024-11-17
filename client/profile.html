@@ -9,7 +9,7 @@
 	<!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
-	<title>AdminHub</title>
+	<title>Profile</title>
 </head>
 <body>
 
@@ -105,10 +105,10 @@
 			<div class="profile-container"><br>
 				<form id="profile-form" method="POST" action="{{ url_for('profile') }}">
 					<div class="profile-details">
-						<h3>General Information</h3><br><br>
+						<h3>General Information</h3><br>
 						<div class="form-row">
 							<div class="form-group">
-								<label for="name">DISPLAY NAME:</label>
+								<label for="name"><br>DISPLAY NAME:</label>
 								<input type="text" id="name" name="name" value="{{ user.name }}" disabled>
 							</div>
 							<div class="form-group">
