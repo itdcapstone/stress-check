@@ -6,10 +6,16 @@
 
 	<!-- Boxicons -->
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-	<!-- My CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+    <!-- My CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/data_styles.css') }}">
+
+	
 	<title>AdminHub</title>
+
+
 </head>
 <body>
 
@@ -17,12 +23,12 @@
 	<section id="sidebar">
 		<nav>
 		<a href="#" class="brand">
-			<i class='bx bxs-smile'></i>
+			<i class='bx bx-badge-check'></i>
 			<span class="text">Stress Check</span>
 		</a>
 		<ul class="side-menu top">
-			<li>
-				<a href="{{ url_for('admin_dashboard') }}">
+			<li >
+				<a href="{{ url_for('admin_dashboard', username=username) }}">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
 				</a>
@@ -40,9 +46,9 @@
 				</a>
 			</li>
 			<li>
-				<a href="{{ url_for('stress_questions') }}">
-					<i class='bx bxs-message-square-edit'></i>
-					<span class="text">Questionnaire Management</span>
+				<a href="{{ url_for('edit_recommendation') }}">
+					<i class='bx bxs-check-circle'></i>
+					<span class="text">Recommendation</span>
 				</a>
 			</li>
 			<li>
@@ -53,12 +59,9 @@
 			</li>
 		</ul>
 		<ul class="side-menu">
+			
 			<li>
-				<a href="#">
-				</a>
-			</li>
-			<li>
-				<a href="{{ url_for('login') }}" class="logout">
+				<a href="{{ url_for('admin_logout') }}" class="logout">
 					<i class='bx bxs-log-out-circle' ></i>
 					<span class="text">Logout</span>
 				</a>
@@ -70,13 +73,12 @@
 
 	<!-- CONTENT -->
 	<section id="content">
-		<!-- NAVBAR -->
-		<nav>
-			<i class="bx bx-menu"></i>
-			<form action="#">
-			  
-		  </nav>
-		<!-- NAVBAR -->
+    
+        <nav>
+            <i class="bx bx-menu"></i>
+            <form action="#"></form>        
+    	</nav>
+
 
 
 	<!-- MAIN -->
@@ -86,7 +88,7 @@
 				<h1>Stress Data</h1>
 				<ul class="breadcrumb">
 					<li>
-						<a href="#">Dashboard</a>
+						<a href="{{ url_for('admin_dashboard', username=username) }}">Dashboard</a>
 					</li>
 					<li><i class='bx bx-chevron-right' ></i></li>
 					<li>
@@ -113,21 +115,36 @@
 				<p class="score-title">Categories</p>
 				<p class="score-value">{{ category_count }}</p>
 			</div>
-		</div>		
-
-
-		<div class="data-overview-graph">
-			<div class="data-overview-card-graph">
-				<h3>Stress Level Trends Over Time</h3>
-				<div id="chart_div" style="width: 100%; height: 400px;"></div>
-			</div>
+		</div>	
 		
-			<div class="data-overview-card-piechart">
-				<h3>Student Stress Levels per Year Level</h3>
-				<div id="barchart_values" style="width: 900px; height: 400px;"></div>
+		<div class="filter-container">
+			<form method="get" action="/admin/data/" class="filter-form">
+				<div class="filter-item">
+					<label for="start_date">Start Date:</label>
+					<input type="date" id="start_date" name="start_date" value="{{ start_date }}">
+				</div>
+		
+				<div class="filter-item">
+					<label for="end_date">End Date:</label>
+					<input type="date" id="end_date" name="end_date" value="{{ end_date }}">
+				</div>
+				<button type="submit" class="filter-submit-btn">Filter</button>
+			</form>
+		</div>
+
+			<div class="data-overview-graph">
+				<div class="data-overview-card-graph">
+					<h3>Stress Level Trends Over Time</h3>
+					<div id="chart_div" style="width: 100%; height: 400px;"></div>
+				</div>
+				<div class="data-overview-card-piechart">
+					<h3>Student Stress Levels per Year Level</h3>
+					<div id="column_chart_div" style="width: 100%; height: 500px;"></div>
+				</div>
+		
+			
 			</div>
 		</div>
-	</div>
 
 			<div class="dashboard-overview-graph">
 				<div class="overview-card-piechart">
@@ -144,80 +161,110 @@
 			</div>
 		</div>
 
+		<!-- Stressor Column Chart -->
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script type="text/javascript">
+			// Load Google Charts
+			google.charts.load('current', { packages: ['corechart', 'bar'] });
 
-	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	<script type="text/javascript">
-	google.charts.load('current', {'packages':['corechart', 'line']});
-	google.charts.setOnLoadCallback(drawChart);
+			// Draw the chart after loading
+			google.charts.setOnLoadCallback(drawColumnChart);
 
-	function drawChart() {
-		var data = google.visualization.arrayToDataTable({{ chart_data | tojson | safe }});
+			// Variable to store the chart instance
+			let columnChart;
 
-		var options = {
-		title: 'Average Stress Levels Over Time',
-		hAxis: {
-			title: 'Month',
-			titleTextStyle: { color: '#333' }
-		},
-		vAxis: {
-			title: 'Average Stress Level',
-			minValue: 0
-		},
-		curveType: 'function',  // Smooth line
-		legend: { position: 'bottom' },
-		width: '100%',  // Make the chart width responsive
-		height: '100%'  // Make the height flexible to container size
-		};
+			function drawColumnChart() {
+				// Data for the column chart
+				const data = google.visualization.arrayToDataTable(
+					{{ column_chart_data|tojson }}
+				);
 
-		var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-		chart.draw(data, options);
+				// Options for the chart
+				const options = {
+					title: 'Average Stress Level by Year Level',
+					backgroundColor: 'transparent', 
+					hAxis: {
+						title: 'Year Level',
+					},
+					vAxis: {
+						title: 'Average Stress Level',
+						minValue: 0,
+					},
+					legend: { position: 'none' },
+					colors: ['#4285F4'],
+					chartArea: {
+						left: '10%',
+						top: '10%',
+						width: '80%',
+						height: '70%',
+						backgroundColor: 'transparent', 
+					},
+				};
 
-		// Make the chart resize on window resize
-		window.addEventListener('resize', function() {
-		chart.draw(data, options);  // Redraw chart when window size changes
-		});
-	}
-	</script>
+				// Render the chart in a fluid container
+				const chartContainer = document.getElementById('column_chart_div');
+				columnChart = new google.visualization.ColumnChart(chartContainer);
+				columnChart.draw(data, options);
+			}
 
-	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	<script type="text/javascript">
-	google.charts.load("current", {packages:['corechart', 'bar']});
-	google.charts.setOnLoadCallback(drawCharts);
+			// Redraw the chart when the window is resized
+			window.addEventListener('resize', () => {
+				if (columnChart) {
+					drawColumnChart();
+				}
+			});
+		</script>
 
-	function drawCharts() {
-		// Line chart for stress levels by month
-		var lineData = google.visualization.arrayToDataTable({{ chart_data|tojson }});
 
-		var lineOptions = {
-		title: 'Average Stress Levels by Month',
-		curveType: 'function',
-		legend: { position: 'bottom' },
-		height: 400,
-		};
+		<!-- Stress Level Line Chart -->
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script type="text/javascript">
+			google.charts.load('current', { 'packages': ['corechart', 'line'] });
+			google.charts.setOnLoadCallback(drawChart);
 
-		var lineChart = new google.visualization.LineChart(document.getElementById('linechart_values'));
-		lineChart.draw(lineData, lineOptions);
+			// Variable to store the chart instance
+			let lineChart;
 
-		// Bar chart for stress levels by year level
-		var barData = google.visualization.arrayToDataTable({{ year_level_chart_data|tojson }});
+			function drawChart() {
+				// Data for the chart
+				const data = google.visualization.arrayToDataTable({{ chart_data | tojson | safe }});
 
-		var barOptions = {
-		title: 'Average Stress Levels by Year Level',
-		chartArea: {width: '50%'},
-		hAxis: {
-			title: 'Avg Stress Level',
-			minValue: 0
-		},
-		vAxis: {
-			title: 'Year Level'
-		},
-		height: 400,
-		};
+				// Options for the chart
+				const options = {
+					title: 'Average Stress Levels Over Time',
+					backgroundColor: 'transparent', 
+					hAxis: {
+						title: 'Month',
+						titleTextStyle: { color: '#333' }
+					},
+					vAxis: {
+						title: 'Average Stress Level',
+						minValue: 0
+					},
+					curveType: 'function',  // Smooth line
+					legend: { position: 'bottom' },
+					chartArea: {
+						left: '10%',
+						top: '10%',
+						width: '80%',
+						height: '65%'
+					}
+				};
 
-		var barChart = new google.visualization.BarChart(document.getElementById('barchart_values'));
-		barChart.draw(barData, barOptions);
-	}
-	</script>
+				// Render the chart in the specified container
+				const chartContainer = document.getElementById('chart_div');
+				lineChart = new google.visualization.LineChart(chartContainer);
+				lineChart.draw(data, options);
+			}
+
+			// Redraw the chart when the window is resized
+			window.addEventListener('resize', () => {
+				if (lineChart) {
+					drawChart();
+				}
+			});
+		</script>
+
 
 		<!-- Chart.js Script for Bar Chart -->
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -227,9 +274,12 @@
 			const labels = stressorData.map(item => item.stressor);
 			const percentages = stressorData.map(item => item.percentage);
 			const studentCounts = stressorData.map(item => item.student_count);
-		
+
+			// Get the chart context
 			const ctx = document.getElementById('stressorBarChart').getContext('2d');
-			new Chart(ctx, {
+
+			// Create the Chart.js bar chart
+			const stressorBarChart = new Chart(ctx, {
 				type: 'bar',
 				data: {
 					labels: labels,
@@ -243,10 +293,11 @@
 				},
 				options: {
 					responsive: true,
+					maintainAspectRatio: false, // Allow the chart to fill the container
 					scales: {
 						y: {
 							beginAtZero: true,
-							max: 20,
+							max: 10,
 							title: { display: true, text: 'Percentage (%)' }
 						},
 						x: {
@@ -267,44 +318,44 @@
 					}
 				}
 			});
-		</script>
-		
-	<!-- Google Charts Script for Pie Chart -->
-	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	<script type="text/javascript">
-		google.charts.load('current', { 'packages': ['corechart'] });
-		google.charts.setOnLoadCallback(drawPieChart);
 
-		function drawPieChart() {
-			// Data passed from Flask to JavaScript
-			var stressLevelData = {{ stress_level_data | tojson }};
-
-			// Transform data to format required by Google Charts
-			var chartData = [['Stress Level', 'Number of Students']];
-			stressLevelData.forEach(function(item) {
-				chartData.push(['Level ' + item.stress_level, item.count]);
+			// Redraw chart on window resize
+			window.addEventListener('resize', () => {
+				stressorBarChart.resize();
 			});
+		</script>
 
-			var data = google.visualization.arrayToDataTable(chartData);
+			<!-- Google Charts Script for Pie Chart -->
+			<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+			<script type="text/javascript">
+				google.charts.load('current', { 'packages': ['corechart'] });
+				google.charts.setOnLoadCallback(drawPieChart);
 
-			var options = {
-				chartArea: { width: '100%', height: '80%' },
-				backgroundColor: 'transparent',
-				colors: ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'],
-				legend: { position: 'bottom', textStyle: { color: '#333', fontSize: 14 } }
-			};
+				function drawPieChart() {
+					// Data passed from Flask to JavaScript
+					var stressLevelData = {{ stress_level_data | tojson }};
 
-			var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-			chart.draw(data, options);
+					// Transform data to format required by Google Charts
+					var chartData = [['Stress Level', 'Number of Students']];
+					stressLevelData.forEach(function(item) {
+						chartData.push(['Level ' + item.stress_level, item.count]);
+					});
 
-			window.addEventListener('resize', drawPieChart);
-		}
-	</script>
+					var data = google.visualization.arrayToDataTable(chartData);
 
-	
+					var options = {
+						chartArea: { width: '100%', height: '80%' },
+						backgroundColor: 'transparent',
+						colors: ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'],
+						legend: { position: 'bottom', textStyle: { color: '#333', fontSize: 14 } }
+					};
 
+					var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+					chart.draw(data, options);
 
-
+					window.addEventListener('resize', drawPieChart);
+				}
+			</script>
 
 
 	</main>

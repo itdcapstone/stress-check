@@ -1,17 +1,3 @@
-const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
-
-allSideMenu.forEach(item=> {
-	const li = item.parentElement;
-
-	item.addEventListener('click', function () {
-		allSideMenu.forEach(i=> {
-			i.parentElement.classList.remove('active');
-		})
-		li.classList.add('active');
-	})
-});
-
-
 document.addEventListener('DOMContentLoaded', function() {
     var addUserLink = document.querySelector('.btn-add-user'); // Button to open the form
     var addUserForm = document.getElementById('addUserForm'); // Form element

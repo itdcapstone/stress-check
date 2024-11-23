@@ -1,0 +1,76 @@
+/* Toast notification styles */
+#toast {
+  display: none; /* Hide by default */
+  position: fixed;
+  top: 20px; /* Center at the top with some spacing */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust position to center horizontally */
+  min-width: 320px;
+  padding: 16px 24px;
+  border-radius: 12px; /* Rounded edges for a soft look */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Soft shadow for a floating effect */
+  z-index: 1001;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Show the toast with animation */
+#toast.show {
+  display: block;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0); /* Reset transform when shown */
+  animation: slide-down 0.5s ease-out;
+}
+
+/* Fade-out effect */
+#toast.fade-out {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px); /* Slide upward during fade-out */
+  animation: slide-up 0.5s ease-in;
+}
+
+/* Success toast styling */
+#toast.success {
+  background-color: #c3ebcc;
+  color: #155724;
+  font-weight: 600; /* Bold text for better readability */
+  border-left: 6px solid #155724; /* Soft fresh green left border */
+  border-radius: 12px; /* Rounded edges */
+}
+
+/* Error toast styling */
+#toast.error {
+  color: #721c24;
+  background-color: #f8d7da;
+  font-weight: 600;
+  border-left: 6px solid #721c24; /* Soft red left border */
+  border-radius: 12px;
+}
+
+/* Slide-down animation for showing */
+@keyframes slide-down {
+  0% {
+      transform: translateX(-50%) translateY(-20px); /* Start slightly above the top center */
+      opacity: 0;
+  }
+  100% {
+      transform: translateX(-50%) translateY(0); /* Set to the center top */
+      opacity: 1;
+  }
+}
+
+/* Slide-up animation for hiding */
+@keyframes slide-up {
+  0% {
+      transform: translateX(-50%) translateY(0); /* Start at the center top */
+      opacity: 1;
+  }
+  100% {
+      transform: translateX(-50%) translateY(-20px); /* Move upward while fading out */
+      opacity: 0;
+  }
+}

@@ -1,3 +1,8 @@
+/* Importing Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+
+
 * {
   margin: 0;
   padding: 0;
@@ -150,12 +155,13 @@ header {
 .input-box input {
   width: 100%;
   height: 100%;
-  background: #DEE9E5;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border: 1.5px solid #1A4D2E;
   border-radius: 40px;
   font-size: 16px;
   color: #1A4D2E;
   padding: 20px 45px 20px 20px;
+  border-color: #7ABA78;
 }
 
 .input-box select {
@@ -176,6 +182,7 @@ header {
   top: 30%;
   transform: translate(-50%);
   font-size: 20px;
+  cursor: pointer;
 }
 
 .wrapper .remember-forgot {
@@ -212,6 +219,14 @@ header {
   color: #ffffff;
   font-weight: 600;
 }
+
+.wrapper .btn:hover {
+  color: #ffffff;
+  background-color: #7ABA78;
+  transform: scale(1.05); /* Slightly increase button size for hover effect */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15); /* Enhance shadow on hover */
+}
+
 
 .wrapper .register-link {
   font-size: 14.5px;
@@ -407,35 +422,73 @@ button:focus {
   box-shadow: 0 0 8px rgba(63, 124, 172, 0.6);
 }
 
-/* Toast notification styles */
-#toast {
-  visibility: hidden;
-  min-width: 320px;
-  background-color: #323232;
-  color: #fff;
-  text-align: center;
-  border-radius: 8px;
-  padding: 16px;
-  position: fixed;
-  z-index: 1001;
-  left: 50%;
-  bottom: 40px;
-  transform: translateX(-50%);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  font-size: 1rem;
+
+/*media queries for sign in */
+
+@media (max-width: 768px) {
+  .wrapper {
+    width: 95%; /* Adjust width for smaller screens */
+    padding: 20px; /* Reduce padding */
+  }
+
+  .wrapper h1 {
+    font-size: 24px; /* Smaller heading size for small screens */
+  }
+
+  .input-box {
+    margin: 20px 0; /* Reduce margin */
+  }
+
+  .input-box select,
+  .input-box input {
+    font-size: 14px; /* Smaller font size */
+    padding: 15px 30px 15px 15px; /* Adjust padding */
+  }
+
+  .remember-forgot {
+    font-size: 13px; /* Adjust font size */
+  }
+
+  .wrapper .btn {
+    height: 40px; /* Adjust button height */
+    font-size: 14px; /* Smaller font size */
+  }
+
+  .register-link {
+    font-size: 13px; /* Adjust font size */
+  }
 }
 
-#toast.show {
-  visibility: visible;
-  animation: fadein 0.4s, fadeout 0.4s 2.6s;
-}
+@media (max-width: 480px) {
+  .wrapper {
+    width: 100%; /* Full width for extremely small screens */
+    padding: 15px; /* Further reduce padding */
+  }
 
-@keyframes fadein {
-  from {bottom: 20px; opacity: 0;}
-  to {bottom: 40px; opacity: 1;}
-}
+  .wrapper h1 {
+    font-size: 20px; /* Smaller heading size */
+  }
 
-@keyframes fadeout {
-  from {bottom: 40px; opacity: 1;}
-  to {bottom: 20px; opacity: 0;}
+  .input-box {
+    margin: 15px 0; /* Further reduce margin */
+  }
+
+  .input-box select,
+  .input-box input {
+    font-size: 12px; /* Smaller font size */
+    padding: 10px 25px 10px 10px; /* Adjust padding */
+  }
+
+  .remember-forgot {
+    font-size: 12px; /* Adjust font size */
+  }
+
+  .wrapper .btn {
+    height: 35px; /* Adjust button height */
+    font-size: 13px; /* Smaller font size */
+  }
+
+  .register-link {
+    font-size: 12px; /* Adjust font size */
+  }
 }

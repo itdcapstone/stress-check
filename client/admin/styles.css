@@ -15,8 +15,7 @@ li {
 }
 
 :root {
-	--poppins: 'Poppins', sans-serif;
-	--lato: 'Lato', sans-serif;
+	--poppins: 'Poppins';
 
 	--light: #DEE9E5;
 	--blue: #1A4D2E;
@@ -44,10 +43,8 @@ body.dark {
 body {
 	background: var(--grey);
 	overflow-x: hidden;
+    font-family: 'Poppins', sans-serif;
 }
-
-
-
 
 
 /* SIDEBAR */
@@ -55,7 +52,7 @@ body {
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 280px;
+	width: 230px;
 	height: 100%;
 	background: var(--light);
 	z-index: 2000;
@@ -167,13 +164,23 @@ body {
 /* CONTENT */
 #content {
 	position: relative;
-	width: calc(100% - 280px);
-	left: 280px;
+	width: calc(100% - 230px);
+	left: 230px;
 	transition: .3s ease;
 }
 #sidebar.hide ~ #content {
 	width: calc(100% - 60px);
 	left: 60px;
+}
+
+@media (max-width: 768px) {
+	#sidebar.hide ~ #content {
+        width: calc(100% - 0px);
+        left: 0px;
+    }
+    #sidebar.hide {
+        width: 0px;
+    }
 }
 
 
@@ -226,6 +233,7 @@ body {
 	display: flex;
 	align-items: center;
 	height: 36px;
+    width: 100%;
 }
 #content nav form .form-input input {
 	flex-grow: 1;
@@ -305,6 +313,74 @@ body {
 
 
 
+/* Custom Alert Styling */
+.custom-alert {
+    display: none; /* Hide by default */
+    position: fixed;
+    top: 10%; /* Center at the top */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -100%); /* Start off-screen above */
+    min-width: 320px;
+    padding: 16px 24px;
+    border-radius: 12px; /* More rounded for a soft look */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Soft shadow for a floating effect */
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.5;
+    text-align: center;
+  }
+  
+  /* Show alert when it's active */
+  .custom-alert.active {
+    display: block;
+    opacity: 1;
+    transform: translate(-50%, 0); /* Slide down into view */
+  }
+  
+  /* Add fade-out effect */
+  .custom-alert.fade-out {
+    opacity: 0;
+    transform: translate(-50%, -20%); /* Slide back up slightly during fade-out */
+  }
+  
+  /* Success alert styling */
+  .custom-alert.success-alert {
+    background-color: #c3ebcc;
+    color: #155724;
+    font-weight: 600; /* Bold text for better readability */
+    border-left: 6px solid #155724; /* Soft fresh green left border */
+    border-radius: 12px; /* Rounded edges for a soft appearance */
+  }
+  
+  /* Error alert styling */
+  .custom-alert.error-alert {
+    color: #721c24;
+    background-color: #f8d7da;
+    font-weight: 600;
+    border-left: 6px solid #721c24; /* Soft red left border */
+    border-radius: 12px;
+  }
+  
+  /* Simple slide-in animation */
+  @keyframes slideIn {
+    0% {
+      transform: translate(-50%, -100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+  }
+  
+  /* Apply animation on active */
+  .custom-alert.active {
+    animation: slideIn 0.5s ease-in-out;
+  }
+  
 
 
 /* MAIN */
@@ -338,8 +414,13 @@ body {
 }
 #content main .head-title .left .breadcrumb li a {
 	color: var(--dark-grey);
-	pointer-events: none;
+	
 }
+
+#content main .head-title .left  .breadcrumb li a:hover {
+    color: #1A4D2E; /* Hover color (example) */
+}
+
 #content main .head-title .left .breadcrumb li a.active {
 	color: var(--blue);
 	pointer-events: unset;
@@ -410,6 +491,9 @@ body {
     display: flex;
     justify-content: space-between;
     margin-top: 30px;
+    margin-left: 30px;
+    margin-right: 30px;
+
 }
 
 .overview-card {
@@ -426,6 +510,9 @@ body {
     flex-wrap: wrap;
     gap: 20px;
     margin-top: 20px;
+    scroll-behavior: smooth; /* Smooth scrolling */
+    overflow-x: auto; /* Horizontal scroll */
+    overflow-y: hidden; /* Prevent vertical scroll */
 }
 
 .overview-card-graph {
@@ -438,6 +525,9 @@ body {
 }
 
 .overview-card-piechart {
+    display: grid;
+    justify-content: center;
+    align-items: center;
     background-color: var(--light);
     border-radius: 15px;
     padding: 20px;
@@ -477,69 +567,6 @@ body.dark.overview-card h3,
 body.dark.overview-card p {
     color: var(--light);
 }
-
-
-
-/* User Management styles */
-
-
-.user-management {
-    margin-top: 30px;
-}
-
-.user-management-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.user-management-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.user-management-table th,
-.user-management-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.user-management-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
-}
-.user-management-table th:nth-child(4),
-.user-management-table td:nth-child(4) {
-    max-width: 150px; /* Adjust the max-width as needed */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.user-management-table td {
-    font-size: 14px;
-}
-
-.btn-add-user,
-.btn-edit-user,
-.btn-delete-user {
-    background-color: #198754;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-add-user:hover,
-.btn-edit-user:hover,
-.btn-delete-user:hover {
-    background-color: #0056b3;
-}
-
 
 /* Questionnaire*/
 
@@ -831,59 +858,689 @@ canvas {
     color: #e74c3c; /* Customize color for Delete button */
 }
 
-/* edit user */ 
+/* Base Media Query for Small Screens (default) */
+@media (max-width: 300px) {
+    .feedback-table {
+        width: 100%;
+        font-size: 10px; /* Adjust font size */
+        border-collapse: collapse;
+    }
+
+    .feedback-table th,
+    .feedback-table td {
+        padding: 6px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .feedback-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+
+    .feedback-table tr:hover {
+        background-color: #e0e0e0;
+    }
+
+    .filter-container {
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    #filterForm {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #filterForm label {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+
+    #filterForm input[type="date"],
+    #filterForm select {
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 8px;
+    }
+
+    #filterForm button {
+        padding: 8px 10px;
+        background-color: #198754;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        width: 100%;
+    }
+
+    .btn-icon.view-feedback:hover,
+    .btn-icon.delete-feedback:hover {
+        color: #0056b3;
+    }
+}
+
+/* Small Screens (Mobile) */
+@media (min-width: 301px) and (max-width: 600px) {
+    .feedback-table {
+        width: 100%;
+        font-size: 12px;
+        border-collapse: collapse;
+    }
+
+    .feedback-table th,
+    .feedback-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .feedback-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+
+    .feedback-table tr:hover {
+        background-color: #e0e0e0;
+    }
+
+    .filter-container {
+        margin-bottom: 15px;
+        margin-top: 15px;
+    }
+
+    #filterForm {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #filterForm label {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+
+    #filterForm input[type="date"],
+    #filterForm select {
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 8px;
+    }
+
+    #filterForm button {
+        padding: 10px 15px;
+        background-color: #198754;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        width: 100%;
+    }
+
+    .btn-icon.view-feedback:hover,
+    .btn-icon.delete-feedback:hover {
+        color: #0056b3;
+    }
+}
+
+/* Medium Screens (Tablets) */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .feedback-table {
+        width: 100%;
+        font-size: 14px;
+    }
+
+    .feedback-table th,
+    .feedback-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .feedback-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+
+    .filter-container {
+        margin-bottom: 18px;
+        margin-top: 18px;
+    }
+
+    #filterForm {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    #filterForm label {
+        margin-right: 8px;
+    }
+
+    #filterForm input[type="date"],
+    #filterForm select {
+        padding: 6px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+    }
+
+    #filterForm button {
+        padding: 10px 12px;
+    }
+
+    .btn-icon.view-feedback {
+        color: #3498db;
+    }
+
+    .btn-icon.delete-feedback {
+        color: #e74c3c;
+    }
+}
+
+/* Large Screens (Desktop) */
+@media (min-width: 1025px) {
+    .feedback-table {
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .feedback-table th,
+    .feedback-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .feedback-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+
+    .filter-container {
+        margin-bottom: 20px;
+        margin-top: 20px;
+    }
+
+    #filterForm {
+        display: flex;
+        align-items: center;
+    }
+
+    #filterForm label {
+        margin-right: 10px;
+    }
+
+    #filterForm input[type="date"],
+    #filterForm select {
+        padding: 8px;
+        margin-right: 10px;
+    }
+
+    #filterForm button {
+        padding: 8px 15px;
+        background-color: #198754;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-icon.view-feedback:hover {
+        color: #007BFF;
+    }
+
+    .btn-icon.view-feedback {
+        color: #3498db;
+    }
+
+    .btn-icon.delete-feedback {
+        color: #e74c3c;
+    }
+}
+
+
+/* User Management styles */
+.user-management {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for a lifted effect */
+}
+
+.user-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+
+/* Scrollable table container for smaller screens */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+}
+
+.user-management-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-management-table tr {
+    display: table-row; /* Maintain table layout */
+    height: auto; /* Adjust row height to content */
+    line-height: 1.2; /* Reduce line spacing */
+    margin: 0; /* Remove any default margin */
+}
+
+.user-management-table tbody tr {
+    padding: 0;  /* Reset padding on rows */
+}
+
+
+
+.user-management-table th, .user-management-table td {
+    padding: 4px 8px; /* Reduce padding */
+    line-height: 1; /* Set line-height to compact value */
+    vertical-align: middle;  /* Ensure content aligns properly */ 
+    font-size: 14px;
+    color: #475569;
+    box-sizing: border-box; /* Ensure padding is inside element size */ 
+    text-align: left;
+}
+
+.user-management-table th {
+    background-color: #1a4d2e; /* Dark green header */
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.user-management-table i,
+.user-management-table button {
+    padding: 0;  /* Remove padding from buttons/icons */
+    margin: 0;   /* Remove margin from buttons/icons */
+    line-height: 1; /* Ensure icons are aligned within the row */
+}
+
+.user-management-table i {
+    height: 1px;
+}
+
+.user-management-table th:nth-child(4),
+.user-management-table td:nth-child(4) {
+    max-width: 150px; /* Adjust the max-width as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-management-table td {
+    font-size: 14px;
+    color: #475569; /* Muted blue-gray for text */
+}
+
+.user-management-table tr:hover {
+    background-color: #e1f7e4; /* Light green for hover */
+}
+
+/* Ellipsis for Long Texts */
+.user-management-table th:nth-child(4),
+.user-management-table td:nth-child(4) {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Table Cell Style */
+.user-management-table td {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.user-management-table tr {
+    display: table-row; /* Maintain table layout */
+    height: auto; /* Adjust row height to content */
+    line-height: 1.2; /* Reduce line spacing */
+    margin: 0; /* Remove any default margin */
+}
+
+.user-management-table tbody tr {
+    padding: 0;  /* Reset padding on rows */
+}
+
+/* Button Styles */
+.btn-add-user,
+.btn-edit-user,
+.btn-delete-user {
+    background-color: #1a4d2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+.btn-add-user {
+    margin-left: auto; /* Pushes the button to the right end */
+    width: 110px;
+    text-align: center;
+}
+
+/* Hover Effects for Buttons */
+.btn-add-user:hover,
+.btn-edit-user:hover {
+    background-color: #35a776;
+    transform: translateY(-2px);
+}
+
+.btn-delete-user:hover {
+    background-color: #e74c3c;
+    transform: translateY(-2px);
+}
+
+/* Icon Button Styles */
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-icon i {
+    font-size: 18px;
+    color: #1a4d2e;
+    transition: color 0.3s;
+}
+
+.btn-icon:hover i {
+    color: #35a776;
+}
+
+/* Delete Icon Hover */
+.btn-icon.delete:hover i {
+    color: #e74c3c;
+    transform: scale(1.1);
+}
+
+/* Delete Modal */
+
+
+#deleteConfirmationModal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 3000;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+/* Modal Visibility */
+#deleteConfirmationModal.show {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: white;
+    z-index: 3000;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+    animation: modalIn 0.4s ease-in-out;
+}
+
+/* Modal Content Animation */
+@keyframes modalIn {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Close Button */
+.close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #1a4d2e;
+}
+
+/* Modal Heading and Text */
+.modal-content h3 {
+    margin-bottom: 16px;
+    font-size: 22px;
+    color: #1a4d2e;
+    font-weight: 600;
+}
+
+.modal-content p {
+    font-size: 20px;
+    margin-bottom: 24px;
+    color: #475569;
+    line-height: 1.5;
+}
+
+/* Modal Action Buttons */
+.modal-content button {
+    display: inline-flex; /* Side by side buttons */
+    align-items: center;
+    justify-content: center;
+    background-color: #1a4d2e;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s ease-in-out;
+    margin: 0 10px;
+    text-align: center;
+}
+
+.modal-content .btnClose:hover {
+    background-color: #35a776;
+    transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+
+
+.modal-content .btnConfirm:hover {
+    background-color: #d1433f;
+    transform: translateY(-2px); /* Slight lift effect on hover */
+}
+
+
+
+				/*Edit User*/
+
+/* Breadcrumbs */
+.breadcrumb {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    color: #6b7280; /* Muted gray */
+    margin-bottom: 5px;
+}
+
+.breadcrumb li {
+    list-style: none;
+}
+
+.breadcrumb li a {
+    color: #1A4D2E; /* Dark green */
+    text-decoration: none;
+}
+
+.breadcrumb li a:hover {
+    color: #7ABA78; /* Soft green */
+}
+
+.breadcrumb li i {
+    color: #6b7280; /* Muted gray */
+}
+
+
+/* Container styling */
 .edit-user {
-	width: 50%;
-	margin: 40px auto;
-	padding: 20px;
-	background-color: #f9f9f9;
-	border: 1px solid #ccc;
-	border-radius: 10px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .edit-user form {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-  }
-  
-  .edit-user label {
-	font-size: 16px;
-	font-weight: bold;
-	color: #333;
-  }
-  
-  .edit-user input[type="text"],
-  .edit-user input[type="email"] {
-	width: 100%;
-	padding: 10px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	font-size: 16px;
-	color: #333;
-  }
-  
-  .edit-user input[type="text"]:focus,
-  .edit-user input[type="email"]:focus {
-	border-color: #198754;
-	outline: none;
-  }
-  
-  .edit-user button[type="submit"] {
-	width: 100%;
-	padding: 10px;
-	background-color: #198754;
-	border: none;
-	border-radius: 5px;
-	font-size: 16px;
-	color: #fff;
-	cursor: pointer;
-  }
-  
-  .edit-user button[type="submit"]:hover {
-	background-color: #198754;
-  }
+    max-width: 750px;
+    margin: 30px auto;
+    padding: 35px;
+    background-color: white;
+    border: 1px solid #C2DACF; /* Subtle greenish-gray border */
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.edit-user h1 {
+    font-size: 26px;
+    font-weight: bold;
+    color: #1A4D2E; /* Deep forest green */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Input group */
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.input-group label {
+    flex: 0 0 130px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1A4D2E; /* Deep forest green */
+}
+
+.input-group input,
+.input-group select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #C2DACF;
+    border-radius: 6px;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    width: 80%;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #1A4D2E; /* Deep forest green on focus */
+    outline: none;
+    box-shadow: 0 0 3px rgba(26, 77, 46, 0.2); /* Subtle green focus shadow */
+}
+
+/* Icon styling */
+.input-group i {
+    font-size: 22px;
+    color: #89b887;
+    transition: color 0.2s ease;
+}
+
+.input-group input:focus + i,
+.input-group select:focus + i {
+    color: #1A4D2E; /* Change icon color on focus */
+}
+
+/* Button */
+.edit-user button[type="submit"] {
+    width: 55%;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #1A4D2E; /* Deep forest green */
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-left: 200px;
+}
+
+.edit-user button[type="submit"]:hover {
+    background-color: #7ABA78; /* Lighter green on hover */
+}
+
+/* Password Input Styling */
+.input-group input[type="password"],
+.input-group input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #C2DACF;
+    border-radius: 6px;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    width: 100%;
+    padding-right: 40px; /* Space for the toggle icon */
+}
+
+/* Wrapper for password input and toggle icon */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: calc(100% - 40px);
+    padding-right: 40px; /* Adjust to make space for the icon */
+}
+
+.password-wrapper .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 20px;
+    color: #1A4D2E;
+    transition: color 0.2s ease;
+}
+
+.password-wrapper .toggle-password:hover {
+    color: #89b887;
+}
+
 
 /* add user form */
 
@@ -1095,34 +1752,443 @@ canvas {
 .modal {
     display: none; /* Hidden by default */
     position: fixed;
-    z-index: 1000;
-    left: 0;
+    z-index: 4004;
     top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+    background-color: rgba(0, 0, 0, 0.7); /* Black background with opacity */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 10% auto; /* 10% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 30%; /* Could be more or less, depending on screen size */
-    text-align: center;
-    border-radius: 8px;
+/* Pagination */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 0;
+    font-family: 'Arial', sans-serif;
 }
 
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover, .close:focus {
-    color: #000;
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #7ABA78;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 600;
     text-decoration: none;
+    color: #1A4D2E;
+    background-color: #DEE9E5;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
 }
+
+.pagination-link:hover {
+    background-color: #7ABA78;
+    color: #FFFFFF;
+    border-color: #1A4D2E;
+    transform: translateY(-4px);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pagination-link.active {
+    background-color: #1A4D2E;
+    color: #FFFFFF;
+    border-color: #1A4D2E;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+    cursor: default;
+}
+
+.pagination-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.pagination .dots {
+    font-size: 16px;
+    font-weight: bold;
+    color: #7ABA78;
+}
+
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-container .pagination-summary {
+    font-size: 14px;
+    color: #1A4D2E;
+    font-weight: 500;
+}
+
+
+
+
+/* Responsive Design */
+
+/* For devices smaller than 600px (e.g., mobile phones) */
+@media (max-width: 600px) {
+    /* Modal content */
+    .modal-content {
+        width: 90%; /* Reduce width on smaller screens */
+        padding: 15px; /* Slightly smaller padding */
+    }
+
+    /* Heading */
+    h2 {
+        font-size: 20px; /* Smaller heading */
+    }
+
+    /* Paragraph text */
+    p {
+        font-size: 14px; /* Smaller text */
+    }
+
+    /* Close button */
+    .close-button {
+        font-size: 28px; /* Smaller close button */
+        top: 5px;
+        right: 10px;
+    }
+}
+
+/* For devices smaller than 400px (e.g., very small mobile screens) */
+@media (max-width: 400px) {
+    /* Modal content */
+    .modal-content {
+        width: 95%; /* Further reduce width */
+    }
+
+    /* Heading */
+    h2 {
+        font-size: 18px; /* Even smaller heading */
+    }
+
+    /* Paragraph text */
+    p {
+        font-size: 13px; /* Even smaller text */
+    }
+
+    /* Close button */
+    .close-button {
+        font-size: 24px; /* Even smaller close button */
+        top: 5px;
+        right: 5px;
+    }
+}
+
+/* For tablets and larger mobile devices (600px to 900px) */
+@media (min-width: 600px) and (max-width: 900px) {
+    /* Modal content */
+    .modal-content {
+        width: 80%; /* Adjust width for tablet-sized screens */
+    }
+
+    /* Heading */
+    h2 {
+        font-size: 22px; /* Slightly smaller heading */
+    }
+
+    /* Paragraph text */
+    p {
+        font-size: 15px; /* Slightly smaller text */
+    }
+
+    /* Close button */
+    .close-button {
+        font-size: 30px; /* Slightly smaller close button */
+        top: 10px;
+        right: 15px;
+    }
+}
+
+/* Modal responsiveness */
+
+/* For small screens (less than 768px) */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 70%; /* Wider modal on smaller screens */
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 20px; /* Smaller heading on mobile */
+    }
+
+    p {
+        font-size: 14px; /* Adjust text size for mobile */
+    }
+
+    .close-button {
+        font-size: 28px; /* Slightly smaller close button */
+    }
+}
+
+/* For extra small screens (less than 480px) */
+@media (max-width: 480px) {
+    .modal-content {
+        width: 90%; /* Almost full width on very small screens */
+        padding: 15px;
+    }
+
+    h2 {
+        font-size: 18px; /* Even smaller heading */
+    }
+
+    p {
+        font-size: 13px; /* Adjust text size further */
+    }
+
+    .close-button {
+        font-size: 26px; /* Smaller close button */
+    }
+}
+
+/* For medium screens (Tablets) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .modal-content {
+        width: 50%; /* 50% width for tablets */
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 22px; /* Slightly larger heading */
+    }
+
+    p {
+        font-size: 15px; /* Adjust text size */
+    }
+
+    .close-button {
+        font-size: 30px; /* Medium close button size */
+    }
+}
+
+/* For larger screens (Desktops) */
+@media (min-width: 1025px) {
+    .modal-content {
+        width: 40%; /* Default width for desktops */
+        padding: 25px;
+    }
+
+    h2 {
+        font-size: 24px; /* Larger heading */
+    }
+
+    p {
+        font-size: 16px; /* Default font size */
+    }
+
+    .close-button {
+        font-size: 32px; /* Larger close button size */
+    }
+}
+
+/*User Management*/
+
+/* Media Query for Medium to Large Screens (Laptops) */
+@media (max-width: 1200px) {
+
+    .head-title h1 {
+        font-size: 26px;
+    }
+
+    .breadcrumb {
+        font-size: 15px;
+    }
+
+    .btn-add-user {
+        padding: 8px 15px;
+        font-size: 13px;
+        font-weight: bold;
+        width: 120px;
+        text-align: center;
+    }
+
+    .user-management {
+        padding: 20px;
+        margin-top: 30px;
+    }
+
+    .user-management-table th,
+    .user-management-table td {
+        padding: 12px 10px;
+        font-size: 14px;
+    }
+
+    .user-management-table tbody tr {
+        line-height: 1.2;
+    }
+
+    .btn-icon i {
+        font-size: 20px;
+    }
+
+    .modal-content {
+        max-width: 400px;
+        padding: 20px;
+    }
+
+    .modal-content h3 {
+        font-size: 20px;
+    }
+
+    .modal-content button {
+        padding: 10px 16px;
+        font-size: 15px;
+    }
+
+    .close {
+        font-size: 24px;
+    }
+}
+
+/* Media Query for Large Screens (Desktops and Laptops) */
+@media (min-width: 1201px) {
+
+    .head-title {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .head-title h1 {
+        font-size: 28px;
+    }
+
+    .breadcrumb {
+        font-size: 16px;
+    }
+
+    .btn-add-user {
+        padding: 8px 20px;
+        font-size: 14px;
+        width: 120px;
+        font-weight: bold;
+    }
+
+    .user-management {
+        padding: 25px;
+        margin-top: 35px;
+    }
+
+    .user-management-table th,
+    .user-management-table td {
+        padding: 14px 12px;
+        font-size: 15px;
+    }
+
+    .user-management-table tbody tr {
+        line-height: 1.3;
+    }
+
+    .btn-icon i {
+        font-size: 22px;
+    }
+
+    .modal-content {
+        max-width: 450px;
+        padding: 24px;
+    }
+
+    .modal-content h3 {
+        font-size: 22px;
+    }
+
+    .modal-content p {
+        font-size: 16px;
+    }
+
+    .modal-content button {
+        padding: 12px 18px;
+        font-size: 16px;
+    }
+
+    .close {
+        font-size: 26px;
+    }
+}
+
+/* Media Query for Extra Small Screens (Mobile Devices) */
+@media (max-width: 480px) {
+
+    .head-title {
+        flex-direction: column; /* Stack title and button vertically */
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    #content main .head-title .left h1 {
+        font-size: 25px;
+        
+    }
+
+    .breadcrumb {
+        font-size: 12px; 
+    }
+
+    .btn-add-user {
+        padding: 7px 7px;
+        font-size: 10px;
+        width: 100px;
+    }
+
+    .user-management {
+        padding: 10px;
+        margin-top: 15px;
+    }
+
+    .user-management-table th,
+    .user-management-table td {
+        padding: 8px 6px;
+        font-size: 12px;
+        line-height: 1.1;
+    }
+
+    .user-management-table tbody tr {
+        line-height: 1; /* Reduce line height */
+    }
+
+    .btn-icon i {
+        font-size: 16px;
+    }
+
+    .modal-content {
+        max-width: 300px;
+        padding: 14px;
+    }
+
+    .modal-content h3 {
+        font-size: 18px;
+    }
+
+    .modal-content p {
+        font-size: 14px;
+    }
+
+    .modal-content button {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .close {
+        font-size: 20px;
+    }
+}
+
+
+
+

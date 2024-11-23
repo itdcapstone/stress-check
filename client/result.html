@@ -59,7 +59,7 @@
             </li>
             <li>
                 <a href="{{ url_for('faqs') }}">
-                    <i class='bx bxs-user-circle' ></i>
+                    <i class='bx bx-question-mark'></i>
                     <span class="text">FAQ's</span>
                 </a>
             </li>
@@ -91,7 +91,7 @@
         </nav>
         <!-- NAVBAR -->
 
-
+        
         <div class="result-container" id="pdf-content">
             
             <h1>Your Stress Test Results</h1>
@@ -116,8 +116,15 @@
                 </div>
             </div>
 
-            <!-- Flow of Questionnaire Responses -->
+           <!-- Flow of Questionnaire Responses -->
             <div class="flow-responses">
+                <div class="btn-pdf">
+                    <div class="no-pdf">
+                        <a href="#" class="cta-btn" onclick="generatePDF()">Generate PDF</a>
+                    </div>
+                </div>
+           
+
                 {% for question_id, response in responses.items() %}
                 <div class="flow-card" data-response="{{ response }}" data-context="{{ question_id }}">
                     <div class="flow-card-content">
@@ -183,8 +190,10 @@
                 <p>No significant stressors identified.</p>
             {% endif %}
 
-            <div class="no-pdf">
-                <a href="#" class="cta-btn" onclick="generatePDF()">Generate PDF</a>
+            <div class="btn-pdf">
+                <div class="no-pdf">
+                    <a href="#" class="cta-btn" onclick="generatePDF()">Generate PDF</a>
+                </div>
             </div>
     
         </div>

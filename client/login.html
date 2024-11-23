@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='logIn_styles.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
+  
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
   <style>
@@ -157,6 +159,19 @@
     </div>
   </header>
 
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-messages">
+      {% for category, message in messages %}
+      <div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
+
   <div class="container">
     <div class="content-wrapper">
       <div class="image-wrapper">
@@ -253,6 +268,23 @@
             toggleIcon.classList.add('bxs-show');
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+			const flashMessages = document.querySelectorAll('.custom-alert');
+			flashMessages.forEach(function(alert) {
+				// Add the active class to show the alert
+				alert.classList.add('active');
+	
+				// Remove the active class after 3 seconds to hide the alert
+				setTimeout(function() {
+					alert.classList.add('fade-out');
+					// After fade-out, remove the element entirely
+					setTimeout(function() {
+						alert.remove();
+					}, 500); // Timeout duration matches the CSS transition time
+				}, 3000); 
+			});
+		});
   </script>
 </body>
 </html>

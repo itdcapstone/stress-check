@@ -62,6 +62,19 @@
             <label for="switch-mode" class="switch-mode"></label>
         </nav>
 
+        <!-- Flash Messages -->
+			{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				<div id="flash-messages">
+					{% for category, message in messages %}
+					<div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+						{{ message }}
+					</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+			{% endwith %}
+
         <!-- Result Container -->
         <div class="result-container">
             <h1>Stress Prediction Result</h1>
@@ -227,6 +240,24 @@
                 // Initial check
                 centerModal();
             });
+
+            document.addEventListener("DOMContentLoaded", function() {
+                const flashMessages = document.querySelectorAll('.custom-alert');
+                flashMessages.forEach(function(alert) {
+                    // Add the active class to show the alert
+                    alert.classList.add('active');
+            
+                    // Remove the active class after 3 seconds to hide the alert
+                    setTimeout(function() {
+                        alert.classList.add('fade-out');
+                        // After fade-out, remove the element entirely
+                        setTimeout(function() {
+                            alert.remove();
+                        }, 500); // Timeout duration matches the CSS transition time
+                    }, 3000); 
+                });
+            });
+
 
 
         </script>

@@ -1,0 +1,420 @@
+/* General Styling */
+body {
+    background-color: #eef5f2;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    line-height: 1.6;
+    transition: background-color 0.3s ease;
+}
+
+h1 {
+    font-size: 2.3em;
+    font-weight: 700;
+    color: #31533e;
+    margin-bottom: 25px;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+p {
+    font-size: 1.15em;
+    color: #5a5a5a;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* Responsive Result Container */
+.result-container {
+    max-width: 1024px;
+    margin: 0 auto;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    position: relative;
+}
+
+.result-container.dimmed {
+    filter: blur(4px);
+    transition: filter 0.3s ease;
+}
+
+.result-container:hover {
+    transform: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Enlarged Progress Circle Styles */
+.progress-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 30px auto;
+    background: radial-gradient(circle, #e5eeea 0%, #81b78a 100%);
+    border-radius: 50%;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.progress-container svg {
+    position: relative;
+    width: 100%;
+    height: auto;
+}
+
+.progress-container circle {
+    fill: none;
+    stroke-width: 12;
+    stroke-linecap: round;
+}
+
+.progress-background {
+    stroke: #e0e0e0;
+}
+
+.progress-circle {
+    stroke: #ff9900;
+    stroke-dasharray: 565.48;
+    stroke-dashoffset: calc(565.48 - (565.48 * 3 / 5));
+    transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;
+}
+
+.progress-text {
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+}
+
+.progress-text h2 {
+    margin: 0;
+    font-size: 50px;
+    color: #31533e;
+    font-weight: 600;
+}
+
+.progress-text p {
+    margin: 0;
+    font-size: 16px;
+    color: #666;
+}
+
+/* Common Stressors */
+.stressors-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow chips to wrap to the next line */
+    gap: 10px; /* Space between chips */
+    padding: 10px 0; /* Add padding for better spacing */
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+/* Individual stressor chips */
+.stressor-chip {
+    display: inline-flex; /* Make them inline-flex for alignment */
+    align-items: center; /* Center content vertically */
+    background-color: #f0f0f0; /* Light gray background */
+    color: #333; /* Dark text color */
+    border-radius: 20px; /* Rounded corners */
+    padding: 5px 15px; /* Spacing inside the chip */
+    font-size: 0.9em; /* Adjust font size */
+    font-weight: 500; /* Slightly bold text */
+    border: 1px solid #ccc; /* Optional: light border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+    cursor: default; /* Prevent pointer cursor */
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .stressor-chip {
+        font-size: 0.8em; /* Smaller font for small screens */
+        padding: 5px 10px; /* Adjust padding */
+    }
+}
+
+/* Stressor Item Styling for Responsive and Appealing Design */
+.stressor-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: linear-gradient(135deg, #ffffff, #ecffe8);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 260px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.stressor-item:hover {
+    background-color: #d1ebe0;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.stressor-item i {
+    font-size: 28px;
+    color: #4caf50;
+    margin-bottom: 8px;
+}
+
+.stressor-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #31533e;
+}
+
+/* Stressor List */
+.stressors-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 35px;
+}
+
+/* General Styles */
+.recommendations {
+    background: #f9f9f9; /* Light gray background */
+    padding: 20px;
+    border-radius: 12px; /* Rounded corners for the container */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin-top: 20px;
+    text-align: left;
+    max-width: 100%;
+    margin-bottom: 10px;
+}
+
+.recommendations h3 {
+    font-size: 1.8em;
+    color: #31533e; /* A calm green color for the heading */
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.recommendation-card {
+    background: #ffffff; /* White card for contrast */
+    padding: 15px;
+    border-radius: 8px; /* Rounded corners for the card */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for card */
+    margin-bottom: 15px;
+    transition: transform 0.2s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+    
+}
+
+.recommendation-card p {
+    font-size: 1em;
+    color: #3a6349; /* Darker green for text */
+    margin: 0;
+    line-height: 1.6; /* Improve text readability */
+    text-align: justify;
+}
+
+.recommendation-card strong {
+    font-weight: bold;
+    color: #2a503d; /* Slightly darker green for emphasis */
+}
+
+.recommendation-card:hover {
+    transform: translateY(-3px); /* Slight lift on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+
+
+/* Response Items Styling */
+.responses {
+    margin-top: 20px;
+}
+
+/* Individual response item */
+.response-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #4CAF50;
+    border-radius: 10px;
+    text-align: left; /* Ensure content inside each response item is left-aligned */
+}
+
+/* Heading in the response item */
+.response-item h2 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+}
+
+/* Paragraph inside the response item */
+.response-item p {
+    margin: 0;
+    text-align: left; /* Ensure content inside each response item is left-aligned */
+}
+
+/* Hover Effect on Response Items */
+.response-item:hover {
+    background-color: #f1f1f1;
+    border-left-color: #45a049;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    /* Adjust padding and font size for small screens */
+    .response-item {
+        padding: 12px; /* Slightly smaller padding */
+    }
+
+    .response-item h2 {
+        font-size: 16px; /* Smaller heading font size */
+    }
+    
+    .response-item p {
+        font-size: 14px; /* Adjust paragraph font size */
+    }
+}
+
+/* Extra small screens (below 480px) */
+@media (max-width: 480px) {
+    /* Further adjust response items for very small screens */
+    .response-item {
+        padding: 10px; /* Reduce padding even more */
+    }
+
+    .response-item h2 {
+        font-size: 14px; /* Further reduce heading font size */
+    }
+
+    .response-item p {
+        font-size: 12px; /* Smaller text size for paragraphs */
+    }
+}
+
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .recommendations {
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .recommendations h3 {
+        font-size: 1.5em; /* Smaller font size on smaller screens */
+        margin-bottom: 10px;
+    }
+
+    .recommendation-card {
+        padding: 12px; /* Reduce padding for cards on smaller screens */
+        margin-bottom: 10px;
+    }
+
+    .recommendation-card p {
+        font-size: 0.95em; /* Slightly smaller font size for better fit */
+    }
+}
+
+@media (max-width: 480px) {
+    .recommendations {
+        padding: 10px;
+    }
+
+    .recommendations h3 {
+        font-size: 1.3em; /* Adjust heading size for small screens */
+    }
+
+    .recommendation-card {
+        padding: 10px; /* Compact card padding for small screens */
+    }
+
+    .recommendation-card p {
+        font-size: 0.9em; /* Further reduce font size */
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .result-container {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .stressors-container {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .stressor-item {
+        max-width: 100%;
+        padding: 12px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stressor-item i {
+        font-size: 24px;
+    }
+
+    .stressor-name {
+        font-size: 15px;
+    }
+
+    .close {
+        font-size: 20px;
+        top: 8px;
+        right: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .result-container {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+
+    .stressors-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+
+    .stressor-item {
+        padding: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .stressor-item i {
+        font-size: 16px;
+    }
+
+    .stressor-name {
+        font-size: 14px;
+    }
+
+    .progress-container {
+        width: 180px;
+        height: 180px;
+    }
+
+    .progress-text h2 {
+        font-size: 30px;
+    }
+
+    .progress-text p {
+        font-size: 14px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+    
+}

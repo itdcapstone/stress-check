@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // change email
 document.addEventListener('DOMContentLoaded', function () {
     const changeEmailModal = document.getElementById('change-email-modal');
-    const changeEmailButton = document.querySelector('.change-button');
+    const changeEmailButton = document.querySelector('.change-email');
     const closeChangeEmailModal = document.getElementById('close-change-email-modal');
     const passwordField = document.getElementById('email-password');
     const errorMessageDiv = document.createElement('div');
@@ -201,76 +201,91 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-// Change Password
 document.addEventListener('DOMContentLoaded', function () {
     const changePasswordModal = document.getElementById('change-password-modal');
-    const changePasswordButton = document.querySelector('.change-password-button');
+    const changePasswordButton = document.querySelector('.change-password'); // Matches the HTML button class
     const closeChangePasswordModal = document.getElementById('close-change-password-modal');
-    
+
+    if (!changePasswordModal || !changePasswordButton || !closeChangePasswordModal) {
+        console.error('Required elements not found in the DOM!');
+        return;
+    }
+
+    // Show the modal when the button is clicked
+    changePasswordButton.addEventListener('click', function () {
+        console.log('Change Password button clicked!');
+        changePasswordModal.style.display = 'block';
+    });
+
+    // Close the modal when the close button is clicked
+    closeChangePasswordModal.addEventListener('click', function () {
+        console.log('Close button clicked!');
+        changePasswordModal.style.display = 'none';
+    });
+
+    // Close the modal if the user clicks outside it
+    window.addEventListener('click', function (event) {
+        if (event.target === changePasswordModal) {
+            console.log('Clicked outside modal!');
+            changePasswordModal.style.display = 'none';
+        }
+    });
+
+    // Password form submission handling
+    const changePasswordForm = document.getElementById('change-password-form');
     const currentPasswordField = document.getElementById('current-password');
     const newPasswordField = document.getElementById('new-password');
     const confirmNewPasswordField = document.getElementById('confirm-new-password');
     const currentPasswordError = document.getElementById('current-password-error');
 
-    changePasswordButton.addEventListener('click', function () {
-        changePasswordModal.style.display = 'block';
-    });
+    console.log('Current Password Field:', currentPasswordField);
+    console.log('New Password Field:', newPasswordField);
+    console.log('Confirm New Password Field:', confirmNewPasswordField);
+    console.log('Current Password Error:', currentPasswordError);
 
-    closeChangePasswordModal.addEventListener('click', function () {
-        changePasswordModal.style.display = 'none';
-    });
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-    window.addEventListener('click', function (event) {
-        if (event.target === changePasswordModal) {
-            changePasswordModal.style.display = 'none';
-        }
-    });
-
-    // Add the submit event listener here
-    const changePasswordForm = document.getElementById('change-password-form');
-    changePasswordForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        currentPasswordError.style.display = 'none';
-
-        const currentPassword = currentPasswordField.value;
-        const newPassword = newPasswordField.value;
-        const confirmNewPassword = confirmNewPasswordField.value;
-
-        if (newPassword !== confirmNewPassword) {
-            confirmNewPasswordField.setCustomValidity("Passwords do not match.");
-            confirmNewPasswordField.reportValidity();
-            return;
-        } else {
-            confirmNewPasswordField.setCustomValidity("");
-        }
-
-        fetch('/check_password', {
-            method: 'POST',
-            body: JSON.stringify({ password: currentPassword }),
-            headers: { 'Content-Type': 'application/json' }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                currentPasswordError.style.display = 'block';
-                currentPasswordError.textContent = data.message || "Incorrect current password.";
-            } else {
-                // Submit the form to update the password if the password verification succeeded
-                changePasswordForm.submit();
+            if (!currentPasswordField || !newPasswordField || !confirmNewPasswordField || !currentPasswordError) {
+                console.error('Password fields or error elements not found!');
+                return;
             }
-        })
-        .catch(error => console.error('Error:', error));
-    });
+
+            currentPasswordError.style.display = 'none';
+
+            const currentPassword = currentPasswordField.value;
+            const newPassword = newPasswordField.value;
+            const confirmNewPassword = confirmNewPasswordField.value;
+
+            if (newPassword !== confirmNewPassword) {
+                confirmNewPasswordField.setCustomValidity("Passwords do not match.");
+                confirmNewPasswordField.reportValidity();
+                return;
+            } else {
+                confirmNewPasswordField.setCustomValidity("");
+            }
+
+            fetch('/check_password', {
+                method: 'POST',
+                body: JSON.stringify({ password: currentPassword }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    currentPasswordError.style.display = 'block';
+                    currentPasswordError.textContent = data.message || "Incorrect current password.";
+                } else {
+                    // Submit the form to update the password if the password verification succeeded
+                    changePasswordForm.submit();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
 });
 
-
-function confirmDelete(username) {
-    if (confirm(`Are you sure you want to delete the user '${username}'?`)) {
-        // If user confirms, submit the form
-        document.querySelector('.edit-delete-form').submit();
-    }
-}
 
 
 //questionnaires
@@ -393,4 +408,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     fetchCommonStressors();
+});
+
+// Add event listeners to all toggle-password icons
+document.addEventListener('DOMContentLoaded', function () {
+    const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+
+    togglePasswordIcons.forEach(icon => {
+        icon.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const passwordField = document.getElementById(targetId);
+
+            // Toggle the input type between 'password' and 'text'
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+
+            // Toggle the icon class
+            this.classList.toggle('bx-show');
+            this.classList.toggle('bx-hide');
+        });
+    });
 });

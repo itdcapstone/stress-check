@@ -99,33 +99,41 @@ def student_login():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username_or_email = request.form['username']  # This can be either username or email
         password = request.form['password']
         
-        existing_user = users_collection.find_one({'username': username})
+        # Check if the input is a username or email
+        if '@' in username_or_email:  # If the input contains '@', treat it as an email
+            existing_user = users_collection.find_one({'email': username_or_email})
+        else:
+            existing_user = users_collection.find_one({'username': username_or_email})
+        
         if existing_user:
+            # Check if the user has the role of "user"
+            if existing_user.get('role') != 'user':
+                flash('Your role is not allowed to log in.', 'error')
+                return redirect(url_for('login'))
+
             # Check if the hashed password matches the input password
             if check_password_hash(existing_user['password'], password):
                 session['user_id'] = str(existing_user['_id'])
-                session['username'] = username
+                session['username'] = existing_user['username']  # Use the username from the DB
                 
-                # Directly redirect the user to the dashboard if credentials are correct
-                return redirect(url_for('dashboard', username=username))
+                flash('Login successful!', 'success')
+                return redirect(url_for('dashboard', username=existing_user['username']))
             else:
-                # Show the modal for incorrect password
-                return render_template('login.html', incorrect_login=True)
+                # Flash message for incorrect password
+                flash('Incorrect password. Please try again.', 'error')
+                return redirect(url_for('login'))
         else:
-            # Show the modal for user not found
-            return render_template('login.html', user_not_found=True)
+            # Flash message for user not found
+            flash('No account found with the provided username or email.', 'error')
+            return redirect(url_for('login'))
 
+    # Render the login page for GET requests
     return render_template('login.html')
 
 
-# Route for faculty login in the admin folder
-@app.route('/faculty_login')
-def faculty_login():
- 
-    return render_template('faculty/login.html')  # Render the faculty login page
 
 
 # Route for admin login in the admin folder
@@ -134,44 +142,49 @@ def admin_login():
    
     return render_template('admin/login.html')  # Render the admin login page
 
-@app.route('/admin_login', methods=['GET', 'POST'])
-def admin_login_dashboard(): 
-    username = session.get('username')
+
+
+@app.route('/admin_login', methods=['POST'])
+def admin_login_dashboard():
     if request.method == 'POST':
-        username = request.form['username']
+        # Retrieve form data
+        identifier = request.form['identifier']  # Username or email
         password = request.form['password']
-        
-        # Check if user exists in MongoDB
-        existing_user = users_collection.find_one({'username': username})
 
-        if existing_user:
-            # Verify the password hash
-            if check_password_hash(existing_user.get('password'), password):
-                # Check if the user has admin role
-                if existing_user.get('role') == 'admin':
-                    # Store username in session
-                    session['username'] = username
+        # Query the database to find a user by username or email
+        existing_user = users_collection.find_one({
+            '$or': [{'username': identifier}, {'email': identifier}]
+        })
 
-                    # Count users with the role of "user"
-                    user_count = users_collection.count_documents({'role': 'user'})
+        if not existing_user:
+            # Return error if the user does not exist
+            return jsonify({'error': 'Invalid username or email!'})
 
-                    # Count the total number of assessments in the assessment_result collection
-                    assessment_count = assessment_collection.count_documents({})
+        # Check if the password is valid
+        if not check_password_hash(existing_user.get('password'), password):
+            return jsonify({'error': 'Invalid password!'})
 
-                    # Store counts in the session or pass them to the dashboard
-                    session['user_count'] = user_count
-                    session['assessment_count'] = assessment_count
+        # Check if the user has the 'admin' role
+        if existing_user.get('role') != 'admin':
+            return jsonify({'error': 'Insufficient permissions!'})
 
-                    return redirect(url_for('admin_dashboard', username=username))
-                else:
-                    return 'Insufficient permissions'
-            else:
-                return 'Invalid password'
-        else:
-            return 'Invalid username'
+        # Store user data in session
+        session['username'] = existing_user.get('username')
 
-    # Render the login template for GET requests
-    return render_template('admin/login.html')
+        # Count users and assessments
+        user_count = users_collection.count_documents({'role': 'user'})
+        assessment_count = assessment_collection.count_documents({})
+
+        # Store counts in session
+        session['user_count'] = user_count
+        session['assessment_count'] = assessment_count
+
+        # Return success response with a redirect URL
+        return jsonify({
+            'success': 'Login successful!',
+            'redirect_url': url_for('admin_dashboard', username=existing_user.get('username'))
+        })
+
 
 # admin dashboard =====================
     
@@ -234,35 +247,68 @@ def admin_dashboard():
 
 
 
-# Route for management in the admin folder
 @app.route('/admin/management', methods=['GET', 'POST'])
 def management():
     username = session.get('username')
 
     if username:
-        users = users_collection.find()
+        # Pagination logic
+        page = request.args.get('page', 1, type=int)  # Get the page number from the query params (default: 1)
+        per_page = 20  # Number of users to display per page
+
+        # Get total number of users
+        total_users = users_collection.count_documents({})
+
+        # Fetch users for the current page
+        users = users_collection.find().skip((page - 1) * per_page).limit(per_page)
+        users = list(users)  # Convert cursor to list for rendering
+
+        # Calculate total pages
+        total_pages = (total_users + per_page - 1) // per_page  # Ceiling division
+
+        # Calculate start and end page for pagination buttons
+        start_page = max(1, page - 1)
+        end_page = min(total_pages, page + 2)
 
         if request.method == 'POST':
             if 'edit_user' in request.form:
-                user_id = request.form['user_id']
-                user_data = users_collection.find_one({'_id': ObjectId(user_id)})
-                return render_template('admin/edit_user.html', username=username, user=user_data)
-            
+                user_id = request.form.get('user_id')  # Get the user ID from the form
+                app.logger.info(f"Edit request for user_id: {user_id}")
+                if user_id:
+                    try:
+                        user_data = users_collection.find_one({'_id': ObjectId(user_id)})
+                        if user_data:
+                            app.logger.info(f"User data found: {user_data}")
+                            return render_template('admin/edit_user.html', username=username, user=user_data)
+                        else:
+                            flash("No user found with the provided ID.", "error")
+                    except Exception as e:
+                        flash("Error retrieving user data.", "error")
+
             elif 'delete_user' in request.form:
                 # Handle delete request
                 user_id = request.form.get('user_id')
                 if user_id:
                     app.logger.info(f"Attempting to delete user with ID: {user_id}")
-                    # Delete the user from the database
-                    users_collection.delete_one({'_id': ObjectId(user_id)})
-                    # Redirect with a success message
-                    return redirect(url_for('management', success_message="User successfully deleted."))
-        
-        # Render the user management page with users
-        return render_template('admin/management.html', username=username, users=users)
+                    try:
+                        users_collection.delete_one({'_id': ObjectId(user_id)})
+                        flash("User successfully deleted.", "success")  # Success message
+                    except Exception as e:
+                        flash("Error deleting user.", "error")
+                return redirect(url_for('management'))
+
+        # Render the user management page with pagination data
+        return render_template(
+            'admin/management.html',
+            username=username,
+            users=users,
+            page=page,
+            total_pages=total_pages,
+            start_page=start_page,
+            end_page=end_page
+        )
     else:
         return redirect(url_for('login'))
-
 
 
 @app.route('/admin/dashboard/')
@@ -283,13 +329,33 @@ def home():
                            feedbacks_count=feedback_count)
 
 
-@app.route('/admin/data/')
+@app.route('/admin/data/', methods=['GET', 'POST'])
 def data():
-    # Fetch total responses from the response collection
-    total_responses = response_collection.count_documents({})
+    # Default filter values
+    filter_criteria = {}
+
+    # Get filters from request (e.g., date range, year level)
+    start_date = request.args.get('start_date')  # Format: YYYY-MM-DD
+    end_date = request.args.get('end_date')  # Format: YYYY-MM-DD
+    year_level = request.args.get('year_level')  # Specific year level to filter
+
+    # Build date range filter
+    if start_date and end_date:
+        filter_criteria["date_tested"] = {
+            "$gte": datetime.strptime(start_date, "%Y-%m-%d"),
+            "$lte": datetime.strptime(end_date, "%Y-%m-%d")
+        }
+
+    # Add year level filter
+    if year_level:
+        filter_criteria["year_level"] = int(year_level)
+
+    # Fetch total responses from the response collection (with filters)
+    total_responses = response_collection.count_documents(filter_criteria)
 
     # Calculate average stress level from response collection
     pipeline = [
+        {"$match": filter_criteria},  # Apply filters
         {"$group": {"_id": None, "avgStressLevel": {"$avg": "$stress_level"}}}
     ]
     avg_stress_result = list(response_collection.aggregate(pipeline))
@@ -300,8 +366,9 @@ def data():
     question_count = stress_questions_collection.count_documents({})
     category_count = len(stress_questions_collection.distinct("category"))
 
-    # Prepare line chart data: Aggregate stress levels by month and year
+    # Prepare line chart data (with filters)
     pipeline_for_line_chart = [
+        {"$match": filter_criteria},  # Apply filters
         {"$project": {"month": {"$month": "$date_tested"}, "year": {"$year": "$date_tested"}, "stress_level": 1}},
         {"$group": {"_id": {"month": "$month", "year": "$year"}, "avgStressLevel": {"$avg": "$stress_level"}}},
         {"$sort": {"_id.year": 1, "_id.month": 1}}
@@ -313,52 +380,75 @@ def data():
         year = entry['_id']['year']
         chart_data.append([f"{year}-{month:02d}", round(entry['avgStressLevel'], 2)])
 
-    # Prepare bar chart data by year level
-    pipeline_for_year_level_chart = [
-        {"$lookup": {"from": "user", "localField": "user_id", "foreignField": "_id", "as": "user_data"}},
+    # Prepare column chart data: Stress levels by year level (with filters)
+    pipeline_for_column_chart = [
+        {"$match": filter_criteria},  # Apply filters
+        {"$lookup": {
+            "from": "users",
+            "localField": "user_id",
+            "foreignField": "_id",
+            "as": "user_data"
+        }},
         {"$unwind": "$user_data"},
-        {"$group": {"_id": "$user_data.year_level", "avgStressLevel": {"$avg": "$stress_level"}}},
+        {"$group": {
+            "_id": "$user_data.year_level",
+            "avgStressLevel": {"$avg": "$stress_level"}
+        }},
         {"$sort": {"_id": 1}}
     ]
-    avg_stress_result_for_year_level = list(assessment_collection.aggregate(pipeline_for_year_level_chart))
-    year_level_chart_data = [['Year Level', 'Avg Stress Level']]
-    for entry in avg_stress_result_for_year_level:
-        year_level_chart_data.append([entry['_id'], round(entry['avgStressLevel'], 2)])
+    year_level_data = list(assessment_collection.aggregate(pipeline_for_column_chart))
+    column_chart_data = [['Year Level', 'Avg Stress Level']]
+    for entry in year_level_data:
+        year_level = entry['_id']
+        avg_stress = round(entry['avgStressLevel'], 2)
+        column_chart_data.append([f"Year {year_level}", avg_stress])
 
-    # Prepare bar chart data for stressors
-    stressor_data = list(assessment_collection.aggregate([
-        {"$unwind": "$stressors"},
-        {"$group": {"_id": "$stressors", "count": {"$sum": 1}}},
-        {"$project": {"stressor": "$_id", "count": 1, "_id": 0}}
-    ]))
+    # Count total students per year level
+    year_level_student_data = list(users_collection.aggregate([{"$group": {"_id": "$year_level", "count": {"$sum": 1}}}]))
+    year_level_student_counts = [{'year_level': entry['_id'], 'count': entry['count']} for entry in year_level_student_data]
+
+    # Calculate stressor data for the bar chart (with filters)
+    stressor_data = assessment_collection.aggregate([
+        {"$match": filter_criteria},  # Apply filters
+        {"$unwind": "$stressors"},  # Unwind the array of stressors
+        {"$group": {"_id": "$stressors", "count": {"$sum": 1}}},  # Group by stressor and count occurrences
+        {"$project": {"stressor": "$_id", "count": 1, "_id": 0}}  # Reshape the output
+    ])
+    stressor_data = list(stressor_data)
     total_students = sum(item['count'] for item in stressor_data)
     for item in stressor_data:
         item['percentage'] = (item['count'] / total_students) * 100
-        item['student_count'] = item['count']
+        item['student_count'] = item['count']  # Keep the raw student count for tooltip
 
-    # Prepare pie chart data for stress level distribution
-    stress_level_data = sorted(list(assessment_collection.aggregate([
-        {"$sort": {"user_id": 1, "date_tested": DESCENDING}},
-        {"$group": {"_id": "$user_id", "latest_stress_level": {"$first": "$stress_level"}}},
-        {"$group": {"_id": "$latest_stress_level", "count": {"$sum": 1}}},
-        {"$project": {"stress_level": "$_id", "count": 1, "_id": 0}}
-    ])), key=lambda x: x['stress_level'])
+    # Calculate stress level distribution (for the pie chart, with filters)
+    stress_level_data = assessment_collection.aggregate([
+        {"$match": filter_criteria},  # Apply filters
+        {"$sort": {"user_id": 1, "date_tested": DESCENDING}},  # Sort by user_id and date_tested in descending order
+        {"$group": {"_id": "$user_id", "latest_stress_level": {"$first": "$stress_level"}}},  # Get latest stress level for each user
+        {"$group": {"_id": "$latest_stress_level", "count": {"$sum": 1}}},  # Group by stress level and count occurrences
+        {"$project": {"stress_level": "$_id", "count": 1, "_id": 0}}  # Reshape the output
+    ])
+    stress_level_data = sorted(list(stress_level_data), key=lambda x: x['stress_level'])
     total_assessments = sum(item['count'] for item in stress_level_data)
     for item in stress_level_data:
         item['percentage'] = (item['count'] / total_assessments) * 100
 
-    # Pass all data to the template
+    # Pass all data and filter parameters to the template
     return render_template('admin/data.html',
                            total_responses=total_responses,
                            avg_stress_level=avg_stress_level,
                            question_count=question_count,
                            category_count=category_count,
                            chart_data=chart_data,
-                           year_level_chart_data=year_level_chart_data,
-                           stressor_data=stressor_data,     # Data for stressor bar chart
-                           stress_level_data=stress_level_data)  # Data for stress level pie chart
-
-
+                           column_chart_data=column_chart_data,
+                           year_level_student_counts=year_level_student_counts,
+                           stressor_data=stressor_data,
+                           stress_level_data=stress_level_data,
+                           start_date=start_date,
+                           end_date=end_date,
+                           year_level=year_level)
+    
+    
 @app.route('/admin/feedback/', methods=['GET', 'POST'])
 def admin_feedback():
     # Handle date filtering (GET request)
@@ -367,11 +457,19 @@ def admin_feedback():
 
     if date_filter:
         try:
+            # Parse the user input in 'YYYY-MM-DD' format
             filter_date = datetime.strptime(date_filter, "%Y-%m-%d")
-            start_date = filter_date.replace(hour=0, minute=0, second=0)
-            end_date = filter_date.replace(hour=23, minute=59, second=59)
+            
+            # Set the start of the day (00:00:00) and end of the day (23:59:59) in UTC
+            start_date = filter_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_date = filter_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+            # Construct the query to filter feedback by the provided date
             query = {'timestamp': {'$gte': start_date, '$lte': end_date}}
+
         except ValueError:
+            # Handle invalid date format error
+            print(f"Invalid date format for filter: {date_filter}. Expected format is 'YYYY-MM-DD'.")
             pass  # Ignore invalid date formats
 
     # Fetch filtered feedback data from the MongoDB feedback collection
@@ -380,61 +478,140 @@ def admin_feedback():
     # Check if it's an AJAX request (for filtering)
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         feedback_list = [
-            {"_id": str(feedback["_id"]), "username": feedback["username"], "feedback": feedback["feedback"], "timestamp": feedback["timestamp"].strftime("%Y-%m-%d")}
+            {
+                "_id": str(feedback["_id"]),
+                "username": feedback["username"],
+                "feedback": feedback["feedback"],
+                "timestamp": feedback["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+            }
             for feedback in feedback_data
         ]
-        return jsonify(feedback_data=feedback_list)
+        return jsonify(feedback_data=feedback_list)  # Return filtered data as JSON
 
     # Handle deletion (POST request)
     if request.method == 'POST':
         feedback_id = request.json.get('feedback_id')
         if feedback_id:
-            feedback_collection.delete_one({'_id': ObjectId(feedback_id)})
-            return jsonify({'status': 'success', 'message': 'Feedback deleted successfully.'}), 200
+            try:
+                # Ensure feedback_id is a valid ObjectId after trimming spaces
+                feedback_id = feedback_id.strip()  # Trim any leading or trailing spaces
+                object_id = ObjectId(feedback_id)
+                result = feedback_collection.delete_one({'_id': object_id})
+
+                if result.deleted_count == 1:
+                    return jsonify({'status': 'success', 'message': 'Feedback deleted successfully.'}), 200
+                else:
+                    return jsonify({'status': 'error', 'message': 'Feedback not found.'}), 404
+
+            except Exception as e:
+                print(f"Error deleting feedback: {e}")
+                return jsonify({'status': 'error', 'message': 'Invalid feedback ID format.'}), 400
         return jsonify({'status': 'error', 'message': 'Feedback ID not provided.'}), 400
 
     # Render the page with feedback data for normal requests (GET)
     return render_template('admin/feedback.html', feedback_data=feedback_data)
 
-@app.route('/admin/edit_user/<user_id>', methods=['POST'])
+
+@app.route('/admin/edit_user/<user_id>', methods=['GET', 'POST'])
 def edit_user(user_id):
-    username = request.form['username']
-    email = request.form['email']
-    role = request.form['role']
-    password = request.form['password']
-    age = request.form['age']
-    gender = request.form['gender']
+    user_data = users_collection.find_one({'_id': ObjectId(user_id)})
     
-    # Only hash the password if it has been changed (i.e., not left blank)
-    update_data = {
-        'username': username,
-        'email': email,
-        'role': role,
-        'age': age,
-        'gender': gender
-    }
-    
-    if password:  # Only hash and update the password if it is not empty
-        hashed_password = generate_password_hash(password)
-        update_data['password'] = hashed_password
+    if not user_data:
+        flash("User not found.", "error")
+        return redirect(url_for('management'))
 
-    users_collection.update_one(
-        {'_id': ObjectId(user_id)},
-        {'$set': update_data}
-    )
+    if request.method == 'POST':
+        # Get form values
+        username = request.form.get('username')
+        email = request.form.get('email')
+        role = request.form.get('role')
+        password = request.form.get('password')
+        age = request.form.get('age')
+        gender = request.form.get('gender')
+        year_level = request.form.get('year_level')
 
-    return redirect(url_for('management', success_message="User successfully updated."))
+        # Convert and validate numeric fields
+        try:
+            age = int(age) if age else None
+            year_level = int(year_level) if year_level else None
+        except ValueError:
+            flash("Invalid input for age or year level.", "error")
+            return redirect(url_for('edit_user', user_id=user_id))
+
+        # Prepare update data
+        update_data = {
+            'username': username,
+            'email': email,
+            'role': role,
+            'age': age,
+            'gender': gender
+        }
+        if year_level is not None:
+            update_data['year_level'] = year_level
+
+        # Compare fields
+        changes_made = False
+        if username != user_data['username']:
+            changes_made = True
+        if email != user_data['email']:
+            changes_made = True
+        if role != user_data['role']:
+            changes_made = True
+        if str(age) != str(user_data['age']):
+            changes_made = True
+        if gender != user_data['gender']:
+            changes_made = True
+        if user_data.get('year_level'):
+            if str(year_level) != str(user_data.get('year_level', '')):
+                changes_made = True
+        if password:
+            if not check_password_hash(user_data['password'], password):
+                changes_made = True
+                update_data['password'] = generate_password_hash(password)
+
+        # Debug logs
+        app.logger.debug(f"Changes made: {changes_made}")
+        app.logger.debug(f"Update Data: {update_data}")
+
+        # If no changes were made, display error
+        if not changes_made:
+            flash("No changes were made. Please update at least one field.", "error")
+            return redirect(url_for('edit_user', user_id=user_id))
+
+        # If changes were made, update the user data
+        try:
+            users_collection.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': update_data}
+            )
+            flash("User successfully updated.", "success")
+        except Exception as e:
+            flash(f"Error updating user: {str(e)}", "error")
+            app.logger.error(f"Error updating user: {e}")
+
+        return redirect(url_for('management'))
+
+    # GET request to render the edit form with pre-filled data
+    return render_template('admin/edit_user.html', username=session.get('username'), user=user_data)
+
+
+
+
 
 @app.route('/admin/add_user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
+        # Debug form data
+        print("Form Data:", request.form)
+
         # Get form data
         username = request.form.get('username')
         email = request.form.get('email')
-        role = request.form.get('role')
-        password = request.form.get('password')  # Ensure 'password' is retrieved from the form
+        role = request.form.get('role')  # Role determines if it's an admin or a user
+        password = request.form.get('password')
         age = request.form.get('age')
         gender = request.form.get('gender')
+        year_level = request.form.get('year_level')  # Only relevant for users
 
         # Input validation
         if not username or not email or not role or not password or not age or not gender:
@@ -444,40 +621,61 @@ def add_user():
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             flash("Invalid email address.", "error")
             return redirect(url_for('add_user'))
-
+        
+        # Validate age is a number
         try:
             age = int(age)
         except ValueError:
             flash("Age must be a number.", "error")
             return redirect(url_for('add_user'))
 
-        # Hash the password
+        # Check if user already exists
+        existing_user = users_collection.find_one({'username': username})
+        if existing_user:
+            flash("User already exists!", "error")
+            return redirect(url_for('add_user'))
+
+        # Hash the password before saving to database
         if password:
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())  # Hash the password here
+            hashed_password = generate_password_hash(password)  # Use Werkzeug's hash function
         else:
             flash("Password cannot be empty.", "error")
             return redirect(url_for('add_user'))
 
-        # Insert the new user into the database
+        # Prepare user data
         new_user = {
             'username': username,
             'email': email,
-            'role': role,
-            'password': hashed_password,  # Store the hashed password in the DB
+            'password': hashed_password,  # Store the hashed password
             'age': age,
-            'gender': gender
+            'gender': gender,
+            'role': role  # Admin or User
         }
 
+        # Add year_level only if the role is "User"
+        if role.lower() == 'user':
+            if not year_level:  # Ensure year_level is provided for users
+                flash("Year Level is required for users.", "error")
+                return redirect(url_for('add_user'))
+            new_user['year_level'] = year_level
+
+        # Insert into the users collection
         try:
             users_collection.insert_one(new_user)
+            # Flash success message based on the role
+            if role.lower() == 'user':
+                flash("User has been successfully added.", "success")
+            elif role.lower() == 'admin':
+                flash("Admin has been successfully added.", "success")
         except Exception as e:
-            flash(f"An error occurred: {str(e)}", "error")
+            flash(f"Error inserting into MongoDB: {str(e)}", "error")
             return redirect(url_for('add_user'))
 
-        flash("User successfully added.", "success")
-        return redirect(url_for('management'))
+        # Redirect to the add_user route to clear the form
+        return redirect(url_for('add_user'))
 
-    return render_template('admin/add_user.html')
+    # Render the form with empty fields
+    return render_template('admin/add_user.html', form_data={})
 
 
 @app.route('/admin/add_question', methods=['GET'])
@@ -541,6 +739,101 @@ def stress_questions():
     except Exception as e:
         app.logger.error(f'Error retrieving stress questions: {str(e)}')
         return 'An error occurred while retrieving data.'
+    
+# Route for editing recommendations
+@app.route('/admin/edit_recommendation', methods=['GET', 'POST'])
+def edit_recommendation():
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('admin_login'))  # Redirect to admin login if not logged in
+
+    if request.method == 'GET':
+        # Fetch all recommendations and related questions
+        recommendations = list(recommendation_collection.find())
+        stress_questions = list(db.stress_questions.find())
+        
+        # Create a mapping of stressor to its related questions
+        stressor_questions = {
+            question['feature_name']: question['question']
+            for question in stress_questions
+        }
+
+        return render_template(
+            'admin/edit_recommendation.html',
+            recommendations=recommendations,
+            stressor_questions=stressor_questions
+        )
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            stressor = request.form.get('stressor')
+            severity = request.form.get('severity')
+            new_text = request.form.get('text')
+            new_source = request.form.get('source')
+
+            # Validate input
+            if not stressor or not severity or not new_text or not new_source:
+                flash("All fields are required to update a recommendation.", "error")
+                return redirect(url_for('edit_recommendation'))
+
+            # Find the recommendation document for the stressor
+            recommendation = recommendation_collection.find_one({'stressor': stressor})
+
+            if not recommendation:
+                flash("No matching stressor found.", "error")
+                return redirect(url_for('edit_recommendation'))
+
+            # Update the specific severity level's recommendation
+            severity_key = str(severity)
+            if severity_key in recommendation.get('recommendations', {}):
+                recommendation_collection.update_one(
+                    {'stressor': stressor},
+                    {'$set': {
+                        f'recommendations.{severity_key}.0.text': new_text,
+                        f'recommendations.{severity_key}.0.source': new_source
+                    }}
+                )
+                flash("Recommendation updated successfully.", "success")
+            else:
+                flash("Invalid severity level.", "error")
+
+        except Exception as e:
+            flash(f"An error occurred: {str(e)}", "error")
+
+        return redirect(url_for('edit_recommendation'))
+    
+@app.route('/admin/get_recommendation', methods=['GET'])
+def get_recommendation():
+    try:
+        # Get stressor and severity from the request arguments
+        stressor = request.args.get('stressor')
+        severity = request.args.get('severity')
+
+        if not stressor or not severity:
+            return jsonify({'error': 'Stressor and severity level are required.'}), 400
+
+        # Fetch the recommendation document for the given stressor
+        recommendation_data = recommendation_collection.find_one({'stressor': stressor})
+        if not recommendation_data:
+            return jsonify({'error': 'No recommendations found for this stressor.'}), 404
+
+        # Extract the recommendation for the specific severity level
+        severity_recommendations = recommendation_data.get('recommendations', {}).get(severity, [])
+        if not severity_recommendations:
+            return jsonify({'error': 'No recommendations found for this severity level.'}), 404
+
+        # Return the first recommendation and source (assuming single recommendation per severity)
+        recommendation = severity_recommendations[0]
+        return jsonify({
+            'text': recommendation.get('text', ''),
+            'source': recommendation.get('source', '')
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 
 
 
@@ -632,7 +925,6 @@ def api_test_stress():
     else:
         return jsonify({"error": "User not logged in."}), 401
 
-# Route to handle questionnaire responses
 @app.route('/test_stress/', methods=['POST'])
 def handle_test_stress():
     responses = request.form.to_dict()
@@ -649,13 +941,15 @@ def handle_test_stress():
         # Save responses to the database using user_id
         try:
             save_responses_to_database(user_id, responses)  # Ensure this function is implemented correctly
+            flash('Your responses have been successfully saved!', 'success')  # Add flash message
         except Exception as e:
+            flash(f"Failed to save responses: {str(e)}", 'danger')  # Handle failure case
             return jsonify({"error": f"Failed to save responses: {str(e)}"}), 500
 
         return redirect(url_for('stress_result'))
     else:
         return redirect(url_for('login'))
-
+    
 
 # Function to save responses to the database
 def save_responses_to_database(user_id, responses):
@@ -1187,6 +1481,9 @@ def feedback():
     # Render the form template for GET requests
     return render_template('feedback.html', username=username)
 
+
+
+
 @app.route('/analytics/')
 def analytics():
     username = session.get('username')
@@ -1271,10 +1568,21 @@ def analytics():
         return redirect(url_for('login'))  # Not logged in
     
 
+
 # View Assessment History
 @app.route('/assessment/<assessment_id>')
 def view_assessment(assessment_id):
     try:
+        # Get the username from the session
+        username = session.get('username')
+        if not username:
+            return "User not logged in.", 401
+
+        # Fetch the user from the database using the username
+        user = users_collection.find_one({'username': username})
+        if not user:
+            return "User not found.", 404
+
         # Fetch the assessment from the assessment_result collection
         assessment = db.assessment_result.find_one({'_id': ObjectId(assessment_id)})
     except Exception as e:
@@ -1306,9 +1614,15 @@ def view_assessment(assessment_id):
         for i, question in enumerate(questions)
     ]
 
-    return render_template('view_assessment.html', assessment=assessment, question_response_pairs=question_response_pairs)
+    # Pass the username and user data to the template
+    return render_template(
+        'view_assessment.html',
+        username=username,
+        user=user,
+        assessment=assessment,
+        question_response_pairs=question_response_pairs
+    )
 
-# Profile
 @app.route('/profile/', methods=['GET', 'POST'])
 def profile():
     username = session.get('username')
@@ -1316,39 +1630,44 @@ def profile():
         user = users_collection.find_one({'username': username})
         
         if request.method == 'POST':
-            # Safely collect updated data using .get() to avoid KeyError
-            name = request.form.get('name', user.get('name'))  # Default to existing value if missing
-            email = request.form.get('email', user.get('email'))
+            # Collect data safely with .get() to avoid KeyError
+            name = request.form.get('name', user.get('name'))
             age = request.form.get('age', user.get('age'))
             gender = request.form.get('gender', user.get('gender'))
             year_level = request.form.get('year-level', user.get('year_level'))
 
-            print("Submitted values:", name, email, age, gender, year_level)  # For debugging
-            
+            # Check if no changes were made
+            if name == user.get('name') and age == str(user.get('age')) and gender == user.get('gender') and year_level == user.get('year_level'):
+                flash("No changes detected. Please modify at least one field before saving.", "error")
+                return redirect(url_for('profile'))  # Redirect back to the profile page
+
             # Update the user's information in the database
             users_collection.update_one(
                 {'username': username},
                 {'$set': {
                     'name': name,
-                    'email': email,
                     'age': int(age) if age else None,
                     'gender': gender,
                     'year_level': year_level
                 }}
             )
-            
+
             # Refetch updated user data
             user = users_collection.find_one({'username': username})
-            success_message = "Profile successfully updated."
-            return render_template('profile.html', username=username, user=user, success_message=success_message)
+            flash("Profile successfully updated.", "success")
+            return render_template('profile.html', username=username, user=user)
 
         # Render the profile page with existing user information
         return render_template('profile.html', username=username, user=user)
     else:
         # Redirect to login if the user is not logged in
         return redirect(url_for('login'))
+
     
     
+from flask import flash, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash
+
 @app.route('/change_email', methods=['POST'])
 def change_email():
     # Get the logged-in username
@@ -1370,12 +1689,19 @@ def change_email():
     if not check_password_hash(stored_password, password):
         return render_template('profile.html', error_message="Incorrect password for email change.", user=user)
 
-    # If password verification passes, update the email
+    # Check if the new email is the same as the current one
+    if new_email == user.get('email'):
+        flash("No changes detected. The new email is the same as the current one.", "error")
+        return redirect(url_for('profile'))  # Redirect back to the profile page
+
+    # If password verification passes and the email is different, update the email
     users_collection.update_one({'username': username}, {'$set': {'email': new_email}})
 
     # Pass updated user data to the template with success message
     user['email'] = new_email
+    flash("Email successfully updated.", "success")
     return render_template('profile.html', success_message="Email successfully updated.", user=user)
+
 
 
 @app.route('/check_password', methods=['POST'])
@@ -1398,24 +1724,27 @@ def check_password():
 
     # Check if the password is correct using hashing
     if not check_password_hash(stored_password, current_password):
+        flash("Incorrect current password.", "error")
         return jsonify({'success': False, 'message': 'Incorrect current password'}), 400
 
     # Return success if the password is correct
     return jsonify({'success': True}), 200
 
 
-# Change password
+
 @app.route('/change_password', methods=['POST'])
 def change_password():
     # Get the logged-in username
     username = session.get('username')
     if not username:
+        flash("User not authenticated. Please log in to change your password.", "error")
         return redirect(url_for('login'))
 
     # Fetch user data from the database
     user = users_collection.find_one({'username': username})
     if not user:
-        return render_template('profile.html', error_message="User not found.", user=None)
+        flash("User not found.", "error")
+        return render_template('profile.html', user=None)
 
     # Retrieve form data
     current_password = request.form.get('current_password')
@@ -1425,18 +1754,21 @@ def change_password():
     # Check if current password is correct
     stored_password = user['password']
     if not check_password_hash(stored_password, current_password):
-        return render_template('profile.html', error_message="Incorrect current password.", user=user)
+        flash("Incorrect current password.", "error")
+        return render_template('profile.html', user=user)
 
     # Check if new password and confirm new password match
     if new_password != confirm_new_password:
-        return render_template('profile.html', error_message="New passwords do not match.", user=user)
+        flash("New passwords do not match.", "error")
+        return render_template('profile.html', user=user)
 
     # Hash the new password and update it in the database
     hashed_new_password = generate_password_hash(new_password)
     users_collection.update_one({'username': username}, {'$set': {'password': hashed_new_password}})
 
-    # Pass success message to the template
-    return render_template('profile.html', success_message="Password successfully updated.", user=user)
+    # Flash success message and redirect to profile page
+    flash("Password successfully updated.", "success")
+    return redirect(url_for('profile'))
 
 
 
@@ -1482,7 +1814,8 @@ def dashboard(username):
 
 
 #Sign in
-    
+
+
 @app.route('/signin', methods=['POST'])
 def signin():
     if request.method == 'POST':
@@ -1499,7 +1832,8 @@ def signin():
         # Check if user exists in MongoDB
         existing_user = users_collection.find_one({'username': username})
         if existing_user:
-            return jsonify({"error": "User already exists!"}), 400  # Return JSON error message
+            # Return error response if the user already exists
+            return jsonify({'error': 'User already exists!'})
         else:
             # Hash the password before saving it to the database
             hashed_password = generate_password_hash(password)
@@ -1521,7 +1855,8 @@ def signin():
             session['user_id'] = user_id
             session['username'] = username
             
-            return jsonify({"success": "Sign-in successful!"})  # Return JSON success message
+            # Return success response and the URL to redirect to the login page
+            return jsonify({'success': 'Sign-in successful!', 'redirect_url': url_for('login')})
 
 @app.route('/signin', methods=['GET'])
 def signup():

@@ -1,0 +1,67 @@
+/* Custom Alert Styling */
+.custom-alert {
+  display: none; /* Hide by default */
+  position: fixed;
+  top: 10%; /* Center at the top */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -100%); /* Start off-screen above */
+  min-width: 320px;
+  padding: 16px 24px;
+  border-radius: 12px; /* More rounded for a soft look */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Soft shadow for a floating effect */
+  z-index: 1001;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Show alert when it's active */
+.custom-alert.active {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, 0); /* Slide down into view */
+}
+
+/* Add fade-out effect */
+.custom-alert.fade-out {
+  opacity: 0;
+  transform: translate(-50%, -20%); /* Slide back up slightly during fade-out */
+}
+
+/* Success alert styling */
+.custom-alert.success-alert {
+  background-color: #c3ebcc;
+  color: #155724;
+  font-weight: 600; /* Bold text for better readability */
+  border-left: 6px solid #155724; /* Soft fresh green left border */
+  border-radius: 12px; /* Rounded edges for a soft appearance */
+}
+
+/* Error alert styling */
+.custom-alert.error-alert {
+  color: #721c24;
+  background-color: #f8d7da;
+  font-weight: 600;
+  border-left: 6px solid #721c24; /* Soft red left border */
+  border-radius: 12px;
+}
+
+/* Simple slide-in animation */
+@keyframes slideIn {
+  0% {
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+/* Apply animation on active */
+.custom-alert.active {
+  animation: slideIn 0.5s ease-in-out;
+}

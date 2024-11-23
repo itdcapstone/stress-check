@@ -7,9 +7,12 @@
 	<!-- Boxicons -->
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
 	<!-- My CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-
+   
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/profile_styles.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
+	
 	<title>Profile</title>
+
 </head>
 <body>
 
@@ -47,7 +50,7 @@
 			</li>
 			<li>
                 <a href="{{ url_for('faqs') }}">
-                    <i class='bx bxs-user-circle' ></i>
+					<i class='bx bx-question-mark'></i>
                     <span class="text">FAQ's</span>
                 </a>
             </li>
@@ -96,16 +99,35 @@
 					<i class='bx bxs-check-circle'></i>
 					<span class="text">Edit Profile</span>
 				</a>
+				
 			</div>
 
-			<div class="profile-username">
-				<p class="profile-username">@{{ user.username }}</p>
-			</div>
-		
+			
+				<li>
+					<span class="text">
+						<h3><i class='bx bxs-user' style="font-size:x-large;"></i> @{{ user.name or user.username }}</h3>
+					</span>
+					
+				</li>
+
+			<!-- Flash Messages -->
+			{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				<div id="flash-messages">
+					{% for category, message in messages %}
+					<div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+						{{ message }}
+					</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+			{% endwith %}
+					
 			<div class="profile-container"><br>
 				<form id="profile-form" method="POST" action="{{ url_for('profile') }}">
 					<div class="profile-details">
-						<h3>General Information</h3><br>
+						<h3>General Information</h3>
+							
 						<div class="form-row">
 							<div class="form-group">
 								<label for="name"><br>DISPLAY NAME:</label>
@@ -120,10 +142,7 @@
 									<option value="other">Other</option>
 								</select>
 							</div>
-							<div class="form-group">
-								<label for="email">EMAIL:</label>
-								<input type="email" id="email" name="email" value="{{ user.email }}" disabled>
-							</div>
+							
 							<div class="form-group">
 								<label for="year-level">YEAR LEVEL:</label>
 								<select id="year-level" name="year-level" required disabled>
@@ -140,9 +159,9 @@
 								<input type="number" id="age" name="age" value="{{ user.age }}" disabled>
 							</div>
 						</div>
-						<div class="form-buttons" id="form-buttons" style="display: none;">
-							<button type="submit" id="submit-button">Save Changes</button> <!-- Moved submit button here -->
+						<div class="form-buttons" id="form-buttons" style="display: none !important;">
 							<button type="button" id="cancel-button">Cancel</button>
+							<button type="submit" id="submit-button">Save Changes</button> <!-- Moved submit button here -->
 						</div>
 					</div>
 				</form>
@@ -154,24 +173,18 @@
 						<div class="form-group">
 							<label for="email">Email:</label>
 							<input type="email" id="email" name="email" value="{{ user.email }}" disabled>
-							<button class="change-button">Change Email</button>
+							<button class="change-email">Change Email</button>
 						</div>
 						<div class="form-group">
 							<label for="password">Password:</label>
-							<input type="password" id="password" name="password" value="***" disabled>
-							<button class="change-button">Change Password</button>
+							<input type="password" id="password" name="password" value="********" disabled>
+							<button class="change-password">Change Password</button>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div id="save-modal" class="modal">
-				<div class="modal-content">
-					<span class="close-modal" id="close-save-modal">&times;</span>
-					<p>Your profile has been successfully saved!</p>
-					<button id="close-save-modal">Close</button>
-				</div>
-			</div>
+		
 			
 			<!-- Cancel Confirmation Modal -->
 			<div id="cancel-modal" class="modal">
@@ -189,13 +202,16 @@
 			<div id="change-email-modal" class="modal">
 				<div class="modal-content">
 					<span class="close-modal" id="close-change-email-modal">&times;</span>
-					<h3>Change Email</h3>
-					<form id="change-email-form" method="POST" action="{{ url_for('change_email') }}">
-						<label for="new-email">New Email:</label>
-						<input type="email" id="new-email" name="new_email" required>
+					<h3>Change Email</h3><br>
+					<form class="form-group" id="change-email-form" method="POST" action="{{ url_for('change_email') }}">
+						<label for="new-email"><i class='bx bx-envelope'></i> New Email:</label>
+						<input type="email" id="new-email" name="new_email" style="margin-top: -20px;" required>
 						
-						<label for="email-password">Password:</label>
-						<input type="password" id="email-password" name="password" required>
+						<label for="email-password"><i class='bx bx-lock'></i> Password:</label>
+						<div class="input-group">
+							<input type="password" id="email-password" name="password" style="margin-top: -20px;" required>
+							<i class="bx bx-show toggle-password" data-target="email-password"></i>
+						</div>
 						
 						<button type="submit">Change Email</button>
 					</form>
@@ -205,21 +221,40 @@
 			<div id="change-password-modal" class="modal">
 				<div class="modal-content">
 					<span class="close-modal" id="close-change-password-modal">&times;</span>
-					<h3>Change Password</h3>
-					<form id="change-password-form" method="POST" action="{{ url_for('change_password') }}">
-						<label for="current-password">Current Password:</label>
-						<input type="password" id="current-password" name="current_password" required>
+					<h3>Change Password</h3><br>
+					<form class="form-group" id="change-password-form" method="POST" action="{{ url_for('change_password') }}">
+						<label for="current-password"><i class='bx bx-lock'></i>Current Password:</label>
+						<div class="input-group">
+							<input type="password" id="current-password" name="current_password" style="margin-top: -20px;" required>
+							<i class="bx bx-show toggle-password" data-target="current-password"></i>
+						</div>
+						<div id="current-password-error" style="color: red; display: none;"></div>
+			
+						<div class="form-group">
+							<label for="new-password"><i class='bx bx-lock'></i> New Password:</label>
+							<div class="input-group">
+								<input type="password" id="new-password" name="new_password" required minlength="8" placeholder="Enter New Password"
+									   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$"
+									   title="Password must be at least 8 characters long, contain at least one letter, one number, and one special character.">
+								<i class="bx bx-show toggle-password" data-target="new-password"></i>
+							</div>
+						</div>
 						
-						<label for="new-password">New Password:</label>
-						<input type="password" id="new-password" name="new_password" required>
+						<div class="form-group">
+							<label for="confirm-new-password"><i class='bx bx-lock'></i> Confirm New Password:</label>
+							<div class="input-group">
+								<input type="password" id="confirm-new-password" name="confirm_new_password" required minlength="8" placeholder="Confirm New Password"
+									   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$"
+									   title="Password must be at least 8 characters long, contain at least one letter, one number, and one special character.">
+								<i class="bx bx-show toggle-password" data-target="confirm-new-password"></i>
+							</div>
+						</div>
 						
-						<label for="confirm-new-password">Confirm New Password:</label>
-						<input type="password" id="confirm-new-password" name="confirm_new_password" required>
-						
-						<button type="submit">Change Password</button>
+						<button type="submit" class="change-password-button">Change Password</button>
 					</form>
 				</div>
 			</div>
+			
 
 		</main>
 		<!-- MAIN -->
@@ -227,6 +262,26 @@
 
 	</section>
 	<!-- CONTENT -->
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			const flashMessages = document.querySelectorAll('.custom-alert');
+			flashMessages.forEach(function(alert) {
+				// Add the active class to show the alert
+				alert.classList.add('active');
+	
+				// Remove the active class after 3 seconds to hide the alert
+				setTimeout(function() {
+					alert.classList.add('fade-out');
+					// After fade-out, remove the element entirely
+					setTimeout(function() {
+						alert.remove();
+					}, 500); // Timeout duration matches the CSS transition time
+				}, 3000); 
+			});
+	
+		
+		});
+	</script>
 	
 
 	<script src="{{ url_for('static', filename='script.js') }}"></script>

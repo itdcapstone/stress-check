@@ -9,7 +9,106 @@
 	<!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
 
-	<title>AdminHub</title>
+	<title>Feedback</title>
+
+	<!-- Modal for Viewing Feedback -->
+	<div id="feedbackViewModal" class="feedback-modal">
+		<div class="feedback-modal-content">
+			<span class="feedback-close-button" onclick="closeModal('feedbackViewModal')">&times;</span>
+			<h2 class="modal-title">Feedback Details</h2>
+			<p><strong>Username:</strong> <span id="modalUsername"></span></p>
+			<p><strong>Date & Time:</strong> <span id="modalDate"></span></p>
+			<p><strong>Feedback:</strong></p>
+			<p id="modalFeedback"></p>
+		</div>
+	</div>
+
+	<!-- Modal for delete confirmation -->
+	<div id="deleteConfirmationModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeModal('deleteConfirmationModal')">&times;</span>
+			<h3>Confirm Delete</h3>
+			<p id="deleteMessage">Are you sure you want to delete the feedback from <strong id="modalUsernameDelete"></strong> on <strong id="modalDateDelete"></strong>?</p>
+			<button class="btnClose" onclick="closeModal('deleteConfirmationModal')">Cancel</button>
+			<button class="btnConfirm" onclick="confirmDelete()">Yes</button>
+		</div>
+	</div>
+
+
+
+<!-- Styles -->
+<style>
+    .feedback-modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+        overflow: auto;
+        padding-top: 100px;
+		z-index: 3000;
+    }
+
+    .feedback-modal-content {
+        background-color: #FFFFFF;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        width: 80%;
+        max-width: 600px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+		z-index: 3000;
+    }
+
+    .feedback-close-button {
+        color: #1A4D2E;
+        font-size: 30px;
+        font-weight: bold;
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .feedback-close-button:hover {
+        color: #7ABA78;
+    }
+
+    .modal-title {
+        font-size: 24px;
+        color: #1A4D2E;
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #475569;
+    }
+
+    strong {
+        color: #1A4D2E;
+    }
+
+    #modalFeedback {
+        background-color: #F2F2F2;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+        color: #475569;
+        font-style: italic;
+    }
+
+    #modalUsername, #modalDate {
+        color: #7ABA78;
+    }
+</style>
+
 </head>
 <body>
 
@@ -40,9 +139,9 @@
 				</a>
 			</li>
 			<li>
-				<a href="{{ url_for('stress_questions') }}">
-					<i class='bx bxs-message-square-edit'></i>
-					<span class="text">Questionnaire Management</span>
+				<a href="{{ url_for('edit_recommendation') }}">
+					<i class='bx bxs-check-circle'></i>
+					<span class="text">Recommendation</span>
 				</a>
 			</li>
 			<li class="active">
@@ -53,8 +152,6 @@
 			</li>
 		</ul>
 		<ul class="side-menu">
-			<li>
-			</li>
 			<li>
 				<a href="{{ url_for('login') }}" class="logout">
 					<i class='bx bxs-log-out-circle' ></i>
@@ -71,9 +168,8 @@
 		<!-- NAVBAR -->
 		<nav>
 			<i class="bx bx-menu"></i>
-			<form action="#">
-			  
-		  </nav>
+			<form action="#"></form>
+		</nav>
 		<!-- NAVBAR -->
 
 
@@ -100,7 +196,7 @@
 					<tr>
 						<th>Username</th>
 						<th>Feedback</th>
-						<th>Date</th>
+						<th>Date & Time</th>
 						<th>Actions</th>
 					</tr>
 				</thead>
@@ -109,7 +205,7 @@
 					<tr id="feedback-row-{{ feedback._id }}">
 						<td>{{ feedback.username }}</td>
 						<td>{{ feedback.feedback }}</td>
-						<td>{{ feedback.timestamp }}</td>
+						<td>{{ feedback.timestamp.strftime('%d/%m/%Y, %H:%M:%S') }}</td>
 						<td>
 							<button class="btn-icon view-feedback" title="View" data-feedback="{{ feedback.feedback }}" data-username="{{ feedback.username }}" data-date="{{ feedback.timestamp }}">
 								<i class='bx bx-show'></i>
@@ -127,142 +223,127 @@
 	<!-- MAIN -->
 </section>
 <!-- CONTENT -->
+		<!-- Modal for delete confirmation -->
 
-<!-- Modal for Viewing Feedback -->
-<div id="viewModal" class="modal">
-	<div class="modal-content">
-		<span class="close-button" onclick="closeModal()">&times;</span>
-		<h2>Feedback Details</h2>
-		<p><strong>Username:</strong> <span id="modalUsername"></span></p>
-		<p><strong>Date:</strong> <span id="modalDate"></span></p>
-		<p><strong>Feedback:</strong></p>
-		<p id="modalFeedback"></p>
-	</div>
-</div>
-	</main>
-	<!-- MAIN -->
-</section>
-	<!-- CONTENT -->
-
-	<script>
-
-		// Function to open and populate the modal
-function openModal(username, date, feedback) {
-    document.getElementById('modalUsername').innerText = username;
-    document.getElementById('modalDate').innerText = date;
-    document.getElementById('modalFeedback').innerText = feedback;
-    document.getElementById('viewModal').style.display = 'block';
-}
-
-// Function to close the modal
-function closeModal() {
-    document.getElementById('viewModal').style.display = 'none';
-}
-
-// Event listener for view buttons
-document.addEventListener('DOMContentLoaded', function() {
-    const viewButtons = document.querySelectorAll('.view-feedback');
-    viewButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const username = this.getAttribute('data-username');
-            const date = this.getAttribute('data-date');
-            const feedback = this.getAttribute('data-feedback');
-            openModal(username, date, feedback);
-        });
-    });
-});
-
-// Close modal if clicked outside
-window.onclick = function(event) {
-    const modal = document.getElementById('viewModal');
-    if (event.target === modal) {
-        closeModal();
-    }
-}
-
-		// Function to handle feedback deletion
-function deleteFeedback(feedbackId) {
-    if (confirm("Are you sure you want to delete this feedback?")) {
-        fetch('/admin/feedback/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ feedback_id: feedbackId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                alert(data.message);
-                // Remove the feedback row from the table
-                document.getElementById(`feedback-row-${feedbackId}`).remove();
-            } else {
-                alert("Error: " + data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-}
-
-// Event listener for delete button
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteButtons = document.querySelectorAll('.delete-feedback');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const feedbackId = this.getAttribute('data-id');
-            deleteFeedback(feedbackId);
-        });
-    });
-});
-
-	</script>
 	
 
+		<script>
+
+		// Variables to hold the feedback ID and modal elements
+		let feedbackIdToDelete = null;
+		const modalUsername = document.getElementById('modalUsername');
+		const modalDate = document.getElementById('modalDate');
+		const modalUsernameDelete = document.getElementById('modalUsernameDelete');
+		const modalDateDelete = document.getElementById('modalDateDelete');
+
+		// Function to open the modal for viewing feedback
+		function openModal(username, date, feedback) {
+			const formattedDate = new Date(date).toLocaleString('en-GB', {
+				year: 'numeric',
+				month: 'numeric',
+				day: 'numeric',
+				hour: 'numeric',
+				minute: 'numeric',
+				second: 'numeric',
+				hour12: false
+			});
+
+			// Insert the details into the view feedback modal
+			modalUsername.innerText = username;
+			modalDate.innerText = formattedDate;
+			modalFeedback.innerText = feedback;
+
+			document.getElementById('feedbackViewModal').style.display = 'block';
+		}
+
+		// Function to close the modal
+		function closeModal(modalId) {
+			document.getElementById(modalId).style.display = 'none';
+		}
+
+		// Function to open the delete confirmation modal
+		function openDeleteModal(feedbackId, username, date) {
+			feedbackIdToDelete = feedbackId;  // Store the ID to delete
+			const formattedDate = new Date(date).toLocaleString('en-GB', {
+				year: 'numeric',
+				month: 'numeric',
+				day: 'numeric',
+				hour: 'numeric',
+				minute: 'numeric',
+				second: 'numeric',
+				hour12: false
+			});
+
+			// Insert the username and date into the delete modal
+			modalUsernameDelete.innerText = username;
+			modalDateDelete.innerText = formattedDate;
+
+			  // Display the delete modal
+			  const modal = document.getElementById('deleteConfirmationModal');
+			  modal.style.display = 'flex';
+			  modal.style.opacity = '1';
+			  modal.style.visibility = 'visible';
+		  }
+		
+
+
+		// Function to confirm and delete the feedback
+		function confirmDelete() {
+			if (feedbackIdToDelete) {
+				console.log("Deleting feedback with ID:", feedbackIdToDelete);  // Log the ID for debugging
+		
+				fetch('/admin/feedback/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ feedback_id: feedbackIdToDelete })
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log(data);  // Log the response for debugging
+					if (data.status === 'success') {
+						alert(data.message);
+						// Remove the feedback row from the table
+						document.getElementById(`feedback-row-${feedbackIdToDelete}`).remove();
+					} else {
+						alert("Error: " + data.message);
+					}
+					closeModal('deleteConfirmationModal');  // Close the delete modal after deletion
+				})
+				.catch(error => console.error('Error:', error));
+			}
+		}
+		
+
+		// Event listener for delete buttons
+		document.addEventListener('DOMContentLoaded', function() {
+			const deleteButtons = document.querySelectorAll('.delete-feedback');
+			deleteButtons.forEach(button => {
+				button.addEventListener('click', function() {
+					const feedbackId = this.getAttribute('data-id');
+					const username = this.closest('tr').querySelector('td:nth-child(1)').textContent;
+					const date = this.closest('tr').querySelector('td:nth-child(3)').textContent;
+					openDeleteModal(feedbackId, username, date);
+				});
+			});
+
+			const viewButtons = document.querySelectorAll('.view-feedback');
+			viewButtons.forEach(button => {
+				button.addEventListener('click', function() {
+					const username = this.getAttribute('data-username');
+					const date = this.getAttribute('data-date');
+					const feedback = this.getAttribute('data-feedback');
+					openModal(username, date, feedback);
+				});
+			});
+		});
+
+
+	</script>
+
 	<script src="{{ url_for('static', filename='script.js') }}"></script>
-
-	<style>
-		/* Modal styling */
-		.modal {
-			display: none;
-			position: fixed;
-			z-index: 1;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-			overflow: auto;
-			background-color: rgba(0,0,0,0.4);
-			padding-top: 60px;
-		}
-
-		.modal-content {
-			background-color: #fefefe;
-			margin: 5% auto;
-			padding: 20px;
-			border: 1px solid #888;
-			width: 80%;
-			max-width: 500px;
-			text-align: left;
-			position: relative;
-		}
-
-		.close-button {
-			position: absolute;
-			top: 10px;
-			right: 15px;
-			color: #aaa;
-			font-size: 28px;
-			font-weight: bold;
-			cursor: pointer;
-		}
-
-		.close-button:hover,
-		.close-button:focus {
-			color: black;
-			text-decoration: none;
-			cursor: pointer;
-		}
-	</style>
+	<script src="{{ url_for('static', filename='admin/script.js') }}"></script>
 
 </body>
 </html>

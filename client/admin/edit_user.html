@@ -6,10 +6,13 @@
 
 	<!-- Boxicons -->
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 	<!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/edit_user.css') }}">
 
 	<title>AdminHub</title>
+	
 </head>
 <body>
 
@@ -17,7 +20,7 @@
 	<section id="sidebar">
 		<nav>
 		<a href="#" class="brand">
-			<i class='bx bxs-smile'></i>
+			<i class='bx bx-badge-check'></i>
 			<span class="text">Stress Check</span>
 		</a>
 		<ul class="side-menu top">
@@ -40,9 +43,9 @@
 				</a>
 			</li>
 			<li>
-				<a href="{{ url_for('stress_questions') }}">
-					<i class='bx bxs-message-square-edit'></i>
-					<span class="text">Questionnaire Management</span>
+				<a href="{{ url_for('edit_recommendation') }}">
+					<i class='bx bxs-check-circle'></i>
+					<span class="text">Recommendation</span>
 				</a>
 			</li>
 			<li>
@@ -58,7 +61,7 @@
 				</a>
 			</li>
 			<li>
-				<a href="{{ url_for('login') }}" class="logout">
+				<a href="{{ url_for('admin_logout') }}" class="logout">
 					<i class='bx bxs-log-out-circle' ></i>
 					<span class="text">Logout</span>
 				</a>
@@ -70,22 +73,19 @@
 
 	<!-- CONTENT -->
 	<section id="content">
-    <nav>
+    
         <nav>
             <i class="bx bx-menu"></i>
-            <form action="#">
-              
-          </nav>
+            <form action="#"></form>        
+    	</nav>
 
     <main>
         <div class="head-title">
             <div class="left">
-                <a href="{{ url_for('management') }}" class="btn-edituser-back">
-					<i class="bx bx-arrow-back"></i>
                 <h1>Edit User</h1>
                 <ul class="breadcrumb">
                     <li>
-                        <a href="#">Dashboard</a>
+                        <a href="{{ url_for('management') }}">User Management</a>
                     </li>
                     <li><i class='bx bx-chevron-right'></i></li>
                     <li>
@@ -95,52 +95,127 @@
             </div>
         </div>
 
-        <div class="edit-user">
-            <form method="POST" action="{{ url_for('edit_user', user_id=user._id) }}">
-                
-                <div class="input-group">
-                    <label for="username">Username</label>
-                    <i class='bx bx-user'></i>
-                    <input type="text" id="username" name="username" value="{{ user.username }}" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="email">Email</label>
-                    <i class='bx bx-envelope'></i>
-                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="role">Role</label>
-                    <i class='bx bx-user-circle'></i>
-                    <input type="text" id="role" name="role" value="{{ user.role }}" required>
-                </div>
+		<!-- Flash Messages -->
+		{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			<div id="flash-messages">
+				{% for category, message in messages %}
+				<div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+					{{ message }}
+				</div>
+				{% endfor %}
+			</div>
+		{% endif %}
+		{% endwith %}
+	
 
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <i class='bx bx-lock-alt'></i>
-                    <input type="text" id="password" name="password" value="{{ user.password }}" required>
-                </div>
+		<div class="edit-user">
+			<form method="POST" action="{{ url_for('edit_user', user_id=user['_id']) }}">
+				
+				<div class="input-group">
+					<label for="username"><i class='bx bx-user'></i> Username</label>  
+					<input type="text" name="username" value="{{ user['username'] }}" required minlength="4" maxlength="20" pattern="^[A-Za-z0-9_]+$" title="Username can only contain letters, numbers, and underscores." placeholder="Enter Username">
+				</div>
+				
+				<div class="input-group">
+					<label for="email"><i class='bx bx-envelope'></i> Email</label>
+					<input type="email" name="email" value="{{ user['email'] }}" required placeholder="Enter Email" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" title="Please enter a valid email address">
+				</div>
+				
+				<div class="input-group">
+					<label for="role"><i class="fas fa-user"></i> Role</label>
+					<select name="role" id="role" required>
+						<option value="user" {% if user['role'] == 'user' %}selected{% endif %}>User</option>
+						<option value="admin" {% if user['role'] == 'admin' %}selected{% endif %}>Admin</option>
+					</select>
+				</div>
+				
+			
+				<div class="input-group">
+					<label for="password"><i class='bx bx-lock'></i> Password:</label>
+					<div class="password-wrapper">
+						<input type="password" id="userPassword" name="password" minlength="8" placeholder="Leave blank if you don't want to change" 
+							   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$"
+							   title="Password must be at least 8 characters long, contain at least one letter, one number, and one special character.">
+						<i class="bx bx-show toggle-password" data-target="userPassword"></i>
+					</div>
+				</div>	
+				
+			
+				<div class="input-group">
+					<label for="age"><i class='bx bx-calendar'></i> Age</label>   
+					<input type="number" name="age" value="{{ user['age'] }}" required min="18" max="100" placeholder="Enter Age">
+				</div>
 
-                <div class="input-group">
-                    <label for="age">Age</label>
-                    <i class='bx bx-calendar'></i>
-                    <input type="int" id="age" name="age" value="{{ user.age }}" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="gender">Gender</label>
-                    <i class='bx bx-male-female'></i>
-                    <input type="text" id="gender" name="gender" value="{{ user.gender }}" required>
-                </div>
-                
-                <button type="submit">Update User</button>
-            </form>
-        </div>
+				<div class="input-group">
+					<label for="gender"><i class="fas fa-genderless"></i> Gender</label>
+					<select name="gender" id="gender" required>
+						<option value="male" {% if user['gender'] == 'male' %}selected{% endif %}>Male</option>
+						<option value="female" {% if user['gender'] == 'female' %}selected{% endif %}>Female</option>
+						<option value="other" {% if user['gender'] == 'other' %}selected{% endif %}>Other</option>
+					</select>
+				</div>
+				
+				{% if user['role'] != 'admin' %}
+				<div class="input-group">
+					<label for="year_level"><i class='bx bxs-graduation'></i> Year Level</label>
+					<select name="year_level" id="year_level" required>
+						<option value="1" {% if user['year_level'] == '1' %}selected{% endif %}>1</option>
+						<option value="2" {% if user['year_level'] == '2' %}selected{% endif %}>2</option>
+						<option value="3" {% if user['year_level'] == '3' %}selected{% endif %}>3</option>
+						<option value="4" {% if user['year_level'] == '4' %}selected{% endif %}>4</option>
+					</select>
+				</div>
+				{% endif %}
 
-
+				<button type="submit">Update User</button>
+			</form>
+		</div>
+	
     </main>
 </section>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+	
+			<script>
+				document.addEventListener('DOMContentLoaded', function () {
+					const togglePasswordIcons = document.querySelectorAll('.toggle-password');
+
+					togglePasswordIcons.forEach(icon => {
+						icon.addEventListener('click', function () {
+							const targetId = this.getAttribute('data-target');
+							const passwordField = document.getElementById(targetId);
+
+							// Toggle the input type between 'password' and 'text'
+							const type = passwordField.type === 'password' ? 'text' : 'password';
+							passwordField.type = type;
+
+							// Toggle the icon class
+							this.classList.toggle('bx-show');
+							this.classList.toggle('bx-hide');
+						});
+					});
+				});
+
+				document.addEventListener("DOMContentLoaded", function() {
+					const flashMessages = document.querySelectorAll('.custom-alert');
+					flashMessages.forEach(function(alert) {
+						// Add the active class to show the alert
+						alert.classList.add('active');
+				
+						// Remove the active class after 3 seconds to hide the alert
+						setTimeout(function() {
+							alert.classList.add('fade-out');
+							// After fade-out, remove the element entirely
+							setTimeout(function() {
+								alert.remove();
+							}, 500); // Timeout duration matches the CSS transition time
+						}, 3000); 
+					});
+				});
+			</script>
+			
+		
+		
+		<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+
 </html>

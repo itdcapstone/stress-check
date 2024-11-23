@@ -1,0 +1,239 @@
+/* Importing Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+/* Apply Poppins font to the entire page */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Profile Container Styling */
+.profile-container, .profile-security {
+    background-color: #e9f5f070 !important;
+    padding: 25px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1) !important;
+    margin-bottom: 20px !important;
+    margin-top: 20px !important;
+}
+
+/* Label Styling */
+.form-group label {
+    color: #1A4D2E !important;
+    font-size: 1em !important; /* Adjusted for better alignment */
+    margin-bottom: 5px !important;
+    font-weight: bold !important;
+    display: block !important; /* Ensures the label takes full width and aligns correctly with the input */
+    margin-top: 10px !important; /* Optional: Adjusts spacing between label and input field */
+    text-align: left !important;
+}
+
+/* Ensure label and input alignment */
+.form-group input[type="text"], 
+.form-group input[type="email"], 
+.form-group input[type="number"], 
+.form-group input[type="password"], 
+.form-group select {
+    width: 100% !important; /* Ensures the input takes full width available */
+    padding: 12px !important;
+    margin-top: 5px !important; /* Adjusts spacing between label and input */
+}
+
+/* Form Layout Fix */
+.form-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 25px !important;
+}
+
+.form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+}
+
+/* Input Styling */
+input[type="text"], input[type="email"], input[type="number"], input[type="password"], select {
+    background-color: #ffffff !important;
+    border: 1px solid #7ABA78 !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    width: 100% !important;
+    color: #475569 !important;
+    box-sizing: border-box !important;
+    margin-bottom: 10px !important;
+    font-size: 16px !important;
+    padding-right: 2.5rem !important; /* Add space for the toggle icon */
+}
+
+/* Disabled input and select styling */
+input:disabled, select:disabled, input[type="text"]:disabled {
+    border: 1px solid #7ABA78 !important;
+    background-color: #ccccccc2 !important;
+    font-weight: bold !important;
+}
+
+/* Input Focus Styling */
+input[type="password"]:focus {
+    border-color: #1A4D2E !important;
+    outline: none !important;
+}
+
+/* Input Group Styling for Password Fields */
+.input-group {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* Ensure input field has space for password toggle */
+.input-group input[type="password"] {
+    padding-right: 2.5rem !important; /* Ensure there is space for the toggle button */
+}
+
+/* Toggle Password Icon Styling */
+.input-group .toggle-password {
+    position: absolute !important;
+    right: 12px !important; /* Adjust the distance between the icon and the input border */
+    top: 50% !important;
+    transform: translateY(-50%) !important; /* Vertically center the icon */
+    font-size: 20px !important;
+    color: #1A4D2E !important;
+    cursor: pointer !important;
+    transition: color 0.3s ease, transform 0.3s ease !important;
+}
+
+/* Hover Effect for Toggle Icon */
+.input-group .toggle-password:hover {
+    color: #7ABA78 !important;
+    transform: translateY(-50%) scale(1.1) !important; /* Add a subtle hover effect */
+}
+
+/* Button Styling */
+button {
+    background-color: #1A4D2E !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 20px !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    transition: background-color 0.3s ease !important;
+}
+
+button:hover {
+    background-color: #7ABA78 !important;
+}
+
+.form-buttons {
+    display: block !important;  /* Ensure the container is a block element */
+    text-align: right;  /* Align the buttons to the right */
+}
+
+/* Align buttons to the right */
+.form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important; /* Align inputs to the left */
+}
+
+.form-group button {
+    align-self: flex-end !important; /* Align the button to the right */
+    margin-top: 10px !important; /* Add some space above the button */
+}
+
+
+
+/* For devices with a screen width of 768px or less (Tablets and below) */
+@media screen and (max-width: 768px) {
+    /* Profile Container */
+    .profile-container, .profile-security {
+        padding: 15px !important;
+    }
+
+    /* Form Layout */
+    .form-row {
+        flex-direction: column !important; /* Stack form fields vertically */
+        gap: 15px !important;
+    }
+
+    /* Form Group */
+    .form-group {
+        min-width: 100% !important; /* Form group takes full width */
+    }
+
+    /* Input Fields */
+    input[type="text"], input[type="email"], input[type="number"], input[type="password"], select {
+        padding: 10px !important;
+        font-size: 14px !important; /* Smaller font size for smaller screens */
+    }
+
+    /* Label Styling */
+    .form-group label {
+        font-size: 0.9em !important; /* Smaller font size for labels */
+    }
+
+    /* Input Group Styling */
+    .input-group input[type="password"] {
+        padding-right: 2rem !important; /* Adjust padding for smaller screens */
+    }
+
+    /* Toggle Password Icon */
+    .input-group .toggle-password {
+        font-size: 18px !important; /* Smaller icon size */
+    }
+
+    /* Button Styling */
+    button {
+        padding: 10px 15px !important; /* Smaller padding */
+        font-size: 14px !important; /* Smaller font size */
+    }
+}
+
+/* For devices with a screen width of 480px or less (Mobile devices) */
+@media screen and (max-width: 480px) {
+    /* Profile Container */
+    .profile-container, .profile-security {
+        padding: 10px !important;
+    }
+
+    /* Form Layout */
+    .form-row {
+        flex-direction: column !important; /* Stack form fields vertically */
+        gap: 10px !important;
+    }
+
+    /* Form Group */
+    .form-group {
+        min-width: 100% !important; /* Form group takes full width */
+    }
+
+    /* Input Fields */
+    input[type="text"], input[type="email"], input[type="number"], input[type="password"], select {
+        padding: 8px !important;
+        font-size: 12px !important; /* Smaller font size */
+    }
+
+    /* Label Styling */
+    .form-group label {
+        font-size: 0.85em !important; /* Smaller font size for labels */
+    }
+
+    /* Button Styling */
+    button {
+        padding: 8px 12px !important; /* Smaller padding */
+        font-size: 12px !important; /* Smaller font size */
+    }
+
+    /* Input Group Styling */
+    .input-group input[type="password"] {
+        padding-right: 1.8rem !important; /* Adjust padding for smaller screens */
+    }
+
+    /* Toggle Password Icon */
+    .input-group .toggle-password {
+        font-size: 16px !important; /* Smaller icon size */
+    }
+}

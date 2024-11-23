@@ -7,6 +7,7 @@
     <!-- External Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='stress_result.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/view_assessment.css') }}">
     <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
@@ -47,7 +48,7 @@
         </li>
         <li>
             <a href="{{ url_for('faqs') }}">
-                <i class='bx bxs-user-circle' ></i>
+                <i class='bx bx-question-mark'></i>
                 <span class="text">FAQ's</span>
             </a>
         </li>
@@ -100,17 +101,10 @@
             <p><strong>Date Tested:</strong> {{ assessment.date_tested.strftime('%d-%m-%Y') }}</p>
             
             <h3>Stressors</h3>
-            <ul class="stressors-list">
+            <div class="stressors-container">
                 {% for stressor in assessment.stressors %}
-                <li>{{ stressor }}</li>
+                <span class="stressor-chip">{{ stressor }}</span>
                 {% endfor %}
-            </ul>
-
-            <h3>Recommendations</h3>
-            <div class="recommendations">
-                <div class="recommendation-card">
-                    <p><strong>Recommendation:</strong> {{ assessment.recommendations }}</p>
-                </div>
             </div>
 
             <h3>Test Responses</h3>

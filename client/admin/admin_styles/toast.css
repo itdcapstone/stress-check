@@ -1,0 +1,71 @@
+#toast {
+    display: none !important;
+    position: fixed !important;
+    top: 20px !important;  /* Position it 20px from the top of the viewport */
+    left: 50% !important;
+    transform: translateX(-50%) !important; /* Center it horizontally */
+    min-width: 320px !important;
+    padding: 16px 24px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+    z-index: 1001 !important;
+    opacity: 0 !important;
+    transition: opacity 0.5s ease-in-out !important;
+    font-size: 1rem !important;
+    font-family: 'Poppins', sans-serif !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+    animation: slide-in 0.5s ease-out forwards !important; /* Added animation for sliding in */
+}
+
+#toast.show {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+#toast.fade-out {
+    opacity: 0 !important;
+}
+
+#toast.show.success {
+    background-color: #c3ebcc !important;
+    color: #155724 !important;
+    font-weight: 600 !important;
+    border-left: 6px solid #155724 !important;
+    border-radius: 12px !important;
+}
+
+#toast.show.error {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    font-weight: 600 !important;
+    border-left: 6px solid #721c24 !important;
+    border-radius: 12px !important;
+}
+
+/* Keyframe animation for slide-in */
+@keyframes slide-in {
+    0% {
+        transform: translateX(-50%) translateY(-20px) !important;
+        opacity: 0 !important;
+    }
+    100% {
+        transform: translateX(-50%) translateY(0) !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Fade-out animation */
+@keyframes fade-out {
+    0% {
+        opacity: 1 !important;
+    }
+    100% {
+        opacity: 0 !important;
+    }
+}
+
+/* Optional: Add fade-out when the toast hides */
+#toast.fade-out {
+    animation: fade-out 0.5s ease-out forwards !important;
+}
