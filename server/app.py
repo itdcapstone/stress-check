@@ -143,47 +143,37 @@ def admin_login():
     return render_template('admin/login.html')  # Render the admin login page
 
 
-
 @app.route('/admin_login', methods=['POST'])
 def admin_login_dashboard():
     if request.method == 'POST':
-        # Retrieve form data
-        identifier = request.form['identifier']  # Username or email
+        identifier = request.form['identifier']
         password = request.form['password']
 
-        # Query the database to find a user by username or email
+        # Query the database for username or email match
         existing_user = users_collection.find_one({
             '$or': [{'username': identifier}, {'email': identifier}]
         })
 
         if not existing_user:
-            # Return error if the user does not exist
             return jsonify({'error': 'Invalid username or email!'})
 
-        # Check if the password is valid
         if not check_password_hash(existing_user.get('password'), password):
             return jsonify({'error': 'Invalid password!'})
 
-        # Check if the user has the 'admin' role
         if existing_user.get('role') != 'admin':
             return jsonify({'error': 'Insufficient permissions!'})
 
         # Store user data in session
         session['username'] = existing_user.get('username')
 
-        # Count users and assessments
-        user_count = users_collection.count_documents({'role': 'user'})
-        assessment_count = assessment_collection.count_documents({})
-
-        # Store counts in session
-        session['user_count'] = user_count
-        session['assessment_count'] = assessment_count
-
-        # Return success response with a redirect URL
+        # Respond with success message and redirect URL
         return jsonify({
             'success': 'Login successful!',
-            'redirect_url': url_for('admin_dashboard', username=existing_user.get('username'))
+            'redirect_url': url_for('admin_dashboard')
         })
+
+
+
 
 
 # admin dashboard =====================
@@ -192,9 +182,14 @@ def admin_login_dashboard():
 @app.route('/admin_dashboard')
 def admin_dashboard():
     username = session.get('username')
-    
-    if not username:
+ 
+    if not username: 
         return redirect(url_for('admin_login_dashboard'))
+    
+
+     # Retrieve any success message from the session
+    message = session.pop('success_message', None)
+
 
     # Retrieve general counts from the database
     user_count = users_collection.count_documents({})
@@ -238,6 +233,7 @@ def admin_dashboard():
     return render_template(
         'admin/dashboard.html',
         username=username,
+        message=message,
         user_count=user_count,
         assessment_count=assessment_count,
         feedbacks_count=feedback_count,
@@ -331,36 +327,45 @@ def home():
 
 @app.route('/admin/data/', methods=['GET', 'POST'])
 def data():
+
     # Default filter values
     filter_criteria = {}
 
-    # Get filters from request (e.g., date range, year level)
+    # Get filters from request (e.g., date range)
     start_date = request.args.get('start_date')  # Format: YYYY-MM-DD
-    end_date = request.args.get('end_date')  # Format: YYYY-MM-DD
-    year_level = request.args.get('year_level')  # Specific year level to filter
+    end_date = request.args.get('end_date')      # Format: YYYY-MM-DD
 
     # Build date range filter
     if start_date and end_date:
+        try:
+            filter_criteria["date_tested"] = {
+                "$gte": datetime.strptime(start_date, "%Y-%m-%d"),
+                "$lte": datetime.strptime(end_date, "%Y-%m-%d")
+            }
+            print("Filter criteria:", filter_criteria)  # Debugging line to check the filter
+        except ValueError:
+            return "Invalid date format. Please use 'YYYY-MM-DD'.", 400
+    else:
+        # Optional: Set a default date range
         filter_criteria["date_tested"] = {
-            "$gte": datetime.strptime(start_date, "%Y-%m-%d"),
-            "$lte": datetime.strptime(end_date, "%Y-%m-%d")
+            "$gte": datetime(2000, 1, 1),
+            "$lte": datetime.now()
         }
 
-    # Add year level filter
-    if year_level:
-        filter_criteria["year_level"] = int(year_level)
+    print("Final filter criteria:", filter_criteria)  # Debugging line to ensure the filter is correct
 
-    # Fetch total responses from the response collection (with filters)
-    total_responses = response_collection.count_documents(filter_criteria)
+    # Use assessment collection for count
+    assessment_count = assessment_collection.count_documents(filter_criteria)
 
-    # Calculate average stress level from response collection
+    # Calculate average stress level from assessment collection
     pipeline = [
         {"$match": filter_criteria},  # Apply filters
         {"$group": {"_id": None, "avgStressLevel": {"$avg": "$stress_level"}}}
     ]
-    avg_stress_result = list(response_collection.aggregate(pipeline))
+    avg_stress_result = list(assessment_collection.aggregate(pipeline))
     avg_stress_level = avg_stress_result[0].get('avgStressLevel', 0.0) if avg_stress_result else 0.0
     avg_stress_level = round(avg_stress_level, 2) if avg_stress_level is not None else 0.0
+    print(f"Avg Stress Level: {avg_stress_level}")  # Debugging line
 
     # Count total questions and unique categories in stress_questions collection
     question_count = stress_questions_collection.count_documents({})
@@ -435,7 +440,6 @@ def data():
 
     # Pass all data and filter parameters to the template
     return render_template('admin/data.html',
-                           total_responses=total_responses,
                            avg_stress_level=avg_stress_level,
                            question_count=question_count,
                            category_count=category_count,
@@ -444,9 +448,9 @@ def data():
                            year_level_student_counts=year_level_student_counts,
                            stressor_data=stressor_data,
                            stress_level_data=stress_level_data,
+                           assessment_count=assessment_count,  # Now using assessment_count
                            start_date=start_date,
-                           end_date=end_date,
-                           year_level=year_level)
+                           end_date=end_date)
     
     
 @app.route('/admin/feedback/', methods=['GET', 'POST'])
@@ -460,7 +464,7 @@ def admin_feedback():
             # Parse the user input in 'YYYY-MM-DD' format
             filter_date = datetime.strptime(date_filter, "%Y-%m-%d")
             
-            # Set the start of the day (00:00:00) and end of the day (23:59:59) in UTC
+            # Set the start and end of the day
             start_date = filter_date.replace(hour=0, minute=0, second=0, microsecond=0)
             end_date = filter_date.replace(hour=23, minute=59, second=59, microsecond=999999)
 
@@ -468,48 +472,36 @@ def admin_feedback():
             query = {'timestamp': {'$gte': start_date, '$lte': end_date}}
 
         except ValueError:
-            # Handle invalid date format error
             print(f"Invalid date format for filter: {date_filter}. Expected format is 'YYYY-MM-DD'.")
             pass  # Ignore invalid date formats
 
     # Fetch filtered feedback data from the MongoDB feedback collection
     feedback_data = list(feedback_collection.find(query))
 
-    # Check if it's an AJAX request (for filtering)
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        feedback_list = [
-            {
-                "_id": str(feedback["_id"]),
-                "username": feedback["username"],
-                "feedback": feedback["feedback"],
-                "timestamp": feedback["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
-            }
-            for feedback in feedback_data
-        ]
-        return jsonify(feedback_data=feedback_list)  # Return filtered data as JSON
-
-    # Handle deletion (POST request)
     if request.method == 'POST':
-        feedback_id = request.json.get('feedback_id')
-        if feedback_id:
-            try:
-                # Ensure feedback_id is a valid ObjectId after trimming spaces
-                feedback_id = feedback_id.strip()  # Trim any leading or trailing spaces
-                object_id = ObjectId(feedback_id)
-                result = feedback_collection.delete_one({'_id': object_id})
+        # Handle deletion (AJAX POST request)
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            feedback_id = request.json.get('feedback_id')
+            if feedback_id:
+                try:
+                    feedback_id = feedback_id.strip()
+                    object_id = ObjectId(feedback_id)
+                    result = feedback_collection.delete_one({'_id': object_id})
+                    
+                    if result.deleted_count == 1:
+                        return jsonify({'success': f'Feedback deleted successfully.'}), 200
+                    else:
+                        return jsonify({'error': f'Feedback with ID {feedback_id} not found.'}), 404
+                except Exception as e:
+                    print(f"Error deleting feedback: {e}")
+                    return jsonify({'error': 'Invalid feedback ID format.'}), 400
+            return jsonify({'error': 'Feedback ID not provided.'}), 400
 
-                if result.deleted_count == 1:
-                    return jsonify({'status': 'success', 'message': 'Feedback deleted successfully.'}), 200
-                else:
-                    return jsonify({'status': 'error', 'message': 'Feedback not found.'}), 404
+        return jsonify({'error': 'Invalid request type.'}), 400
 
-            except Exception as e:
-                print(f"Error deleting feedback: {e}")
-                return jsonify({'status': 'error', 'message': 'Invalid feedback ID format.'}), 400
-        return jsonify({'status': 'error', 'message': 'Feedback ID not provided.'}), 400
-
-    # Render the page with feedback data for normal requests (GET)
+    # Render the page with feedback data for normal GET requests
     return render_template('admin/feedback.html', feedback_data=feedback_data)
+
 
 
 @app.route('/admin/edit_user/<user_id>', methods=['GET', 'POST'])
@@ -1449,37 +1441,50 @@ def handle_no_valid_responses(request):
 
 @app.route('/feedback', methods=['GET', 'POST'])
 def feedback():
-
     username = session.get('username')
+    if not username:
+        print("Session username is None")
+        return "Unauthorized access", 401
+
+    print(f"Username from session: {username}")
 
     if request.method == 'POST':
-        # Get form data
-        feedback_text = request.form['feedback']
+        feedback_text = request.form.get('feedback')
+        if not feedback_text:
+            flash("Feedback cannot be empty!", "error")
+            return redirect(url_for('feedback'))
 
-        # Fetch username from session
-        username = session.get('username')
+        print(f"Feedback text received: {feedback_text}")
 
-        # Fetch user_id based on username
         user = users_collection.find_one({'username': username})
-        user_id = user['_id']
+        if not user:
+            print(f"User not found for username: {username}")
+            return "User not found", 404
 
-        # Fetch name based on user_id
-        name = user.get('name', 'Unknown')
+        try:
+            feedback_data = {
+                'feedback': feedback_text,
+                'user_id': user['_id'],
+                'username': username,
+                'name': user.get('name', 'Unknown'),
+                'timestamp': datetime.now()
+            }
+            feedback_collection.insert_one(feedback_data)
+            print(f"Feedback saved: {feedback_data}")
+            flash("Thank you for your feedback!", "success")
+        except Exception as e:
+            print(f"Error saving feedback: {e}")
+            flash("Internal Server Error. Please try again later.", "error")
+            return redirect(url_for('feedback'))
 
-        # Insert feedback into the database
-        feedback_data = {
-            'feedback': feedback_text,
-            'user_id': user_id,
-            'username': username,
-            'name': name,
-            'timestamp': datetime.now()
-        }
-        feedback_collection.insert_one(feedback_data)
-        
-        # Redirect to a different route after saving feedback
-    
-    # Render the form template for GET requests
-    return render_template('feedback.html', username=username)
+        # Redirect to avoid form resubmission
+        return redirect(url_for('feedback'))
+
+    # Fetch previous feedback for display
+    feedback_list = feedback_collection.find({'username': username}).sort('timestamp', -1)
+    return render_template('feedback.html', username=username, feedback_list=feedback_list)
+
+
 
 
 
@@ -1664,9 +1669,7 @@ def profile():
         return redirect(url_for('login'))
 
     
-    
-from flask import flash, redirect, render_template, request, session, url_for
-from werkzeug.security import check_password_hash
+
 
 @app.route('/change_email', methods=['POST'])
 def change_email():

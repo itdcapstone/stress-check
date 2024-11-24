@@ -518,7 +518,8 @@ body {
 /* Responsive Adjustments for Small Mobile Screens */
 @media (max-width: 480px) {
     #content main {
-        padding: 12px 8px;
+        
+        padding: 20px 24px;
     }
 
     #content main .head-title .left h1,
@@ -538,8 +539,6 @@ body {
 
     #content main .box-info li {
         padding: 10px;
-        flex-direction: column;
-        align-items: flex-start;
     }
 
     #content main .box-info li .bx {
@@ -603,6 +602,7 @@ body {
 
     #content main .table-data > div {
         overflow-x: auto; /* Show overflow bar on small screens */
+        margin-bottom: 8px;
     }
 }
 
@@ -925,6 +925,7 @@ body {
 
 
 /* Recommendation Box */
+
 .recommendation-box {
     background-color: var(--light); 
     border-radius: 1.5rem; 
@@ -936,9 +937,16 @@ body {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     font-size: 1.125rem;
     width: clamp(200px, 30%, 400px); /* Smooth scaling with clamp() */
-    transition: width 0.3s ease-in-out, font-size 0.3s ease, box-shadow 0.3s ease;
+    transition: width 0.3s ease-in-out, font-size 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     height: auto;
     min-height: 350px;
+}
+
+.recommendation-box:hover {
+    background-color: var(--primary); /* Change background color on hover */
+    box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); /* Darker, larger shadow on hover */
+    transform: scale(1.05); /* Slightly scale up the box */
+    cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
 }
 
 .recommendation-box h2 {
@@ -965,6 +973,8 @@ body {
     justify-content: center; /* Center align */
     margin: 0 auto; /* Center in parent container */
 }
+
+
 
 /* Media Queries */
 @media screen and (max-width: 1024px) {
@@ -1499,11 +1509,9 @@ button:hover {
 	}
 }
 
-.rating .star:hover {
-	transform: scale(1.1);
-}
 
-textarea {
+
+.feedback_textarea {
 	width: 100%;
 	background: var(--light);
 	padding: 0.7rem;
@@ -1512,12 +1520,12 @@ textarea {
 	outline: none;
 	resize: none;
 	margin-bottom: .5rem;
-    height: 70%;
+    height: 190px;
     font-size: 18px;
 }
 
 /* When textarea is focused (clicked) */
-textarea:focus {
+.feedback_textarea:focus {
     background: #ffffff; /* Change to white when focused */
     border-color: #7ABA78; /* Optional: change border color for better visibility */
     box-shadow: 0 0 5px rgba(122, 186, 120, 0.5); /* Optional: subtle box shadow */

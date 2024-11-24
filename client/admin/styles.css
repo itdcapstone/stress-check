@@ -854,8 +854,8 @@ canvas {
     color: #3498db; /* Customize color for View button */
 }
 
-.btn-icon.delete-feedback {
-    color: #e74c3c; /* Customize color for Delete button */
+.btn-icon.delete-feedback:hover {
+   color: #e74c3c; /* Customize color for Delete button */
 }
 
 /* Base Media Query for Small Screens (default) */
@@ -1268,6 +1268,14 @@ canvas {
 .btn-icon.delete:hover i {
     color: #e74c3c;
     transform: scale(1.1);
+}
+
+.btn-icon.view-feedback:hover i {
+    color:  #35a776;
+}
+
+.btn-icon.delete-feedback:hover i {
+    color: #e74c3c;
 }
 
 /* Delete Modal */

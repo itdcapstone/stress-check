@@ -5,70 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Boxicons -->
-    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet">
     <!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
 
     <title>Feedback</title>
 
     <style>
-    
+    /* Media Queries */
+    @media (max-width: 768px) {
+        textarea {
+            height: 50%;
+            font-size: 0.875rem;
+        }
 
-/* Media Queries */
+        .btn-group {
+            gap: 1rem;
+            width: 300px;
+            display: contents;
+        }
 
-/* For small screens (max-width: 768px) */
-@media (max-width: 768px) {
-  
-    textarea {
-        height: 50%; /* Adjust textarea height */
-        font-size: 0.875rem;
+        .btn-group .btn {
+            width: 30%;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
     }
 
-    .btn-group {
-        gap: 1rem; /* Consistent gap between buttons */
-        width: 300px;
-        display: contents;
+    @media (max-width: 480px) {
+        .wrapper {
+            padding: 1rem;
+            height: 300px;
+        }
+
+        textarea {
+            height: 40%;
+            font-size: 0.75rem;
+        }
+
+        .btn-group {
+            gap: 0.75rem;
+        }
+
+        .btn-group .btn {
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+        }
     }
-
-    .btn-group .btn {
-        width: 30%;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
-    }
-}
-
-/* For very small screens (max-width: 480px) */
-@media (max-width: 480px) {
-
-    .wrapper {
-        padding: 1rem;
-        height: 300px;
-    }
-  
-
-    textarea {
-        height: 40%; /* Reduce height for very small screens */
-        font-size: 0.75rem;
-    }
-
-    .btn-group {
-        gap: 0.75rem; /* Slightly smaller gap between buttons */
-    }
-
-    .btn-group .btn {
-        
-        padding: 0.75rem 1rem;
-        font-size: 0.75rem; /* Smaller font size for small screens */
-    }
-}
-
-
-
     </style>
 </head>
 <body>
-
-
     <!-- SIDEBAR -->
     <section id="sidebar">
         <a href="#" class="brand">
@@ -78,25 +65,25 @@
         <ul class="side-menu top">
             <li>
                 <a href="{{ url_for('dashboard', username=username) }}">
-                    <i class='bx bxs-dashboard' ></i>
+                    <i class='bx bxs-dashboard'></i>
                     <span class="text">Dashboard</span>
                 </a>
             </li>
             <li>
                 <a href="{{ url_for('analytics') }}">
-                    <i class='bx bxs-doughnut-chart' ></i>
+                    <i class='bx bxs-doughnut-chart'></i>
                     <span class="text">History</span>
                 </a>
             </li>
-			<li>
+            <li>
                 <a href="{{ url_for('recommendation') }}">
                     <i class='bx bxs-message-rounded-dots'></i>
                     <span class="text">Recommendation</span>
                 </a>
             </li>
-			<li>
+            <li>
                 <a href="{{ url_for('profile') }}">
-                    <i class='bx bxs-user-circle' ></i>
+                    <i class='bx bxs-user-circle'></i>
                     <span class="text">My Profile</span>
                 </a>
             </li>
@@ -108,7 +95,7 @@
             </li>
         </ul>
         <ul class="side-menu">
-            <li  class="active">
+            <li class="active">
                 <a href="{{ url_for('feedback') }}">
                     <i class='bx bxs-user-pin'></i>
                     <span class="text">Feedback</span>
@@ -116,7 +103,7 @@
             </li>
             <li>
                 <a href="{{ url_for('login') }}" class="logout">
-                    <i class='bx bxs-log-out-circle' ></i>
+                    <i class='bx bxs-log-out-circle'></i>
                     <span class="text">Logout</span>
                 </a>
             </li>
@@ -128,35 +115,73 @@
     <!-- CONTENT -->
     <section id="content">
         <nav>
-            <i class="bx bx-menu"></i>
-            <form action="#">
-              
-          </nav>
-          
-     <!-- MAIN -->
-     <main>
-        <div class="head-title-center">
-            <div class="center">
+			<i class='bx bx-menu' ></i>
+			<form action="#">
+				<div class="form-input">
+					<input type="search" placeholder="Search...">
+					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+				</div>
+			</form>
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+		</nav>
+
+        <!-- Flash Messages -->
+			{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				<div id="flash-messages">
+					{% for category, message in messages %}
+					<div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+						{{ message }}
+					</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+			{% endwith %}
+
+        <!-- MAIN -->
+        <main>
+            <div class="head-title-center">
                 <h1>Share your feedback</h1>
             </div>
-        </div>
-        <ul class="box-info">
-            <li>
-                <div class="wrapper">
-                    <form id="feedback-form" method="POST" action="{{ url_for('feedback') }}">
-                        <textarea name="feedback" cols="30" rows="5" placeholder="Share your feedback..." required></textarea>
-                        <div class="btn-group">
-                            <button type="submit">Submit</button>
-                            <button type="button" class="btn cancel">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </li>
-        </ul>
-    </main>
-</section>
-<!-- TOAST -->
-<div id="toast" class="toast hidden">Feedback sent successfully!</div>
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+        
+            <!-- Feedback Form -->
+            <div class="wrapper">
+                <form id="feedback-form" method="POST" action="{{ url_for('feedback') }}">
+                    <textarea name="feedback" class="feedback_textarea" cols="30" rows="5" placeholder="Share your feedback..." required></textarea>
+                    <div class="btn-group">
+                        <!-- Cancel redirects to the dashboard -->
+                        <button class="btn cancel" onclick="window.location.href='{{ url_for('dashboard', username=username) }}'; return false;">Cancel</button>
+                        <button class="btn submit" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+        </main>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+			const flashMessages = document.querySelectorAll('.custom-alert');
+			flashMessages.forEach(function(alert) {
+				// Add the active class to show the alert
+				alert.classList.add('active');
+	
+				// Remove the active class after 3 seconds to hide the alert
+				setTimeout(function() {
+					alert.classList.add('fade-out');
+					// After fade-out, remove the element entirely
+					setTimeout(function() {
+						alert.remove();
+					}, 500); // Timeout duration matches the CSS transition time
+				}, 3000); 
+			});
+	
+		
+		});
+    </script>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

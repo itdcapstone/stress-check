@@ -8,6 +8,7 @@
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
 	<!-- My CSS -->
    
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/profile_styles.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
 	
@@ -243,9 +244,7 @@
 						<div class="form-group">
 							<label for="confirm-new-password"><i class='bx bx-lock'></i> Confirm New Password:</label>
 							<div class="input-group">
-								<input type="password" id="confirm-new-password" name="confirm_new_password" required minlength="8" placeholder="Confirm New Password"
-									   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}$"
-									   title="Password must be at least 8 characters long, contain at least one letter, one number, and one special character.">
+								<input type="password" id="confirm-new-password" name="confirm_new_password" required minlength="8" placeholder="Confirm New Password">
 								<i class="bx bx-show toggle-password" data-target="confirm-new-password"></i>
 							</div>
 						</div>
@@ -278,8 +277,6 @@
 					}, 500); // Timeout duration matches the CSS transition time
 				}, 3000); 
 			});
-	
-		
 		});
 	</script>
 	

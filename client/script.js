@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Confirm cancel action in the modal
     confirmCancel.addEventListener('click', () => {
         cancelModal.style.display = 'none';
-        formButtons.style.display = 'none';
+        formbuttons.style.display = 'none';
         formFields.forEach(field => field.disabled = true);
     });
 
@@ -200,10 +200,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-
 document.addEventListener('DOMContentLoaded', function () {
     const changePasswordModal = document.getElementById('change-password-modal');
-    const changePasswordButton = document.querySelector('.change-password'); // Matches the HTML button class
+    const changePasswordButton = document.querySelector('.change-password');
     const closeChangePasswordModal = document.getElementById('close-change-password-modal');
 
     if (!changePasswordModal || !changePasswordButton || !closeChangePasswordModal) {
@@ -238,10 +237,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const confirmNewPasswordField = document.getElementById('confirm-new-password');
     const currentPasswordError = document.getElementById('current-password-error');
 
-    console.log('Current Password Field:', currentPasswordField);
-    console.log('New Password Field:', newPasswordField);
-    console.log('Confirm New Password Field:', confirmNewPasswordField);
-    console.log('Current Password Error:', currentPasswordError);
+    // Clear custom validity on typing
+    newPasswordField.addEventListener('input', function () {
+        confirmNewPasswordField.setCustomValidity(''); // Clear validity if user starts typing in confirm password
+        confirmNewPasswordField.reportValidity();
+    });
+
+    confirmNewPasswordField.addEventListener('input', function () {
+        confirmNewPasswordField.setCustomValidity(''); // Clear validity if user starts typing in confirm password
+        confirmNewPasswordField.reportValidity();
+    });
 
     if (changePasswordForm) {
         changePasswordForm.addEventListener('submit', function (e) {
@@ -254,11 +259,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
             currentPasswordError.style.display = 'none';
 
-            const currentPassword = currentPasswordField.value;
-            const newPassword = newPasswordField.value;
-            const confirmNewPassword = confirmNewPasswordField.value;
+            const currentPassword = currentPasswordField.value.trim(); // Trim any extra spaces
+            const newPassword = newPasswordField.value.trim(); // Trim any extra spaces
+            const confirmNewPassword = confirmNewPasswordField.value.trim(); // Trim any extra spaces
 
+            console.log('New Password:', newPassword); // Debugging output
+            console.log('Confirm New Password:', confirmNewPassword); // Debugging output
+
+            // Compare trimmed values
             if (newPassword !== confirmNewPassword) {
+                console.log('Passwords do not match!'); // Debugging output
                 confirmNewPasswordField.setCustomValidity("Passwords do not match.");
                 confirmNewPasswordField.reportValidity();
                 return;
@@ -266,6 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 confirmNewPasswordField.setCustomValidity("");
             }
 
+            // Check the current password
             fetch('/check_password', {
                 method: 'POST',
                 body: JSON.stringify({ password: currentPassword }),
@@ -285,6 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
 
 
 

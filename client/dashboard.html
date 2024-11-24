@@ -256,11 +256,15 @@
 					</div>
 				</div>
 				
-				<div class="recommendation-box">
-					<h2>Recommendation</h2>
-					<img src="{{ url_for('static', filename='assets/girl.png') }}" alt="Recommendation Image">
-					<p>Make time to unwind.</p>
-				</div>
+				<a href="{{ url_for('recommendation') }}" class="recommendation-box">
+                   
+                    <h2>Recommendation</h2>
+                    <img src="{{ url_for('static', filename='assets/girl.png') }}" alt="Recommendation Image">
+                    <p id="quote" style="color: #0c8c32;">Loading...</p>
+               
+            </a>
+
+            <script src="{{ url_for('static', filename='quote.js') }}"></script>
 			</div>   
 			
         </main>
@@ -286,8 +290,7 @@
 			});
 		});
     </script>
-
-
+ 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>

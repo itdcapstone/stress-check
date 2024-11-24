@@ -9,6 +9,7 @@
 	<!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/dashboard.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/toast.css') }}">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 	<title>Admin Dashboard</title>
@@ -80,7 +81,7 @@
 			  
 		  </nav>
 		<!-- NAVBAR -->
-
+		<div id="toast"></div>
 
 	<!-- MAIN -->
 	<main>
@@ -97,8 +98,9 @@
 					</li>
 				</ul>
 			</div>
-			
 		</div>
+
+		<div id="toast"></div>
 		
 		<div class="dashboard-overview">
 			<div class="overview-card">
@@ -216,6 +218,43 @@
 			chart.draw(data, options);
 
 			window.addEventListener('resize', drawPieChart);
+		}
+
+		   // Check if there's a success message in sessionStorage
+		   window.onload = function() {
+			const successMessage = sessionStorage.getItem('success_message');
+			
+			if (successMessage) {
+				showToast(successMessage, 'success');
+				sessionStorage.removeItem('success_message');  // Clear after displaying
+			}
+		}
+	
+		// Function to show toast messages
+		function showToast(message, type) {
+			const toast = document.getElementById('toast');
+			if (!toast) {
+				console.error('Toast element not found!');
+				return;
+			}
+	
+			// Set the message
+			toast.innerText = message;
+	
+			// Remove any existing classes first
+			toast.classList.remove('show', 'success', 'error', 'fade-out');
+	
+			// Add the correct type class (either success or error)
+			toast.classList.add('show', type);
+	
+			// Set the toast to fade out after 3 seconds
+			setTimeout(() => {
+				toast.classList.add('fade-out'); // Apply fade-out after 3 seconds
+				setTimeout(() => {
+					toast.classList.remove('show', 'fade-out'); // Remove the show and fade-out after 500ms
+					toast.innerText = ''; // Clear the message
+				}, 500); // Match this with the fade-out animation duration
+			}, 3000); // Show toast for 3 seconds
 		}
 	</script>
 
