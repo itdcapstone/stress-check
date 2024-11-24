@@ -127,8 +127,8 @@ button:hover {
     background-color: #7ABA78 !important;
 }
 
-.form-buttons {
-    display: block !important;  /* Ensure the container is a block element */
+.formButtons {
+    display: block;  /* Ensure the container is a block element */
     text-align: right;  /* Align the buttons to the right */
 }
 
@@ -143,6 +143,32 @@ button:hover {
     align-self: flex-end !important; /* Align the button to the right */
     margin-top: 10px !important; /* Add some space above the button */
 }
+
+/* Error message styling */
+#password-error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+/* Shake effect */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25%, 75% {
+        transform: translateX(-5px);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+
 
 
 

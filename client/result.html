@@ -8,6 +8,8 @@
     <!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='result.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
+  
     
 
     <title>Stress Test Results</title>
@@ -90,6 +92,19 @@
             <form action="#">
         </nav>
         <!-- NAVBAR -->
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+            {% for category, message in messages %}
+            <div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
 
         
         <div class="result-container" id="pdf-content">
@@ -330,6 +345,23 @@
                 const options = { year: 'numeric', month: 'long', day: 'numeric' };
                 const currentDate = new Date().toLocaleDateString(undefined, options);
                 document.getElementById("test-date").innerText = currentDate;
+            });
+
+            document.addEventListener("DOMContentLoaded", function() {
+                const flashMessages = document.querySelectorAll('.custom-alert');
+                flashMessages.forEach(function(alert) {
+                    // Add the active class to show the alert
+                    alert.classList.add('active');
+        
+                    // Remove the active class after 3 seconds to hide the alert
+                    setTimeout(function() {
+                        alert.classList.add('fade-out');
+                        // After fade-out, remove the element entirely
+                        setTimeout(function() {
+                            alert.remove();
+                        }, 500); // Timeout duration matches the CSS transition time
+                    }, 3000); 
+                });
             });
             
             

@@ -124,14 +124,13 @@
 			{% endif %}
 			{% endwith %}
 					
-			<div class="profile-container"><br>
+			<div class="profile-container">
 				<form id="profile-form" method="POST" action="{{ url_for('profile') }}">
 					<div class="profile-details">
 						<h3>General Information</h3>
-							
 						<div class="form-row">
 							<div class="form-group">
-								<label for="name"><br>DISPLAY NAME:</label>
+								<label for="name">DISPLAY NAME:</label>
 								<input type="text" id="name" name="name" value="{{ user.name }}" disabled>
 							</div>
 							<div class="form-group">
@@ -143,7 +142,6 @@
 									<option value="other">Other</option>
 								</select>
 							</div>
-							
 							<div class="form-group">
 								<label for="year-level">YEAR LEVEL:</label>
 								<select id="year-level" name="year-level" required disabled>
@@ -152,17 +150,16 @@
 									<option value="2nd">2nd year</option>
 									<option value="3rd">3rd year</option>
 									<option value="4th">4th year</option>
-									<option value="other">Other</option>
 								</select>
 							</div>
 							<div class="form-group">
 								<label for="age">AGE:</label>
-								<input type="number" id="age" name="age" value="{{ user.age }}" disabled>
+								<input type="number" id="age" name="age" value="{{ user.age }}" min="18" max="100" required disabled>
 							</div>
 						</div>
-						<div class="form-buttons" id="form-buttons" style="display: none !important;">
+						<div class="formButtons" id="formButtons" style="display: none;">
 							<button type="button" id="cancel-button">Cancel</button>
-							<button type="submit" id="submit-button">Save Changes</button> <!-- Moved submit button here -->
+							<button type="submit" id="submit-button">Save Changes</button>
 						</div>
 					</div>
 				</form>
@@ -183,22 +180,20 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			
 
 		
 			
-			<!-- Cancel Confirmation Modal -->
-			<div id="cancel-modal" class="modal">
-				<div class="modal-content">
-					<span class="close-modal" id="close-cancel-modal">&times;</span>
-					<p>Are you sure you want to cancel? Unsaved changes will be lost.</p>
-					<div class="modal-buttons">
-						<button id="confirm-cancel">Yes, Cancel</button>
-						<button id="cancel-modal-button">No, Go Back</button>
+				<div id="cancel-modal" class="modal">
+					<div class="modal-content">
+						<span class="close-modal" id="close-cancel-modal">&times;</span>
+						<p>Are you sure you want to cancel? Unsaved changes will be lost.</p>
+						<div class="modal-buttons">
+							<button id="confirm-cancel">Yes, Cancel</button>
+							<button id="cancel-modal-button">No, Go Back</button>
+						</div>
 					</div>
 				</div>
-			</div>
-
 			<!-- Change Email Modal -->
 			<div id="change-email-modal" class="modal">
 				<div class="modal-content">
@@ -226,7 +221,7 @@
 					<form class="form-group" id="change-password-form" method="POST" action="{{ url_for('change_password') }}">
 						<label for="current-password"><i class='bx bx-lock'></i>Current Password:</label>
 						<div class="input-group">
-							<input type="password" id="current-password" name="current_password" style="margin-top: -20px;" required>
+							<input type="password" id="current-password" name="current_password" style="margin-top: -20px;" required placeholder="Enter Current Password">
 							<i class="bx bx-show toggle-password" data-target="current-password"></i>
 						</div>
 						<div id="current-password-error" style="color: red; display: none;"></div>
@@ -244,7 +239,7 @@
 						<div class="form-group">
 							<label for="confirm-new-password"><i class='bx bx-lock'></i> Confirm New Password:</label>
 							<div class="input-group">
-								<input type="password" id="confirm-new-password" name="confirm_new_password" required minlength="8" placeholder="Confirm New Password">
+								<input type="password" id="confirm-new-password" name="confirm_new_password" required 	placeholder="Confirm New Password">
 								<i class="bx bx-show toggle-password" data-target="confirm-new-password"></i>
 							</div>
 						</div>

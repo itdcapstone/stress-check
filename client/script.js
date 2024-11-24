@@ -67,82 +67,85 @@ switchMode.addEventListener('change', function () {
 	}
 })
 
-// Profile.html
 document.addEventListener('DOMContentLoaded', function () {
     const editLink = document.getElementById('edit-profile-link');
-    const submitButton = document.getElementById('submit-button');
+    const formButtons = document.getElementById('formButtons');
     const cancelButton = document.getElementById('cancel-button');
-    const formButtons = document.getElementById('form-buttons');
-    
+    const submitButton = document.getElementById('submit-button');
     const formFields = document.querySelectorAll('.profile-container input, .profile-container select');
 
-    const saveModal = document.getElementById('save-modal');
     const cancelModal = document.getElementById('cancel-modal');
-    const closeSaveModal = document.getElementById('close-save-modal');
     const closeCancelModal = document.getElementById('close-cancel-modal');
     const confirmCancel = document.getElementById('confirm-cancel');
     const cancelModalButton = document.getElementById('cancel-modal-button');
 
+    // Store original form values
+    let originalFormData = {};
+
+    // Function to save current form data
+    const saveOriginalFormData = () => {
+        originalFormData = {};
+        formFields.forEach(field => {
+            originalFormData[field.name] = field.value;
+        });
+    };
+
+    // Function to restore original form data
+    const restoreOriginalFormData = () => {
+        formFields.forEach(field => {
+            if (originalFormData[field.name] !== undefined) {
+                field.value = originalFormData[field.name];
+            }
+        });
+    };
+
     // Enable edit mode
     editLink.addEventListener('click', (e) => {
         e.preventDefault();
-        formButtons.style.display = 'flex';
+        formButtons.style.display = 'block';
         formFields.forEach(field => field.disabled = false);
+        saveOriginalFormData(); // Save the original data when edit mode is enabled
     });
 
-    // Save changes and show save modal
-    submitButton.addEventListener('click', (e) => {
-        // Prevent default form submission (so we can enable fields first)
-        e.preventDefault();
-    
-        // Enable all form fields before submitting
-        formFields.forEach(field => field.disabled = false);
-    
-        // Submit the form programmatically after enabling fields
-        document.getElementById('profile-form').submit();
-    
-        // Show save modal
-        saveModal.style.display = 'block';
-        formButtons.style.display = 'none';
-        formFields.forEach(field => field.disabled = true); // Disable fields again after submitting
-    });
-    // Cancel edits and show cancel modal
+    // Open cancel modal
     cancelButton.addEventListener('click', () => {
         cancelModal.style.display = 'block';
     });
 
-    // Confirm cancel action in the modal
+    // Confirm cancel action
     confirmCancel.addEventListener('click', () => {
         cancelModal.style.display = 'none';
-        formbuttons.style.display = 'none';
+        formButtons.style.display = 'none';
+        restoreOriginalFormData(); // Restore original data on cancel
         formFields.forEach(field => field.disabled = true);
     });
 
-    // Close modals
-    closeSaveModal.onclick = () => saveModal.style.display = 'none';
-    closeCancelModal.onclick = () => cancelModal.style.display = 'none';
-    cancelModalButton.onclick = () => cancelModal.style.display = 'none';
+    // Close cancel modal and continue editing
+    cancelModalButton.addEventListener('click', () => {
+        cancelModal.style.display = 'none';
+    });
 
-    // Close modals if clicking outside
+    // Close modal by clicking the close button
+    closeCancelModal.addEventListener('click', () => {
+        cancelModal.style.display = 'none';
+    });
+
+    // Close modal if clicking outside
     window.onclick = (event) => {
-        if (event.target == saveModal) {
-            saveModal.style.display = 'none';
-        }
-        if (event.target == cancelModal) {
+        if (event.target === cancelModal) {
             cancelModal.style.display = 'none';
         }
     };
 });
 
-// change email
+
 document.addEventListener('DOMContentLoaded', function () {
     const changeEmailModal = document.getElementById('change-email-modal');
     const changeEmailButton = document.querySelector('.change-email');
     const closeChangeEmailModal = document.getElementById('close-change-email-modal');
     const passwordField = document.getElementById('email-password');
-    const errorMessageDiv = document.createElement('div');
-    errorMessageDiv.id = 'password-error-message'; // Create the error message div
-    
+    const inputGroup = document.querySelector('.input-group'); // Target the input group container
+
     // Show the email change modal
     changeEmailButton.addEventListener('click', function () {
         console.log("Change Email button clicked"); // For debugging
@@ -167,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault(); // Prevent form from submitting initially
 
         // Clear any previous error messages
-        const existingErrorMessage = document.getElementById('password-error-message');
+        let existingErrorMessage = document.getElementById('password-error-message');
         if (existingErrorMessage) {
             existingErrorMessage.remove();
         }
@@ -183,9 +186,16 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => response.json())
         .then(data => {
             if (!data.success) {
-                // Show error message
+                // Create the error message
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.id = 'password-error-message';
                 errorMessageDiv.textContent = "Incorrect password. Please try again.";
-                passwordField.parentNode.appendChild(errorMessageDiv);
+                errorMessageDiv.style.color = 'red'; // Make the text red
+                errorMessageDiv.style.fontSize = '0.9em'; // Slightly smaller font
+                errorMessageDiv.style.marginTop = '5px'; // Add space between the input group and message
+
+                // Append the error message below the input group
+                inputGroup.parentNode.insertBefore(errorMessageDiv, inputGroup.nextSibling);
 
                 // Shake the password input field
                 passwordField.classList.add('shake');
@@ -199,6 +209,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const changePasswordModal = document.getElementById('change-password-modal');
@@ -237,14 +249,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const confirmNewPasswordField = document.getElementById('confirm-new-password');
     const currentPasswordError = document.getElementById('current-password-error');
 
-    // Clear custom validity on typing
-    newPasswordField.addEventListener('input', function () {
-        confirmNewPasswordField.setCustomValidity(''); // Clear validity if user starts typing in confirm password
-        confirmNewPasswordField.reportValidity();
-    });
-
-    confirmNewPasswordField.addEventListener('input', function () {
-        confirmNewPasswordField.setCustomValidity(''); // Clear validity if user starts typing in confirm password
+    // Add focusout event for confirm password validation
+    confirmNewPasswordField.addEventListener('focusout', function () {
+        if (newPasswordField.value.trim() !== confirmNewPasswordField.value.trim()) {
+            confirmNewPasswordField.setCustomValidity("Passwords do not match.");
+        } else {
+            confirmNewPasswordField.setCustomValidity("");
+        }
         confirmNewPasswordField.reportValidity();
     });
 
@@ -266,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('New Password:', newPassword); // Debugging output
             console.log('Confirm New Password:', confirmNewPassword); // Debugging output
 
-            // Compare trimmed values
+            // Compare trimmed values during form submission
             if (newPassword !== confirmNewPassword) {
                 console.log('Passwords do not match!'); // Debugging output
                 confirmNewPasswordField.setCustomValidity("Passwords do not match.");
@@ -296,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
 
 
 
