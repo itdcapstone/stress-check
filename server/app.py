@@ -5,6 +5,8 @@ from bson.objectid import ObjectId
 # pip install pymongo
 
 from flask import Flask, render_template, request, redirect, url_for, session, abort, flash
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask import jsonify
 from dotenv import load_dotenv
 # pip install flask
@@ -13,12 +15,14 @@ from pymongo import MongoClient
 from pymongo import DESCENDING
 from pymongo import ASCENDING
 import pymongo
+import math
+
 # pip install pymongo
 
 from werkzeug.security import generate_password_hash, check_password_hash
 # pip install werkzeug
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 import calendar
 import pickle
@@ -31,6 +35,12 @@ from bcrypt import hashpw, gensalt
 import bcrypt
 # pip install bcrypt
 
+from functools import wraps
+
+
+
+
+
 # Load environment variables from the .env file
 load_dotenv()
 
@@ -38,8 +48,20 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+if not MONGO_URI or not SECRET_KEY:
+    raise ValueError("MONGO_URI and SECRET_KEY must be set in the environment.")
+
+
+
 # Initialize Flask app
 app = Flask(__name__, static_folder='../client', template_folder='../client')
+limiter = Limiter(key_func=get_remote_address)
+
+# Secure cookies
+app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to cookies
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Restrict cross-site cookie sharing
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # Session expires after 30 minutes
 
 # Set Flask secret key for session management
 app.secret_key = SECRET_KEY  # Get secret key from environment variable
@@ -47,6 +69,8 @@ app.secret_key = SECRET_KEY  # Get secret key from environment variable
 # Connect to MongoDB Atlas
 client = MongoClient(MONGO_URI)  # Connect to MongoDB using the URI from environment variable
 db = client.get_database('dbAdmin')
+
+limiter.init_app(app)
 
 # MongoDB collections
 users_collection = db.users
@@ -79,7 +103,29 @@ if os.path.exists(preprocessor_path):
 else:
     raise FileNotFoundError(f"Preprocessor file not found at {preprocessor_path}")
 
+ALLOWED_ADMIN_IP = '223.25.62.251'
 
+@app.before_request
+def restrict_admin_routes():
+    admin_routes = [
+        '/admin_dashboard',
+        '/admin_login',
+        '/admin/management',
+        '/admin/add_user',
+        '/admin/edit_user/<user_id>',
+        '/admin/add_question',
+        '/admin/stress_questions',
+        '/admin/feedback',
+        '/admin/data',
+    ]
+
+    if any(request.path.startswith(route) for route in admin_routes):
+        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
+        app.logger.info(f"Admin access attempt from IP: {client_ip} for route {request.path}")
+
+        if client_ip != ALLOWED_ADMIN_IP:
+            flash("Access denied: Unauthorized IP address.", "error")
+            return abort(403)
 
 
 # Landing page
@@ -87,60 +133,174 @@ else:
 def index():
     return render_template('landing/landing.html')
 
+# Utility functions
+def validate_object_id(id):
+    try:
+        return ObjectId(id)
+    except Exception:
+        abort(400)  # Return 400 Bad Request for invalid IDs
 
-#log in
+def filter_allowed_fields(query_args, allowed_fields):
+    return {key: value for key, value in query_args.items() if key in allowed_fields}
+
+
+def role_required(role):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            user_role = session.get('role')  # Check user role stored in the session
+            if user_role != role:
+                flash('Access denied: insufficient permissions.', 'error')
+                return redirect(url_for('login'))
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
 
 # Route for student login in the root folder
 @app.route('/student_login', methods=['GET'])
+@role_required('user')
 def student_login():
     # Add your login logic here for students
     return render_template('login.html')  # Render the student login page
 
+# Fixed /login Route
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")  # Use Flask-Limiter for rate-limiting
 def login():
-    if request.method == 'POST':
-        username_or_email = request.form['username']  # This can be either username or email
-        password = request.form['password']
-        
-        # Check if the input is a username or email
-        if '@' in username_or_email:  # If the input contains '@', treat it as an email
-            existing_user = users_collection.find_one({'email': username_or_email})
-        else:
-            existing_user = users_collection.find_one({'username': username_or_email})
-        
-        if existing_user:
-            # Check if the user has the role of "user"
-            if existing_user.get('role') != 'user':
-                flash('Your role is not allowed to log in.', 'error')
-                return redirect(url_for('login'))
+    # Retrieve the time of the last attempt from the session
+    last_attempt_time = session.get('last_attempt_time')
+    remaining_time = time_remaining(last_attempt_time)
 
-            # Check if the hashed password matches the input password
+    # Block login attempts if within cooldown period
+    if remaining_time > 0:
+        flash(f'Too many login attempts. Please try again in {int(remaining_time)} seconds.', 'error')
+        return render_template('login.html', disable_login=True, remaining_time=remaining_time)
+
+    if request.method == 'POST':
+        # Process login
+        username_or_email = request.form.get('username')
+        password = request.form.get('password')
+
+        # Find user by email or username
+        query_field = 'email' if '@' in username_or_email else 'username'
+        existing_user = users_collection.find_one({query_field: username_or_email})
+
+        if existing_user:
             if check_password_hash(existing_user['password'], password):
+                # Successful login
+                session.clear()
                 session['user_id'] = str(existing_user['_id'])
-                session['username'] = existing_user['username']  # Use the username from the DB
-                
+                session['username'] = existing_user['username']
+                session['role'] = 'user'
                 flash('Login successful!', 'success')
                 return redirect(url_for('dashboard', username=existing_user['username']))
             else:
-                # Flash message for incorrect password
+                # Incorrect password
                 flash('Incorrect password. Please try again.', 'error')
-                return redirect(url_for('login'))
         else:
-            # Flash message for user not found
+            # User not found
             flash('No account found with the provided username or email.', 'error')
+
+        # Record the time of the failed login attempt
+        session['last_attempt_time'] = datetime.utcnow().isoformat()
+        return render_template('login.html', disable_login=False)
+
+    # If GET request, show login form without any rate-limit issues
+    return render_template('login.html', disable_login=False)
+
+# Fixed time_remaining Function
+def time_remaining(last_time):
+    """Calculate remaining time in seconds until the next allowed login."""
+    if last_time:
+        # Convert last_time to datetime if it’s stored as a string
+        if isinstance(last_time, str):
+            last_time = datetime.fromisoformat(last_time)
+
+        now = datetime.utcnow()  # Use UTC timezone-naive time
+        # Make both datetime objects naive for consistent subtraction
+        if last_time.tzinfo:
+            last_time = last_time.replace(tzinfo=None)
+
+        diff = now - last_time
+        cooldown = timedelta(seconds=60)  # 1-minute cooldown
+        remaining = cooldown.total_seconds() - diff.total_seconds()
+        return max(0, remaining)
+    return 0
+
+# Error Handler for Rate Limiting
+@app.errorhandler(429)
+def ratelimit_error(error):
+    flash('Too many login attempts. Please try again later.', 'error')
+    return render_template('login.html', disable_login=True)
+
+# Ensure Sessions Expire Properly
+@app.before_request
+def manage_session():
+    session.permanent = True
+    now = datetime.now(timezone.utc)  # Use timezone-aware datetime in UTC
+    if 'last_activity' in session:
+        last_activity = session['last_activity']
+        if isinstance(last_activity, str):  # Convert ISO string to datetime object
+            last_activity = datetime.fromisoformat(last_activity)
+        if last_activity.tzinfo is None:  # Ensure last_activity is timezone-aware
+            last_activity = last_activity.replace(tzinfo=timezone.utc)
+        timeout = timedelta(minutes=30)
+        if now - last_activity > timeout:
+            session.clear()
+            flash('Your session has expired. Please log in again.', 'warning')
             return redirect(url_for('login'))
-
-    # Render the login page for GET requests
-    return render_template('login.html')
+    session['last_activity'] = now.isoformat()  # Store datetime as ISO string
 
 
 
 
-# Route for admin login in the admin folder
-@app.route('/admin_login')
+@app.route('/admin_login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")  # Apply rate-limiting for admin login
 def admin_login():
-   
-    return render_template('admin/login.html')  # Render the admin login page
+    if request.method == 'GET':
+        return render_template('admin/login.html')  # Render the admin login page
+    
+    if request.method == 'POST':
+        identifier = request.form['identifier']
+        password = request.form['password']
+
+        # Retrieve last attempt time and calculate remaining cooldown
+        last_attempt_time = session.get('admin_last_attempt_time')
+        remaining_time = time_remaining(last_attempt_time)
+
+        if remaining_time > 0:
+            return jsonify({'error': f'Too many login attempts. Try again in {int(remaining_time)} seconds.'})
+
+        # Query the database for a username or email match
+        existing_user = users_collection.find_one({
+            '$or': [{'username': identifier}, {'email': identifier}]
+        })
+
+        if not existing_user:
+            session['admin_last_attempt_time'] = datetime.utcnow().isoformat()
+            return jsonify({'error': 'Invalid username or email!'})
+
+        if not check_password_hash(existing_user.get('password'), password):
+            session['admin_last_attempt_time'] = datetime.utcnow().isoformat()
+            return jsonify({'error': 'Invalid password!'})
+
+        # Check for admin role
+        role = existing_user.get('role', '').strip().lower()
+        if role != 'admin':
+            return jsonify({'error': 'Insufficient permissions!'})
+
+        # Successful login: Clear session and set admin user details
+        session.clear()
+        session['username'] = existing_user.get('username')
+        session['role'] = role
+
+        return jsonify({
+            'success': 'Login successful!',
+            'redirect_url': url_for('admin_dashboard')
+        })
+
+
 
 
 @app.route('/admin_login', methods=['POST'])
@@ -164,6 +324,7 @@ def admin_login_dashboard():
             return jsonify({'error': 'Insufficient permissions!'})
 
         # Store user data in session
+        session.clear()  # Prevent session fixation
         session['username'] = existing_user.get('username')
 
         # Respond with success message and redirect URL
@@ -172,14 +333,11 @@ def admin_login_dashboard():
             'redirect_url': url_for('admin_dashboard')
         })
 
-
-
-
-
 # admin dashboard =====================
     
 # Admin route for admin dashboard
 @app.route('/admin_dashboard')
+@role_required('admin')
 def admin_dashboard():
     username = session.get('username')
  
@@ -242,72 +400,85 @@ def admin_dashboard():
     )
 
 
-
 @app.route('/admin/management', methods=['GET', 'POST'])
+@role_required('admin')
 def management():
-    username = session.get('username')
+    search = request.args.get('search', '').lower()
+    page = int(request.args.get('page', 1))
+    per_page = 20  # Number of rows per page
 
-    if username:
-        # Pagination logic
-        page = request.args.get('page', 1, type=int)  # Get the page number from the query params (default: 1)
-        per_page = 20  # Number of users to display per page
+    # Fetch all users from the database (or data source)
+    all_users = list(users_collection.find())  # Ensure this fetches all users
 
-        # Get total number of users
-        total_users = users_collection.count_documents({})
-
-        # Fetch users for the current page
-        users = users_collection.find().skip((page - 1) * per_page).limit(per_page)
-        users = list(users)  # Convert cursor to list for rendering
-
-        # Calculate total pages
-        total_pages = (total_users + per_page - 1) // per_page  # Ceiling division
-
-        # Calculate start and end page for pagination buttons
-        start_page = max(1, page - 1)
-        end_page = min(total_pages, page + 2)
-
-        if request.method == 'POST':
-            if 'edit_user' in request.form:
-                user_id = request.form.get('user_id')  # Get the user ID from the form
-                app.logger.info(f"Edit request for user_id: {user_id}")
-                if user_id:
-                    try:
-                        user_data = users_collection.find_one({'_id': ObjectId(user_id)})
-                        if user_data:
-                            app.logger.info(f"User data found: {user_data}")
-                            return render_template('admin/edit_user.html', username=username, user=user_data)
-                        else:
-                            flash("No user found with the provided ID.", "error")
-                    except Exception as e:
-                        flash("Error retrieving user data.", "error")
-
-            elif 'delete_user' in request.form:
-                # Handle delete request
-                user_id = request.form.get('user_id')
-                if user_id:
-                    app.logger.info(f"Attempting to delete user with ID: {user_id}")
-                    try:
-                        users_collection.delete_one({'_id': ObjectId(user_id)})
-                        flash("User successfully deleted.", "success")  # Success message
-                    except Exception as e:
-                        flash("Error deleting user.", "error")
-                return redirect(url_for('management'))
-
-        # Render the user management page with pagination data
-        return render_template(
-            'admin/management.html',
-            username=username,
-            users=users,
-            page=page,
-            total_pages=total_pages,
-            start_page=start_page,
-            end_page=end_page
-        )
+    # Filter users based on the search term
+    if search:
+        search_terms = search.split()
+        users = [
+            user for user in all_users
+            if any(
+                term == word
+                for word in f"{user['username']} {user['email']} {user['role']} {user['gender']} {user['year_level']}".lower().split()
+                for term in search_terms
+            )
+        ]
     else:
-        return redirect(url_for('login'))
+        users = all_users
+
+
+    # Paginate the filtered results
+    total_pages = math.ceil(len(users) / per_page)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_users = users[start:end]
+
+    # Handle POST requests
+    if request.method == 'POST':
+        if 'edit_user' in request.form:
+            user_id = request.form.get('user_id')  # Get the user ID from the form
+            app.logger.info(f"Edit request for user_id: {user_id}")
+            if user_id:
+                try:
+                    user_data = users_collection.find_one({'_id': ObjectId(user_id)})
+                    if user_data:
+                        app.logger.info(f"User data found: {user_data}")
+                        return render_template('admin/edit_user.html', user=user_data)
+                    else:
+                        flash("No user found with the provided ID.", "error")
+                except Exception as e:
+                    app.logger.error(f"Error retrieving user data: {str(e)}")
+                    flash("Error retrieving user data.", "error")
+
+        elif 'delete_user' in request.form:
+            # Handle delete request
+            user_id = request.form.get('user_id')
+            app.logger.info(f"Delete request for user_id: {user_id}")
+            if user_id:
+                try:
+                    users_collection.delete_one({'_id': ObjectId(user_id)})
+                    flash("User successfully deleted.", "success")
+                except Exception as e:
+                    app.logger.error(f"Error deleting user: {str(e)}")
+                    flash("Error deleting user.", "error")
+            return redirect(url_for('management'))
+
+    # Render the user management page with pagination data
+    start_page = max(1, page - 2)  # Adjust as per your pagination logic
+    end_page = min(total_pages, page + 2)
+
+    return render_template(
+        'admin/management.html',
+        users=paginated_users,
+        page=page,
+        total_pages=total_pages,
+        start_page=start_page,
+        end_page=end_page,
+        search=search
+    )
+
 
 
 @app.route('/admin/dashboard/')
+@role_required('admin')
 def home():
     # Count users with the role of "user"
     user_count = users_collection.count_documents({'role': 'user'})
@@ -326,6 +497,7 @@ def home():
 
 
 @app.route('/admin/data/', methods=['GET', 'POST'])
+@role_required('admin')
 def data():
 
     # Default filter values
@@ -454,6 +626,7 @@ def data():
     
     
 @app.route('/admin/feedback/', methods=['GET', 'POST'])
+@role_required('admin')
 def admin_feedback():
     # Handle date filtering (GET request)
     date_filter = request.args.get('dateFilter')
@@ -505,6 +678,7 @@ def admin_feedback():
 
 
 @app.route('/admin/edit_user/<user_id>', methods=['GET', 'POST'])
+@role_required('admin')
 def edit_user(user_id):
     user_data = users_collection.find_one({'_id': ObjectId(user_id)})
     
@@ -591,6 +765,7 @@ def edit_user(user_id):
 
 
 @app.route('/admin/add_user', methods=['GET', 'POST'])
+@role_required('admin')
 def add_user():
     if request.method == 'POST':
         # Debug form data
@@ -676,6 +851,7 @@ def add_question():
 
 # Route to handle form submission and add new question to MongoDB
 @app.route('/submit_question', methods=['POST'])
+@role_required('admin')
 def submit_question():
     if request.method == 'POST':
         question_text = request.form['question']
@@ -734,6 +910,7 @@ def stress_questions():
     
 # Route for editing recommendations
 @app.route('/admin/edit_recommendation', methods=['GET', 'POST'])
+@role_required('admin')
 def edit_recommendation():
     username = session.get('username')
     if not username:
@@ -796,6 +973,7 @@ def edit_recommendation():
         return redirect(url_for('edit_recommendation'))
     
 @app.route('/admin/get_recommendation', methods=['GET'])
+@role_required('admin')
 def get_recommendation():
     try:
         # Get stressor and severity from the request arguments
@@ -867,6 +1045,7 @@ def get_question_mapping():
 
 # Route to display the questionnaire
 @app.route('/test_stress/', methods=['GET'])
+@role_required('user')
 def test_stress():
     username = session.get('username')
 
@@ -888,6 +1067,7 @@ def test_stress():
 
 # New API endpoint to fetch questions as JSON
 @app.route('/api/test_stress/', methods=['GET'])
+@role_required('user')
 def api_test_stress():
     username = session.get('username')
 
@@ -918,6 +1098,7 @@ def api_test_stress():
         return jsonify({"error": "User not logged in."}), 401
 
 @app.route('/test_stress/', methods=['POST'])
+@role_required('user')
 def handle_test_stress():
     responses = request.form.to_dict()
     username = session.get('username')
@@ -978,6 +1159,7 @@ stressor_mapping = {
 
 # Route to display stress level input form and handle its submission
 @app.route('/stress_level', methods=['GET', 'POST'])
+@role_required('user')
 def stress_level():
     if request.method == 'POST':
         # Capture form data
@@ -1018,6 +1200,7 @@ def stress_level():
 
 
 @app.route('/get_recommendations/<stressor_name>/<int:severity>', methods=['GET'])
+@role_required('user')
 def get_recommendations(stressor_name, severity):
     print(f"DEBUG: Fetching recommendations for Stressor: {stressor_name}, Severity: {severity}")
     
@@ -1066,6 +1249,7 @@ def process_mongo_responses(mongo_response, question_mapping):
 
 # Route for Stress Result Page
 @app.route('/stress_result/')
+@role_required('user')
 def stress_result():
     username = session.get('username')
     if not username:
@@ -1199,6 +1383,7 @@ def handle_no_valid_responses(request):
 
 
 @app.route('/no-data')
+@role_required('user')
 def no_data():
     # Fetch username from session
     username = session.get('username')
@@ -1215,6 +1400,7 @@ def no_data():
 
 # Route to display detailed assessment and responses
 @app.route('/result')
+@role_required('user')
 def result():
     username = session.get('username')
 
@@ -1318,6 +1504,7 @@ def result():
 
 # Route for Recommendation Page
 @app.route('/recommendation/')
+@role_required('user')
 def recommendation():
     username = session.get('username')
     if not username:
@@ -1440,6 +1627,7 @@ def handle_no_valid_responses(request):
 
 
 @app.route('/feedback', methods=['GET', 'POST'])
+@role_required('user')
 def feedback():
     username = session.get('username')
     if not username:
@@ -1484,12 +1672,8 @@ def feedback():
     feedback_list = feedback_collection.find({'username': username}).sort('timestamp', -1)
     return render_template('feedback.html', username=username, feedback_list=feedback_list)
 
-
-
-
-
-
 @app.route('/analytics/')
+@role_required('user')
 def analytics():
     username = session.get('username')
 
@@ -1576,6 +1760,7 @@ def analytics():
 
 # View Assessment History
 @app.route('/assessment/<assessment_id>')
+@role_required('user')
 def view_assessment(assessment_id):
     try:
         # Get the username from the session
@@ -1629,6 +1814,7 @@ def view_assessment(assessment_id):
     )
 
 @app.route('/profile/', methods=['GET', 'POST'])
+@role_required('user')
 def profile():
     username = session.get('username')
     if username:
@@ -1672,6 +1858,7 @@ def profile():
 
 
 @app.route('/change_email', methods=['POST'])
+@role_required('user')
 def change_email():
     # Get the logged-in username
     username = session.get('username')
@@ -1708,6 +1895,7 @@ def change_email():
 
 
 @app.route('/check_password', methods=['POST'])
+@role_required('user')
 def check_password():
     # Get the logged-in username
     username = session.get('username')
@@ -1736,6 +1924,7 @@ def check_password():
 
 
 @app.route('/change_password', methods=['POST'])
+@role_required('user')
 def change_password():
     # Get the logged-in username
     username = session.get('username')
@@ -1777,6 +1966,7 @@ def change_password():
 
 # Route for dashboard
 @app.route('/dashboard/<username>')
+@role_required('user')
 def dashboard(username):
 
     # Ensure the user is logged in
@@ -1868,6 +2058,7 @@ def signup():
 # faqs
 
 @app.route('/faqs/')
+@role_required('user')
 def faqs():
     # Fetch username from session
     username = session.get('username')
@@ -1885,18 +2076,18 @@ def faqs():
 
 @app.route('/logout')
 def logout():
-    # Clear session variables
-    session.pop('username', None)
+    # Clear all session data
+    session.clear()
+    flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
-
 
 @app.route('/admin/logout')
 def admin_logout():
-    # Clear session variables
-    session.pop('username', None)
+    # Clear all session data
+    session.clear()
+    flash('Admin logged out successfully.', 'info')
     return redirect(url_for('admin_login'))
 
-import os
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 

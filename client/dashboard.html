@@ -9,78 +9,10 @@
     <!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/dashboard.css') }}">
 
     <title>Dashboard</title>
 
-    <style>
-        .feedback-modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
-            overflow: auto;
-            padding-top: 100px;
-        }
-    
-        .feedback-modal-content {
-            background-color: #FFFFFF;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            width: 80%;
-            max-width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-    
-        .feedback-close-button {
-            color: #1A4D2E;
-            font-size: 30px;
-            font-weight: bold;
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-    
-        .feedback-close-button:hover {
-            color: #7ABA78;
-        }
-    
-        .modal-title {
-            font-size: 24px;
-            color: #1A4D2E;
-            margin-bottom: 20px;
-        }
-    
-        p {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #475569;
-        }
-    
-        strong {
-            color: #1A4D2E;
-        }
-    
-        #modalFeedback {
-            background-color: #F2F2F2;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-            color: #475569;
-            font-style: italic;
-        }
-    
-        #modalUsername, #modalDate {
-            color: #7ABA78;
-        }
-    </style>
 </head>
 <body>
 
@@ -263,8 +195,7 @@
                     <p id="quote" style="color: #0c8c32;">Loading...</p>
                
             </a>
-
-            <script src="{{ url_for('static', filename='quote.js') }}"></script>
+            <script src="{{ url_for('static', filename='user_scripts/quote.js') }}"></script>
 			</div>   
 			
         </main>
@@ -272,25 +203,7 @@
     </section>
     <!-- CONTENT -->
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-			const flashMessages = document.querySelectorAll('.custom-alert');
-			flashMessages.forEach(function(alert) {
-				// Add the active class to show the alert
-				alert.classList.add('active');
-	
-				// Remove the active class after 3 seconds to hide the alert
-				setTimeout(function() {
-					alert.classList.add('fade-out');
-					// After fade-out, remove the element entirely
-					setTimeout(function() {
-						alert.remove();
-					}, 500); // Timeout duration matches the CSS transition time
-				}, 3000); 
-			});
-		});
-    </script>
- 
+    <script src="{{ url_for('static', filename='user_scripts/custom-alert.js') }}"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>

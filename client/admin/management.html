@@ -10,6 +10,31 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
 
     <title>User Management</title>
+    <style>
+        .form-input {
+            position: relative;
+        }
+        
+        .clear-icon {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+        }
+        
+        .clear-icon:hover {
+            color: #333;
+        }
+        
+        input[type="search"]::-webkit-search-cancel-button {
+            display: none;
+        }
+        
+        
+    </style>
 </head>
 <body>
 
@@ -70,12 +95,21 @@
     
         <nav>
             <i class="bx bx-menu"></i>
-            <form action="#">    
+            <form action="{{ url_for('management') }}" method="GET">
                 <div class="form-input">
-                    <input type="search" id="searchInput" placeholder="Search..." onkeyup="filterUsers()">
-                    <button type="button" class="search-btn"><i class='bx bx-search'></i></button>
+                    <input type="search" id="searchInput" name="search" placeholder="Search..." value="{{ request.args.get('search', '') }}">
+                    <!-- Clear Icon (×) -->
+                    {% if request.args.get('search') %}
+                        <span class="clear-icon" onclick="clearSearch()">×</span>
+                    {% endif %}
+                    <button type="submit" class="search-btn"><i class='bx bx-search'></i></button>
                 </div>
-            </form>    
+            </form>
+            
+            
+            
+            
+             
         </nav>
         <!-- NAVBAR -->
 
@@ -171,31 +205,32 @@
                 
                     <div class="pagination">
                         {% if page > 1 %}
-                        <a href="{{ url_for('management', page=page-1) }}" class="pagination-link">&lt;</a>
+                        <a href="{{ url_for('management', page=page-1, search=search) }}" class="pagination-link">&lt;</a>
                         {% else %}
                         <span class="pagination-link" disabled>&lt;</span>
                         {% endif %}
-                
+                    
                         {% if start_page > 1 %}
-                        <a href="{{ url_for('management', page=1) }}" class="pagination-link">1</a>
+                        <a href="{{ url_for('management', page=1, search=search) }}" class="pagination-link">1</a>
                         <span class="dots">...</span>
                         {% endif %}
-                
+                    
                         {% for p in range(start_page, end_page + 1) %}
-                        <a href="{{ url_for('management', page=p) }}" class="pagination-link {% if p == page %}active{% endif %}">{{ p }}</a>
+                        <a href="{{ url_for('management', page=p, search=search) }}" class="pagination-link {% if p == page %}active{% endif %}">{{ p }}</a>
                         {% endfor %}
-                
+                    
                         {% if end_page < total_pages %}
                         <span class="dots">...</span>
-                        <a href="{{ url_for('management', page=total_pages) }}" class="pagination-link">{{ total_pages }}</a>
+                        <a href="{{ url_for('management', page=total_pages, search=search) }}" class="pagination-link">{{ total_pages }}</a>
                         {% endif %}
-                
+                    
                         {% if page < total_pages %}
-                        <a href="{{ url_for('management', page=page+1) }}" class="pagination-link">&gt;</a>
+                        <a href="{{ url_for('management', page=page+1, search=search) }}" class="pagination-link">&gt;</a>
                         {% else %}
                         <span class="pagination-link" disabled>&gt;</span>
                         {% endif %}
                     </div>
+                    
                 </div>
                 
                     
@@ -216,138 +251,8 @@
 		</div>
 	</div>
 
-
-  
-	
-
-    <script>
-        let deleteUserId = null;
-
-        function confirmDeleteUser(event, username, userId) {
-			event.preventDefault();  // Prevent default form behavior
-			deleteUserId = userId;   // Save the user ID to delete
-			const deleteMessage = document.getElementById('deleteMessage');
-			deleteMessage.innerHTML = `Are you sure you want to delete user <strong>${username}</strong>?`;
-			const modal = document.getElementById('deleteConfirmationModal');
-			modal.classList.add('show');  // Show the custom modal
-		}
-		
-		function closeModal() {
-			const modal = document.getElementById('deleteConfirmationModal');
-			modal.classList.remove('show');  // Hide the modal
-			deleteUserId = null;  // Reset deleteUserId
-		}
-		
-		function confirmDelete() {
-			if (deleteUserId) {
-				const deleteForm = document.getElementById('deleteForm');
-				const userIdInput = deleteForm.querySelector('input[name="user_id"]');
-				userIdInput.value = deleteUserId;
-				deleteForm.submit();  // Submit the form programmatically
-			}
-			closeModal();  // Close the modal
-		}
-		
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('deleteConfirmationModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-
-        function filterUsers() {
-            // Get search input value
-            const searchValue = document.getElementById("searchInput").value.toLowerCase().trim();
-            
-            // Get all rows in the table body
-            const rows = document.querySelectorAll(".user-management-table tbody tr");
-        
-            // Loop through each row
-            rows.forEach((row) => {
-                const cells = row.querySelectorAll("td"); // Get all cells in the row
-                
-                // Combine text content from all cells into a single string
-                const searchableText = Array.from(cells)
-                    .map((cell) => cell.textContent.toLowerCase().trim())
-                    .join(" ");
-                
-                // Debugging: log the searchable text for each row
-                console.log("Row Text:", searchableText);
-        
-                // Check if the search value matches any part of the row text
-                if (searchableText.includes(searchValue)) {
-                    row.style.display = ""; // Show matching row
-                } else {
-                    row.style.display = "none"; // Hide non-matching row
-                }
-            });
-        }
-
-	
-
-		// Simulate a successful user deletion
-		function deleteUser() {
-			// Simulating a delete action with a success response
-			setTimeout(() => {
-				// After successful deletion, show a success message
-				showCustomAlert('User has been successfully deleted!', true); // Show success alert
-			}, 1000); // Simulating a delay for the delete action
-		}
-
-		// Call the deleteUser function when needed (like after clicking a delete button)
-		deleteUser();
-
-        function checkUserRole(event) {
-            // Get the role from the button's data attribute
-            const role = event.target.closest('button').getAttribute('data-role');
-            const yearLevelField = document.querySelector('.input-group #year_level')?.closest('.input-group');
-        
-            // If the year level field is not found, don't proceed (optional safeguard)
-            if (!yearLevelField) {
-                console.warn('Year level field not found');
-                return; // Early exit to avoid errors
-            }
-        
-            // Check the role and show/hide "year level" input
-            if (role === 'admin') {
-                // Hide the "year level" input if the role is admin
-                yearLevelField.style.display = 'none';
-            } else {
-                // Show the "year level" input if the role is not admin
-                yearLevelField.style.display = 'block';
-            }
-        
-            // Conditionally prevent default form submission
-            // If you need to prevent submission only for certain conditions:
-            if (someConditionToPreventFormSubmission) {
-                event.preventDefault();
-            } else {
-                // Allow form submission
-            }
-        }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const flashMessages = document.querySelectorAll('.custom-alert');
-            flashMessages.forEach(function(alert) {
-                // Add the active class to show the alert
-                alert.classList.add('active');
-        
-                // Remove the active class after 3 seconds to hide the alert
-                setTimeout(function() {
-                    alert.classList.add('fade-out');
-                    // After fade-out, remove the element entirely
-                    setTimeout(function() {
-                        alert.remove();
-                    }, 500); // Timeout duration matches the CSS transition time
-                }, 3000); 
-            });
-        });
-        
-        
-
-    </script>
-
+ 
+    <script src="{{ url_for('static', filename='admin_scripts/management.js') }}"></script>
 	<script src="{{ url_for('static', filename='script.js') }}"></script>
     <script src="{{ url_for('static', filename='admin/script.js') }}"></script>
    

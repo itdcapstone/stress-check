@@ -450,7 +450,6 @@ button:focus {
   }
 
   .wrapper .btn {
-    height: 40px; /* Adjust button height */
     font-size: 14px; /* Smaller font size */
   }
 
@@ -461,34 +460,56 @@ button:focus {
 
 @media (max-width: 480px) {
   .wrapper {
-    width: 100%; /* Full width for extremely small screens */
-    padding: 15px; /* Further reduce padding */
+    width: 95%; /* Increase width for smaller screens */
+    padding: 20px; /* Reduce padding for space efficiency */
+    margin: 0 10px; /* Adjust margins to fit smaller screens */
   }
 
   .wrapper h1 {
-    font-size: 20px; /* Smaller heading size */
+    font-size: 24px; /* Decrease font size for readability */
   }
 
   .input-box {
-    margin: 15px 0; /* Further reduce margin */
+    margin: 20px 0; /* Adjust margin for smaller devices */
   }
 
-  .input-box select,
-  .input-box input {
-    font-size: 12px; /* Smaller font size */
-    padding: 10px 25px 10px 10px; /* Adjust padding */
+  .input-box input,
+  .input-box select {
+    font-size: 14px; /* Adjust input font size for smaller screens */
+    padding: 15px 35px 15px 15px; /* Reduce padding */
+  }
+
+  .input-box i {
+    font-size: 18px; /* Slightly smaller icon size */
   }
 
   .remember-forgot {
-    font-size: 12px; /* Adjust font size */
+    flex-direction: column; /* Stack remember/forgot sections vertically */
+    text-align: center; /* Center the text for better readability */
   }
 
-  .wrapper .btn {
-    height: 35px; /* Adjust button height */
-    font-size: 13px; /* Smaller font size */
+  .remember-forgot label input {
+    margin-right: 5px; /* Slight adjustment for better spacing */
+  }
+
+  .btn {
+    height: 40px; /* Slightly smaller button for compactness */
+    font-size: 14px; /* Smaller text for buttons */
   }
 
   .register-link {
-    font-size: 12px; /* Adjust font size */
+    font-size: 13px; /* Decrease font size */
+  }
+
+  .register-link p a {
+    font-size: 14px; /* Adjust link size */
+  }
+
+  .header-image {
+    max-width: 300px; /* Make the image smaller to fit mobile screens */
+  }
+
+  .image-wrapper {
+    flex-direction: column; /* Stack image and content vertically */
   }
 }

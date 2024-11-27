@@ -1,0 +1,127 @@
+ /* Modal Styles */
+ .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+  }
+
+  .modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    width: 350px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Arial', sans-serif;
+  }
+
+  .modal-header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1A4D2E; /* Dark green */
+    margin-bottom: 15px;
+  }
+
+  .modal-body {
+    font-size: 16px;
+    color: #475569; /* Slate gray */
+    margin-bottom: 20px;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+  }
+
+  .modal-footer button {
+    padding: 12px 25px;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .modal-footer button:hover {
+    transform: scale(1.05);
+  }
+
+  .modal-footer button.cancel-btn {
+    background-color: #DEE9E5; /* Light greenish */
+    color: #1A4D2E; /* Dark green */
+  }
+
+  .modal-footer button.cancel-btn:hover {
+    background-color: #7ABA78; /* Brighter green */
+    color: #ffffff;
+  }
+
+  .modal-footer button.signup-btn {
+    background-color: #1A4D2E; /* Dark green */
+    color: #ffffff;
+  }
+
+  .modal-footer button.signup-btn:hover {
+    background-color: #7ABA78; /* Brighter green */
+  }
+
+  /* Show modal */
+  .modal-overlay.show {
+    display: block;
+  }
+
+  /* Responsive Styles */
+  @media screen and (max-width: 768px) {
+    .modal-content {
+      width: 90%; /* Adjust width for smaller screens */
+      padding: 20px; /* Reduce padding */
+    }
+
+    .modal-header {
+      font-size: 18px; /* Smaller font size */
+    }
+
+    .modal-body {
+      font-size: 14px; /* Smaller font size */
+    }
+
+    .modal-footer button {
+      padding: 10px 20px; /* Adjust button size */
+      font-size: 12px; /* Smaller font size */
+    }
+
+    .modal-footer {
+      flex-direction: column; /* Stack buttons vertically */
+      gap: 15px; /* Add spacing between buttons */
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .modal-content {
+      padding: 15px; /* Further reduce padding */
+      border-radius: 8px; /* Reduce border radius */
+    }
+
+    .modal-header {
+      font-size: 16px; /* Even smaller font size */
+    }
+
+    .modal-body {
+      font-size: 13px; /* Adjust text size */
+    }
+
+    .modal-footer button {
+      padding: 8px 15px; /* Smaller buttons */
+      font-size: 11px; /* Smaller text */
+    }
+  }
