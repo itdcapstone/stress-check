@@ -19,7 +19,7 @@ $(document).ready(function () {
         if (!stressor || !severity) return;
 
         $.ajax({
-            url: "{{ url_for('get_recommendation') }}",
+            url: getRecommendationURL,
             method: 'GET',
             data: { stressor: stressor, severity: severity },
             success: function (response) {
@@ -36,6 +36,7 @@ $(document).ready(function () {
                 alert('Failed to fetch recommendation. Please try again.');
             }
         });
+        
     }
 });
 

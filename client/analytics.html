@@ -256,13 +256,6 @@
                           No stressors available.
                         {% endif %}
                       </p>
-                      <p><strong>Recommendations:</strong>
-                        {% if assessment.recommendations and 'text' in assessment.recommendations %}
-                          {{ assessment.recommendations['text'][:100] }}{% if assessment.recommendations['text']|length > 100 %}...{% endif %}
-                        {% else %}
-                          No recommendations available.
-                        {% endif %}
-                      </p>
                       <p><strong>Date Tested:</strong> {{ assessment.date_tested.strftime('%d-%m-%Y') }}</p>
                     </div>
                     <div class="card-arrow">

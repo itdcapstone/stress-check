@@ -104,3 +104,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial check
     centerModal();
 });
+
