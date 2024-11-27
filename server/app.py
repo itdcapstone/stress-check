@@ -103,29 +103,29 @@ if os.path.exists(preprocessor_path):
 else:
     raise FileNotFoundError(f"Preprocessor file not found at {preprocessor_path}")
 
-ALLOWED_ADMIN_IP = '223.25.62.251'
+# ALLOWED_ADMIN_IP = ['223.25.62.251', '175.176.52.227']
 
-@app.before_request
-def restrict_admin_routes():
-    admin_routes = [
-        '/admin_dashboard',
-        '/admin_login',
-        '/admin/management',
-        '/admin/add_user',
-        '/admin/edit_user/<user_id>',
-        '/admin/add_question',
-        '/admin/stress_questions',
-        '/admin/feedback',
-        '/admin/data',
-    ]
+# @app.before_request
+# def restrict_admin_routes():
+#     admin_routes = [
+#         '/admin_dashboard',
+#         '/admin_login',
+#         '/admin/management',
+#         '/admin/add_user',
+#         '/admin/edit_user/<user_id>',
+#         '/admin/add_question',
+#         '/admin/stress_questions',
+#         '/admin/feedback',
+#         '/admin/data',
+#     ]
 
-    if any(request.path.startswith(route) for route in admin_routes):
-        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
-        app.logger.info(f"Admin access attempt from IP: {client_ip} for route {request.path}")
+#     if any(request.path.startswith(route) for route in admin_routes):
+#         client_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
+#         app.logger.info(f"Admin access attempt from IP: {client_ip} for route {request.path}")
 
-        if client_ip != ALLOWED_ADMIN_IP:
-            flash("Access denied: Unauthorized IP address.", "error")
-            return abort(403)
+#         if client_ip != ALLOWED_ADMIN_IP:
+#             flash("Access denied: Unauthorized IP address.", "error")
+#             return abort(403)
 
 
 # Landing page
