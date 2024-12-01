@@ -5,16 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Boxicons -->
-    <link
-      href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet"/>
     <!-- My CSS -->
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
+    <link rel="stylesheet"type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+    <link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
 
     <title>History</title>
   </head>
@@ -267,6 +261,50 @@
             </div>
           </li>
         </ul>
+
+        <div class="pagination-container">
+          <!-- Pagination Summary -->
+          <div class="pagination-summary">
+              Page {{ page }} of {{ total_pages }}
+          </div>
+      
+          <!-- Pagination Links -->
+          <div class="pagination">
+              <!-- Previous Page -->
+              {% if page > 1 %}
+              <a href="{{ url_for('analytics', page=page-1, start_date=start_date, end_date=end_date, sort_order=sort_order) }}" class="pagination-link">&lt;</a>
+              {% else %}
+              <span class="pagination-link" disabled>&lt;</span>
+              {% endif %}
+      
+              <!-- First Page and Ellipsis -->
+              {% if start_page > 1 %}
+              <a href="{{ url_for('analytics', page=1, start_date=start_date, end_date=end_date, sort_order=sort_order) }}" class="pagination-link">1</a>
+              <span class="dots">...</span>
+              {% endif %}
+      
+              <!-- Middle Pages -->
+              {% for p in range(start_page, end_page + 1) %}
+              <a href="{{ url_for('analytics', page=p, start_date=start_date, end_date=end_date, sort_order=sort_order) }}" class="pagination-link {% if p == page %}active{% endif %}">{{ p }}</a>
+              {% endfor %}
+      
+              <!-- Last Page and Ellipsis -->
+              {% if end_page < total_pages %}
+              <span class="dots">...</span>
+              <a href="{{ url_for('analytics', page=total_pages, start_date=start_date, end_date=end_date, sort_order=sort_order) }}" class="pagination-link">{{ total_pages }}</a>
+              {% endif %}
+      
+              <!-- Next Page -->
+              {% if page < total_pages %}
+              <a href="{{ url_for('analytics', page=page+1, start_date=start_date, end_date=end_date, sort_order=sort_order) }}" class="pagination-link">&gt;</a>
+              {% else %}
+              <span class="pagination-link" disabled>&gt;</span>
+              {% endif %}
+          </div>
+      </div>
+      
+
+      
       </main>
       <!-- MAIN -->
     </section>

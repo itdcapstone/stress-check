@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/data_styles.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/toast.css') }}">
+	<link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
+
+	<title>Assessments</title>
+</head>
+<body>
+
+	<!-- SIDEBAR -->
+    <section id="sidebar">
+        <nav>
+        <a href="#" class="brand">
+            <i class='bx bx-badge-check'></i>
+            <span class="text">Stress Check</span>
+        </a>
+        <ul class="side-menu top">
+            <li>
+                <a href="{{ url_for('admin_dashboard', username=username) }}">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('management') }}">
+                    <i class='bx bxs-user-detail'></i>
+                    <span class="text">User Management</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="{{ url_for('data') }}">
+                    <i class='bx bxs-data'></i>
+                    <span class="text">Data Management</span>
+                </a>
+            </li>
+            <li>
+				<a href="{{ url_for('edit_recommendation') }}">
+					<i class='bx bxs-check-circle'></i>
+					<span class="text">Recommendation</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('stress_questions') }}">
+					<i class='bx bxs-message-square-edit'></i>
+					<span class="text">Questionnaires</span>
+				</a>
+			</li>
+            <li>
+                <a href="{{ url_for('admin_feedback') }}">
+                    <i class='bx bxs-user-pin'></i>
+                    <span class="text">User Feedback</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="side-menu">
+           
+            <li>
+                <a href="{{ url_for('admin_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+        </nav>
+    </section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class="bx bx-menu"></i>
+			
+		</nav>
+		<!-- NAVBAR -->
+
+
+	<!-- MAIN -->
+	<main>
+		<div class="head-title">
+			<div class="left">
+				<h1>User Asessments</h1>
+				<ul class="breadcrumb">
+					<li>
+						<a href="{{ url_for('admin_dashboard', username=username) }}">Dashboard</a>
+					</li>
+					<li><i class='bx bx-chevron-right'></i></li>
+					<li>
+						<a href="{{ url_for('data') }}">Data Management</a>
+					</li>
+					<li><i class='bx bx-chevron-right'></i></li>
+					<li>
+						<a class="active" href="#">User Assessments</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div id="toast"></div>
+
+        <div class="user-list-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Year Level</th>
+                        <th>
+                            <a href="{{ url_for('assessments', sort_by='date', sort_order='desc' if sort_order != 'desc' else 'asc') }}" class="assessment-link">
+                                Assessment Date
+                                {% if sort_by == 'date' %}
+                                    {% if sort_order == 'asc' %}
+                                        <span class="arrow asc">▲</span>
+                                    {% else %}
+                                        <span class="arrow desc">▼</span>
+                                    {% endif %}
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th>Stress Level</th>
+						<th>Actions</th>
+                    </tr>
+                </thead>
+				<tbody>
+					{% for assessment in assessments %}
+					<tr class="user-card" onclick="showModal('{{ assessment.username }}', '{{ assessment.age }}', '{{ assessment.year_level }}', '{{ assessment.date }}', '{{ assessment.stress_level }}', '{{ assessment.stressors|join(', ') }}')">
+						<td>
+							<div class="user-info">
+								<p class="name">{{ assessment.username }}</p>
+							</div>
+						</td>
+						<td>{{ assessment.year_level }}</td>
+						<td>{{ assessment.date }}</td>
+						<td>{{ assessment.stress_level }}</td>
+						<td>
+							<button class="btn-icon delete-assessment" data-id="{{ assessment.id }}" data-username="{{ assessment.username }}"  onclick="event.stopPropagation();">
+								<i class='bx bx-trash'></i>
+							</button>
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+				
+            </table>
+        </div>
+
+
+          <!-- Pagination -->
+		  <div class="pagination-container">
+			<div class="pagination-summary">
+				Page {{ page }} of {{ total_pages }}
+			</div>
+
+			<div class="pagination">
+				{% if page > 1 %}
+				<a href="{{ url_for('assessments', page=page-1, sort_by=sort_by, sort_order=sort_order) }}" class="pagination-link">&lt;</a>
+				{% else %}
+				<span class="pagination-link" disabled>&lt;</span>
+				{% endif %}
+
+				{% if page > 3 %}
+				<a href="{{ url_for('assessments', page=1, sort_by=sort_by, sort_order=sort_order) }}" class="pagination-link">1</a>
+				<span class="dots">...</span>
+				{% endif %}
+
+				{% for p in range(start_page, end_page + 1) %}
+				<a href="{{ url_for('assessments', page=p, sort_by=sort_by, sort_order=sort_order) }}" class="pagination-link {% if p == page %}active{% endif %}">{{ p }}</a>
+				{% endfor %}
+
+				{% if page < total_pages - 2 %}
+				<span class="dots">...</span>
+				<a href="{{ url_for('assessments', page=total_pages, sort_by=sort_by, sort_order=sort_order) }}" class="pagination-link">{{ total_pages }}</a>
+				{% endif %}
+
+				{% if page < total_pages %}
+				<a href="{{ url_for('assessments', page=page+1, sort_by=sort_by, sort_order=sort_order) }}" class="pagination-link">&gt;</a>
+				{% else %}
+				<span class="pagination-link" disabled>&gt;</span>
+				{% endif %}
+			</div>
+		</div>
+
+                <!-- Modal Structure -->
+        <div id="assessmentModal" class="modal">
+            <div class="modal-content" style="text-align: left;">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h3>Assessment Details</h3>
+                <p><strong>Username:</strong> <span id="modalUsername"></span></p>
+                <p><strong>Age:</strong> <span id="modalAge"></span></p>
+                <p><strong>Year Level:</strong> <span id="modalYearLevel"></span></p>
+                <p><strong>Assessment Date:</strong> <span id="modalDate"></span></p>
+                <p><strong>Stress Level:</strong> <span id="modalStressLevel"></span></p>
+                <p><strong>Stressors:</strong> <span id="modalStressors"></span></p>
+            </div>
+        </div>
+
+		<!-- Delete Confirmation Modal -->
+		<div id="deleteConfirmationModal" class="modal">
+			<div class="modal-content">
+				<span class="close" onclick="closeDeleteModal('deleteConfirmationModal')">&times;</span>
+				<h3>Confirm Delete</h3>
+				<p>Are you sure you want to delete the assessment of <strong id="modalUsernameDelete"></strong>?</p>
+				<button class="btnClose" onclick="closeDeleteModal('deleteConfirmationModal')">Cancel</button>
+				<button class="btnConfirm" onclick="confirmDelete()">Yes</button>
+			</div>
+		</div>
+
+	
+	</main>
+	<!-- MAIN -->
+</section>
+	<!-- CONTENT -->
+	<script>
+		function showCategoriesModal() {
+			document.getElementById('categoriesModal').style.display = 'flex';
+		}
+		
+		function closeCategoriesModal() {
+			document.getElementById('categoriesModal').style.display = 'none';
+		}
+		
+		// Close the modal if the user clicks outside of it
+		window.onclick = function(event) {
+			const modal = document.getElementById('categoriesModal');
+			if (event.target == modal) {
+				modal.style.display = 'none';
+			}
+		};
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			const modal = document.getElementById('myModal');
+			
+			// Ensure modal is hidden on load
+			modal.style.display = 'none';
+		
+			// Example: Show modal only on button click
+			document.getElementById('showModalBtn').addEventListener('click', () => {
+				modal.style.display = 'block';
+			});
+		
+			// Example: Close modal when close button is clicked
+			document.querySelector('.close').addEventListener('click', () => {
+				modal.style.display = 'none';
+			});
+		
+			// Example: Close modal when clicking outside of it
+			window.onclick = (event) => {
+				if (event.target === modal) {
+					modal.style.display = 'none';
+				}
+			};
+		});
+		
+		function toggleDescription(button) {
+			// Find the <li> that the button belongs to
+			var listItem = button.closest('li');
+			// Toggle the 'expanded' class on the <li>
+			listItem.classList.toggle('expanded');
+			// Change the button text based on expansion state
+			if (listItem.classList.contains('expanded')) {
+				button.textContent = 'Read less';
+			} else {
+				button.textContent = 'Read more';
+			}
+		}
+		
+		
+		function showModal(username, age, yearLevel, date, stressLevel, stressors) {
+			document.getElementById('modalUsername').textContent = username;
+			document.getElementById('modalAge').textContent = age;
+			document.getElementById('modalYearLevel').textContent = yearLevel;
+			document.getElementById('modalDate').textContent = date;
+			document.getElementById('modalStressLevel').textContent = stressLevel;
+			document.getElementById('modalStressors').textContent = stressors;
+		
+			document.getElementById('assessmentModal').style.display = 'block';
+		}
+		
+		function closeModal() {
+			document.getElementById('assessmentModal').style.display = 'none';
+		}
+		
+		// Close the modal if clicked outside
+		window.onclick = function(event) {
+			const modal = document.getElementById('assessmentModal');
+			if (event.target === modal) {
+				closeModal();
+			}
+		}
+
+		let deleteAssessmentId = null;
+
+		document.querySelectorAll('.delete-assessment').forEach(button => {
+			button.addEventListener('click', event => {
+				event.stopPropagation(); // Prevent row click from triggering
+				deleteAssessmentId = button.dataset.id; // Retrieve assessment ID
+				const username = button.dataset.username; // Retrieve username
+				
+				if (!deleteAssessmentId) {
+					console.error("No assessment ID found on button click.");
+				} else {
+					console.log("Deleting assessment with ID:", deleteAssessmentId);
+				}
+		
+				// Update modal content
+				document.getElementById('modalUsernameDelete').innerText = username;
+		
+				// Open delete confirmation modal
+				openModal('deleteConfirmationModal');
+			});
+		});
+		
+		function openModal(modalId) {
+			const modal = document.getElementById(modalId);
+			if (modal) {
+				modal.style.display = 'flex';
+				modal.style.opacity = '1';
+				modal.style.visibility = 'visible';
+			} else {
+				console.error(`Modal with ID "${modalId}" not found.`);
+			}
+		}
+
+		
+		function closeDeleteModal(modalId) {
+			const modal = document.getElementById(modalId);
+			if (modal) {
+				modal.style.display = 'none'; // Hide modal
+			}
+		}
+		
+		
+		function confirmDelete() {
+			if (!deleteAssessmentId) {
+				console.error("No assessment ID to delete.");
+				return;
+			}
+		
+			fetch('/admin/assessments', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Requested-With': 'XMLHttpRequest'
+				},
+				body: JSON.stringify({ assessment_id: deleteAssessmentId })
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					// Show success toast notification
+					showToast(data.success, 'success');
+					location.reload(); // Reload to reflect changes
+				} else if (data.error) {
+					// Show error toast notification
+					showToast(data.error, 'error');
+				}
+			})
+			.catch(error => {
+				console.error('Fetch error:', error);
+				// Show error toast notification
+				showToast('An unexpected error occurred.', 'error');
+			});
+		}
+		
+		function showToast(message, type) {
+			const toast = document.getElementById('toast');
+			if (!toast) {
+				console.error('Toast element not found!');
+				return;
+			}
+			
+			if (!message) {
+				console.error('Toast message is undefined!');
+				return;
+			}
+		
+			toast.innerText = message;
+		
+			// Reset classes and add type class
+			toast.className = '';
+			toast.classList.add('show', type);
+		
+			// Auto-hide toast
+			setTimeout(() => {
+				toast.classList.add('fade-out');
+				setTimeout(() => {
+					toast.classList.remove('show', 'fade-out');
+					toast.innerText = ''; // Clear message after hiding
+				}, 500); // Fade-out duration
+			}, 3000); // Show duration
+		}
+		
+
+
+
+	</script>
+	<script src="{{ url_for('static', filename='admin_scripts/data.js') }}"></script>
+</body>
+</html>

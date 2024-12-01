@@ -672,3 +672,80 @@ p {
         font-size: 14px;
     }
 }
+
+/* Contact Section Styling */
+.contact-intro {
+    font-size: 16px !important;
+    color: #333 !important;
+    margin-bottom: 8px !important;
+}
+
+.contact-details {
+    font-size: 17px !important;
+    color: #555 !important;
+    line-height: 1.6 !important;
+}
+
+.contact-details strong {
+    color: #31533e !important;
+}
+
+.contact-link {
+    color: #4caf50 !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease !important;
+}
+
+.contact-link:hover {
+    color: #4caf50 !important;
+    text-decoration: underline !important;
+}
+
+/* Media Query for Small Devices */
+@media (max-width: 768px) {
+    .contact-intro {
+        font-size: 14px !important;
+        text-align: center !important;
+        margin-bottom: 12px !important;
+    }
+
+    .contact-details {
+        font-size: 12px !important;
+        text-align: center !important;
+        line-height: 1.8 !important;
+    }
+
+    .contact-details strong {
+        color: #31533e !important;
+    }
+
+    .contact-link {
+        color: #4caf50 !important;
+    }
+
+    .contact-link:hover {
+        color: #388e3c !important; /* Slightly darker green on hover for small screens */
+    }
+}
+
+/* Media Query for Extra Small Devices */
+@media (max-width: 480px) {
+    .contact-intro {
+        font-size: 13px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .contact-details {
+        font-size: 11px !important;
+        line-height: 1.5 !important;
+    }
+
+    .contact-link {
+        color: #4caf50 !important;
+    }
+
+    .contact-link:hover {
+        color: #4caf50 !important;
+    }
+}
+

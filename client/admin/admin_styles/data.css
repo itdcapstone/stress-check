@@ -314,7 +314,6 @@ body {
 
 
 
-
 /* MAIN */
 #content main {
 	width: 100%;
@@ -346,8 +345,13 @@ body {
 }
 #content main .head-title .left .breadcrumb li a {
 	color: var(--dark-grey);
-	pointer-events: none;
+	
 }
+
+#content main .head-title .left  .breadcrumb li a:hover {
+    color: #1A4D2E; /* Hover color (example) */
+}
+
 #content main .head-title .left .breadcrumb li a.active {
 	color: var(--blue);
 	pointer-events: unset;
@@ -364,9 +368,6 @@ body {
 	grid-gap: 10px;
 	font-weight: 500;
 }
-
-
-
 
 #content main .box-info {
 	display: grid;
@@ -452,8 +453,24 @@ body {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
+.data-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth animation for transform and shadow */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Default shadow */
+}
+
 .data-card:hover {
-    transform: translateY(-5px);
+       background-color: var(--primary);
+	   box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2);
+	   transform: scale(1.05);
+	   cursor: pointer;
+}
+
+/* Disable hover effect for .no-hover */
+.data-card.no-hover:hover {
+    background-color:  var(--light);
+    transform: none; /* No zoom effect */
+    box-shadow: none; /* No shadow changes */
+    cursor: default; /* Regular cursor */
 }
 
 .data-overview-graph {
@@ -616,8 +633,6 @@ body.dark .overview-card p {
     }
 }
 
-
-
 /* Container styling */
 .filter-container {
     background-color: #fff;
@@ -684,66 +699,568 @@ body.dark .overview-card p {
 }
 
 .filter-submit-btn:hover {
-    background-color: #34e61d;
+    transform: scale(1.05); /* Slightly increase the size */
+    transition: transform 0.2s ease; /* Smooth scaling effect */
 }
 
-/* MAIN */
-#content main {
-	width: 100%;
-	padding: 36px 24px;
-	font-family: var(--poppins);
-	max-height: calc(100vh - 56px);
-	overflow-y: auto;
-}
-#content main .head-title {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	grid-gap: 16px;
-	flex-wrap: wrap;
-}
-#content main .head-title .left h1 {
-	font-size: 36px;
-	font-weight: 600;
-	margin-bottom: 10px;
-	color: var(--dark);
-}
-#content main .head-title .left .breadcrumb {
-	display: flex;
-	align-items: center;
-	grid-gap: 16px;
-}
-#content main .head-title .left .breadcrumb li {
-	color: var(--dark);
-}
-#content main .head-title .left .breadcrumb li a {
-	color: var(--dark-grey);
-	
+
+
+/* Style the button */
+.btn-generate-report {
+    height: 40px;
+    padding: 0 30px;
+    border-radius: 20px;
+    background: #1A4D2E;
+    color: var(--light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-#content main .head-title .left  .breadcrumb li a:hover {
-    color: #1A4D2E; /* Hover color (example) */
+/* Hover effect for the button */
+.btn-generate-report:hover {
+    transform: scale(1.05); /* Slightly increase the size */
+    transition: transform 0.2s ease; /* Smooth scaling effect */
 }
 
-#content main .head-title .left .breadcrumb li a.active {
-	color: var(--blue);
-	pointer-events: unset;
+/* Focus effect for accessibility */
+.btn-generate-report:focus {
+    outline: 2px solid #218838;
+    outline-offset: 2px;
 }
-#content main .head-title .btn-download {
-	height: 36px;
-	padding: 0 16px;
-	border-radius: 36px;
-	background: var(--blue);
-	color: var(--light);
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	grid-gap: 10px;
-	font-weight: 500;
+/* Modal Container */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2000; /* On top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scrolling if needed */
 }
 
+/* Modal Content */
+.modal-content {
+    background-color: #fbfffb; /* Light white-green */
+    margin: 5% auto; /* Center vertically and horizontally */
+    padding: 25px 30px;
+    border-radius: 12px; /* Slightly rounded corners */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Softer shadow */
+    max-width: 600px; /* Limit width of modal */
+    width: 90%; /* Responsive design */
+    max-height: 80vh; /* Limit the height of the modal */
+    overflow-y: auto; /* Add vertical scroll if content exceeds the height */
+    animation: fadeIn 0.4s ease-out; /* Smooth animation */
+    border: 1px solid #62aea2; /* Aqua-green border for contrast */
+}
+
+/* Close Button */
+.close {
+    color: #31533e; /* Dark green */
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover, 
+.close:focus {
+    color: #4caf50; /* Brighter green highlight on hover */
+    text-decoration: none;
+}
+
+/* Modal Header */
+.modal-content h2 {
+    margin: 0 0 20px;
+    font-size: 26px; /* Slightly larger for emphasis */
+    font-weight: bold;
+    color: #31533e; /* Dark green for elegance */
+    text-align: center; /* Center the header */
+    border-bottom: 2px solid #62aea2; /* Aqua-green border */
+    padding-bottom: 10px;
+    text-transform: uppercase; /* Dramatic, modern effect */
+}
+
+/* Modal List */
+.modal-content ul {
+    list-style: none; /* Remove default bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+.modal-content li {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #f2ffef; /* Soft mint green background */
+    border: 1px solid #62aea2; /* Aqua-green border */
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative; /* Allows for enhanced hover effects */
+}
+
+.modal-content li:hover {
+    background-color: #fbfffb; /* Slightly brighter white-green on hover */
+    transform: scale(1.02); /* Subtle zoom effect */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Gentle shadow */
+}
+
+/* Category Title */
+.modal-content li strong {
+    font-size: 18px;
+    color: #31533e; /* Dark green for titles */
+    display: block;
+    margin-bottom: 5px;
+    text-transform: capitalize; /* Clean and modern look */
+}
+
+/* Expandable Description Text */
+.modal-content li p {
+    margin: 0;
+    font-size: 15px; /* Slightly larger for readability */
+    color: #31533e; /* Dark green */
+    line-height: 1.6;
+    max-height: 20px; /* Limit height for collapsed state */
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.modal-content li.expanded p {
+    max-height: none; /* Expand description on click */
+}
+
+/* Expand/Collapse Button */
+.expand-btn {
+    font-size: 14px;
+    color: #4caf50; /* Brighter green for the button */
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 10px;
+    display: inline-block; /* Better spacing */
+}
+
+/* Add a subtle arrow icon to expand button */
+.expand-btn:after {
+    content: ' ▼'; /* Down arrow */
+    font-size: 12px;
+}
+
+.modal-content li.expanded .expand-btn:after {
+    content: ' ▲'; /* Up arrow when expanded */
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+/* Questionnaire*/
+
+h1 {
+  
+    color: #444;
+}
+
+table.questions {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+table.questions thead {
+    background-color: white;
+    color: black;
+}
+
+table.questions th, table.questions td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table.questions tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table.questions tr:hover {
+    background-color: #f1f1f1;
+}
+
+table.questions th {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+table.questions td:last-child {
+    text-align: center;
+}
+
+.questionnaire-management {
+    margin-top: 30px;
+}
+
+.questionnaire-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.questionnaire-table {
+    width: 100%;
+    border-collapse: collapse;
+	margin-top: 30px;
+}
+
+.questionnaire-table th,
+.questionnaire-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.questionnaire-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.questionnaire-table td {
+    font-size: 16px;
+}
+
+.btn-add-question,
+.btn-edit-question,
+.btn-delete-question {
+    background-color: #198754;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-add-question:hover,
+.btn-edit-question:hover,
+.btn-delete-question:hover {
+    background-color: #0056b3;
+}
+
+
+
+/* Assessments */
+.user-list-container {
+    max-width: 1200px;
+    margin: 0 auto;
+	background-color: #f0f9f4;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	margin-top: 20px;
+	border-radius: 10px;
+}
+
+.user-list-container table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 15px;
+    margin-top: 2px;
+    border-radius: 10px; /* Make the sides of the table rounder */
+    overflow: hidden; /* Ensure the rounded corners are respected */
+}
+
+/* Style for the header */
+.user-list-container thead {
+    background-color: #1a4d2e; /* Dark green header */
+    border-radius: 10px 10px 0 0; /* Round the top corners of the header */
+}
+
+.user-list-container h1 {
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.user-list-container table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 15px;
+    margin-top: 2px;
+}
+
+.user-list-container thead th {
+    text-align: left;
+    padding: 12px;
+    background-color: #1a4d2e; /* Dark green header */
+    color: #ffffff;
+    border-bottom: 2px solid #ddd;
+    font-weight: bold;
+}
+
+.user-list-container tbody .user-card {
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.user-list-container tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.user-card td {
+    padding: 15px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-card .avatar {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.user-card p {
+    margin: 0;
+}
+
+.user-card .name {
+    font-weight: bold;
+}
+
+.user-card .status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #fff;
+}
+
+.user-card .status.in-work {
+    background-color: #ff6b6b;
+}
+
+.user-card .status.on-check {
+    background-color: #ffa502;
+}
+
+.user-card .highlighted-date {
+    color: #e84118;
+    font-weight: bold;
+}
+
+.user-card td {
+    vertical-align: middle;
+}
+
+/* Hover effect for table rows */
+.user-list-container tbody tr:hover {
+	background-color: #e1f7e4; /* Light green for hover */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Clicked effect for table rows */
+.user-list-container tbody tr.clicked {
+    background-color: #d6e4f9; /* Highlight color for clicked row */
+    transition: background-color 0.3s ease;
+}
+
+
+/* Ensure the sort icon aligns properly */
+.sort-header {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;  /* Remove underline */
+    color: inherit; /* Use the default text color */
+}
+
+/* Style the default sort arrow (up or down) */
+.bx.bxs-sort-alt, .bx.bxs-sort-alt {
+    margin-left: 5px;  /* Add space between the text and the arrow */
+}
+
+.assessment-link {
+    color: white; /* Make the text white */
+    text-decoration: none; /* Remove underline */
+}
+
+.assessment-link:hover {
+    text-decoration: underline; /* Optional: Add underline on hover */
+}
+
+.arrow {
+    font-size: 14px; /* Adjust size as needed */
+    margin-left: 5px; /* Add spacing from the text */
+}
+
+.arrow.asc {
+    color: green; /* Color for ascending arrow */
+}
+
+.arrow.desc {
+    color: red; /* Color for descending arrow */
+}
+
+/* Make the arrows responsive */
+@media screen and (max-width: 600px) {
+    .bx.bx-arrow-up, .bx.bx-arrow-down {
+        font-size: 18px;  /* Smaller arrow for smaller screens */
+    }
+
+    .sort-header {
+        font-size: 14px;  /* Adjust text size for small screens */
+    }
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 12px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #e0e0e0;
+}
+
+.pagination a.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+
+/*Assessment Modal */
+/* General styles for the modal */
+#assessmentModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000; /* Ensures it stays on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scrolling for small screens */
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+    font-family: 'Arial', sans-serif;
+}
+
+/* Modal content box */
+#assessmentModal .modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 5% auto; /* Center the modal */
+    padding: 30px 40px;
+    border-radius: 8px; /* Rounded corners for a modern look */
+    width: 80%; /* Large enough for report content */
+    max-width: 600px; /* Restrict width for better readability */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    border: 1px solid #ddd; /* Add a light border for structure */
+}
+
+/* Close button */
+#assessmentModal .close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #333;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#assessmentModal .close:hover {
+    color: #ff0000; /* Red on hover for emphasis */
+}
+
+/* Modal title */
+#assessmentModal h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center; /* Center the heading */
+    border-bottom: 2px solid #333; /* Strong separator for report title */
+    padding-bottom: 10px;
+    text-transform: uppercase;
+}
+
+/* Section styles for a report-like structure */
+#assessmentModal p {
+    margin: 15px 0;
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6; /* Improved readability */
+}
+
+/* Label styles for emphasis in the report */
+#assessmentModal p strong {
+    display: inline-block;
+    width: 150px; /* Fixed width for labels */
+    font-weight: bold;
+    color: #333;
+    text-transform: capitalize; /* Clean look */
+}
+
+/* Organized table-like structure for the report */
+#assessmentModal p span {
+    display: inline-block;
+    color: #666;
+}
 
 /* Responsive adjustments */
+@media (max-width: 768px) {
+    #assessmentModal .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    #assessmentModal h3 {
+        font-size: 1.5rem;
+    }
+
+    #assessmentModal p {
+        font-size: 0.95rem;
+    }
+
+    #assessmentModal p strong {
+        width: 120px;
+    }
+}
+
+
+/* General Responsive adjustments*/
 @media screen and (max-width: 768px) {
     .filter-form {
         flex-direction: column;
@@ -760,5 +1277,10 @@ body.dark .overview-card p {
     .filter-form input[type="date"],
     .filter-form select {
         width: 100%;
+    }
+
+	.btn-generate-report {
+		padding: 0 20px;
+        font-size: 14px;
     }
 }

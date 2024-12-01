@@ -7,6 +7,7 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/logIn_styles.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/login.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
   
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
@@ -55,7 +56,7 @@
             <input type="password" name="password" placeholder="Password" required id="password">
             <i class='bx bxs-show' id="togglePassword" onclick="togglePasswordVisibility()"></i>
           </div>
-          <button type="submit" {% if disable_login %}disabled{% endif %} class="btn">Login</button>
+          <button type="submit" class="btn">Login</button>
           <div class="register-link">
             <p>Don't have an account? <a href="{{ url_for('signup') }}">Register</a></p>
           </div>

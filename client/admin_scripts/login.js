@@ -13,35 +13,37 @@
         toggleIcon.classList.add('bxs-show');
     }
 }
-
 document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const formData = new FormData(this);
 
-    fetch('/admin_login', { method: 'POST', body: formData })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json(); // Parse JSON response
-        })
-        .then(data => {
-            if (data.success) {
-                // Store the success message in session and redirect
-                sessionStorage.setItem('success_message', data.success);
-                window.location.href = data.redirect_url; // Redirect to admin dashboard
-            } else if (data.error) {
-                showToast(data.error, 'error');
-            } else {
-                showToast('Unexpected response format.', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('An unexpected error occurred. Please try again.', 'error');
+    fetch('/admin_login', { 
+        method: 'POST', 
+        body: formData 
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json(); // Parse JSON for successful responses
+        }
+        // Handle the case when response is not OK (error handling)
+        return response.json().then(data => {
+            throw new Error(data.error || 'Unexpected error occurred');
         });
+    })
+    .then(data => {
+        if (data.success) {
+            // If successful login, store success message and redirect
+            sessionStorage.setItem('success_message', data.success);
+            window.location.href = data.redirect_url;  // Redirect to dashboard
+        }
+    })
+    .catch(error => {
+        // Show error message in a toast
+        showToast(error.message, 'error');
+    });
 });
+
 
 // Function to show toast messages
 function showToast(message, type) {

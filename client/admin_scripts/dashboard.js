@@ -1,49 +1,58 @@
-// Bar Chart Script
-const stressorData = JSON.parse(document.getElementById("stressor-data").textContent);
-const labels = stressorData.map(item => item.stressor);
-const percentages = stressorData.map(item => item.percentage);
-const studentCounts = stressorData.map(item => item.student_count);
+ // Fetch the stressor data from the DOM (embedded in a hidden element)
+ const stressorData = JSON.parse(document.getElementById("stressor-data").textContent);
 
-const ctx = document.getElementById('stressorBarChart').getContext('2d');
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: labels,
-        datasets: [{
-            label: 'Stressor Percentage',
-            data: percentages,
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 20,
-                title: { display: true, text: 'Percentage (%)' }
-            },
-            x: {
-                title: { display: true, text: 'Stressors' }
-            }
-        },
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: (context) => {
-                        const percentage = context.raw;
-                        const count = studentCounts[context.dataIndex];
-                        return `${context.label}: ${percentage.toFixed(2)}% (${count} assessments)`;
-                    }
-                }
-            }
-        }
-    }
-});
+ // Sort the data by percentage in descending order
+ const sortedData = stressorData.sort((a, b) => b.percentage - a.percentage);
+
+ // Extract sorted labels, percentages, and student counts
+ const labels = sortedData.map(item => item.stressor);
+ const percentages = sortedData.map(item => item.percentage);
+ const studentCounts = sortedData.map(item => item.student_count);
+
+ // Get the chart context
+ const ctx = document.getElementById('stressorBarChart').getContext('2d');
+
+ // Create the Chart.js bar chart
+ new Chart(ctx, {
+     type: 'bar',
+     data: {
+         labels: labels,
+         datasets: [{
+             label: 'Stressor Percentage',
+             data: percentages,
+             backgroundColor: 'rgba(75, 192, 192, 0.6)',
+             borderColor: 'rgba(75, 192, 192, 1)',
+             borderWidth: 1
+         }]
+     },
+     options: {
+         responsive: true,
+         maintainAspectRatio: false, // Allow the chart to fill the container
+         scales: {
+             y: {
+                 beginAtZero: true,
+                 max: 20, // Adjust the maximum value for the chart
+                 title: { display: true, text: 'Percentage (%)' }
+             },
+             x: {
+                 title: { display: true, text: 'Stressors' }
+             }
+         },
+         plugins: {
+             legend: { display: false },
+             tooltip: {
+                 callbacks: {
+                     label: (context) => {
+                         const percentage = context.raw;
+                         const count = studentCounts[context.dataIndex];
+                         return `${context.label}: ${percentage.toFixed(2)}% (${count} assessments)`;
+                     }
+                 }
+             }
+         }
+     }
+ });
+
 
 google.charts.load('current', { 'packages': ['corechart'] });
 google.charts.setOnLoadCallback(drawPieChart);

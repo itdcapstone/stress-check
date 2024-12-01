@@ -10,6 +10,7 @@
 	<!-- My CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/edit_user.css') }}">
+	<link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
 
 	<title>AdminHub</title>
 	
@@ -46,6 +47,12 @@
 				<a href="{{ url_for('edit_recommendation') }}">
 					<i class='bx bxs-check-circle'></i>
 					<span class="text">Recommendation</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('stress_questions') }}">
+					<i class='bx bxs-message-square-edit'></i>
+					<span class="text">Questionnaires</span>
 				</a>
 			</li>
 			<li>

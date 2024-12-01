@@ -6,6 +6,8 @@
     <title>Admin Login</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/logIn_styles.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/toast.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client_styles/alert_styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
 
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     
@@ -25,6 +27,18 @@
     </header>
 
     <div id="toast"></div>
+     <!-- Flash Messages -->
+			{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				<div id="flash-messages">
+					{% for category, message in messages %}
+					<div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+						{{ message }}
+					</div>
+					{% endfor %}
+				</div>
+			{% endif %}
+			{% endwith %}
 
     <div class="container">
         <div class="content-wrapper">
@@ -43,7 +57,7 @@
                         <input type="password" name="password" id="password" placeholder="Password" required>
                         <i class='bx bxs-show' id="togglePassword" onclick="togglePasswordVisibility()"></i>
                     </div>
-                    <button class="btn" {% if disable_login %}disabled{% endif %} type="submit">Login</button>
+                    <button class="btn"  type="submit">Login</button>
                 </form>
             </div>
             <div class="image-wrapper">
@@ -53,5 +67,6 @@
     </div>
 
     <script src="{{ url_for('static', filename='admin_scripts/login.js') }}"></script>
+    <script src="{{ url_for('static', filename='user_scripts/custom-alert.js') }}"></script>
 </body>
 </html>

@@ -6,79 +6,81 @@
 
 	<!-- Boxicons -->
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- My CSS -->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+	<!-- My CSS -->
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/data_styles.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/data.css') }}">
+	<link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
 
-	
-	<title>AdminHub</title>
-
-
+	<title>Data Management</title>
 </head>
 <body>
 
 	<!-- SIDEBAR -->
-	<section id="sidebar">
-		<nav>
-		<a href="#" class="brand">
-			<i class='bx bx-badge-check'></i>
-			<span class="text">Stress Check</span>
-		</a>
-		<ul class="side-menu top">
-			<li >
-				<a href="{{ url_for('admin_dashboard', username=username) }}">
-					<i class='bx bxs-dashboard' ></i>
-					<span class="text">Dashboard</span>
-				</a>
-			</li>
-			<li>
-				<a href="{{ url_for('management') }}">
-					<i class='bx bxs-user-detail'></i>
-					<span class="text">User Management</span>
-				</a>
-			</li>
-			<li class="active">
-				<a href="{{ url_for('data') }}">
-					<i class='bx bxs-data'></i>
-					<span class="text">Data Management</span>
-				</a>
-			</li>
-			<li>
+    <section id="sidebar">
+        <nav>
+        <a href="#" class="brand">
+            <i class='bx bx-badge-check'></i>
+            <span class="text">Stress Check</span>
+        </a>
+        <ul class="side-menu top">
+            <li>
+                <a href="{{ url_for('admin_dashboard', username=username) }}">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('management') }}">
+                    <i class='bx bxs-user-detail'></i>
+                    <span class="text">User Management</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="{{ url_for('data') }}">
+                    <i class='bx bxs-data'></i>
+                    <span class="text">Data Management</span>
+                </a>
+            </li>
+            <li>
 				<a href="{{ url_for('edit_recommendation') }}">
 					<i class='bx bxs-check-circle'></i>
 					<span class="text">Recommendation</span>
 				</a>
 			</li>
 			<li>
-				<a href="{{ url_for('admin_feedback') }}">
-					<i class='bx bxs-user-pin'></i>
-					<span class="text">User Feedback</span>
+				<a href="{{ url_for('stress_questions') }}">
+					<i class='bx bxs-message-square-edit'></i>
+					<span class="text">Questionnaires</span>
 				</a>
 			</li>
-		</ul>
-		<ul class="side-menu">
-			
-			<li>
-				<a href="{{ url_for('admin_logout') }}" class="logout">
-					<i class='bx bxs-log-out-circle' ></i>
-					<span class="text">Logout</span>
-				</a>
-			</li>
-		</ul>
-		</nav>
-	</section>
+            <li>
+                <a href="{{ url_for('admin_feedback') }}">
+                    <i class='bx bxs-user-pin'></i>
+                    <span class="text">User Feedback</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="side-menu">
+           
+            <li>
+                <a href="{{ url_for('admin_logout') }}" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+        </nav>
+    </section>
 	<!-- SIDEBAR -->
 
 	<!-- CONTENT -->
 	<section id="content">
-    
-        <nav>
-            <i class="bx bx-menu"></i>
-            <form action="#"></form>        
-    	</nav>
-
+		<!-- NAVBAR -->
+		<nav>
+			<i class="bx bx-menu"></i>
+			
+		</nav>
+		<!-- NAVBAR -->
 
 
 	<!-- MAIN -->
@@ -96,27 +98,33 @@
 					</li>
 				</ul>
 			</div>
-		</div><br>
-		
+
+			<form action="{{ url_for('generate_report') }}" method="GET">
+				<input type="hidden" name="start_date" value="{{ start_date }}">
+				<input type="hidden" name="end_date" value="{{ end_date }}">
+				<input type="hidden" name="year_level" value="{{ year_level }}">
+				<button type="submit" class="btn-generate-report">Generate Report</button>
+			</form>		
+		</div>
+
 		<div class="data-overview">
-			<div class="data-card">
-				<p class="score-title">Total Assessment</p>
-				<p class="score-value">{{ assessment_count }}</p>
-			</div>
-			<div class="data-card">
+			<div class="data-card no-hover">
 				<p class="score-title">Avg. Stress Level</p>
 				<p class="score-value">{{ avg_stress_level }}%</p>
 			</div>
-			<div class="data-card">
+			<div class="data-card" onclick="window.location.href='{{ url_for('assessments', sort_order='desc') }}'">
+				<p class="score-title">Total Assessment</p>
+				<p class="score-value">{{ assessment_count }}</p>
+			</div>
+			<div class="data-card" onclick="window.location.href='{{ url_for('stress_questions') }}'">
 				<p class="score-title">Questions</p>
 				<p class="score-value">{{ question_count }}</p>
 			</div>
-			<div class="data-card">
+			<div class="data-card" onclick="showCategoriesModal()">
 				<p class="score-title">Categories</p>
 				<p class="score-value">{{ category_count }}</p>
-			</div>
+			</div>			
 		</div>	
-		
 		
 		<div class="filter-container">
 			<form method="get" action="/admin/data/" class="filter-form">
@@ -155,6 +163,7 @@
 
 				<div class="overview-card-graph">
 					<h3>Stressor Percentage</h3>
+					<!-- Bar Chart -->
 					<div style="width: 100%; margin: auto;">
 						<canvas id="stressorBarChart"></canvas>
 					</div>
@@ -271,14 +280,19 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 		<script>
 			// Data for Bar Chart
-			const stressorData = {{ stressor_data|tojson }};
+			let stressorData = {{ stressor_data|tojson }};
+		
+			// Sort the data by percentage in descending order
+			stressorData = stressorData.sort((a, b) => b.percentage - a.percentage);
+		
+			// Extract sorted labels, percentages, and student counts
 			const labels = stressorData.map(item => item.stressor);
 			const percentages = stressorData.map(item => item.percentage);
 			const studentCounts = stressorData.map(item => item.student_count);
-
+		
 			// Get the chart context
 			const ctx = document.getElementById('stressorBarChart').getContext('2d');
-
+		
 			// Create the Chart.js bar chart
 			const stressorBarChart = new Chart(ctx, {
 				type: 'bar',
@@ -298,7 +312,7 @@
 					scales: {
 						y: {
 							beginAtZero: true,
-							max: 10,
+							max: 10, 
 							title: { display: true, text: 'Percentage (%)' }
 						},
 						x: {
@@ -320,10 +334,82 @@
 				}
 			});
 
-			// Redraw chart on window resize
-			window.addEventListener('resize', () => {
-				stressorBarChart.resize();
+			function showCategoriesModal() {
+				document.getElementById('categoriesModal').style.display = 'flex';
+			}
+			
+			function closeCategoriesModal() {
+				document.getElementById('categoriesModal').style.display = 'none';
+			}
+			
+			// Close the modal if the user clicks outside of it
+			window.onclick = function(event) {
+				const modal = document.getElementById('categoriesModal');
+				if (event.target == modal) {
+					modal.style.display = 'none';
+				}
+			};
+			
+			document.addEventListener('DOMContentLoaded', () => {
+				const modal = document.getElementById('myModal');
+				
+				// Ensure modal is hidden on load
+				modal.style.display = 'none';
+			
+				// Example: Show modal only on button click
+				document.getElementById('showModalBtn').addEventListener('click', () => {
+					modal.style.display = 'block';
+				});
+			
+				// Example: Close modal when close button is clicked
+				document.querySelector('.close').addEventListener('click', () => {
+					modal.style.display = 'none';
+				});
+			
+				// Example: Close modal when clicking outside of it
+				window.onclick = (event) => {
+					if (event.target === modal) {
+						modal.style.display = 'none';
+					}
+				};
 			});
+			
+			function toggleDescription(button) {
+				// Find the <li> that the button belongs to
+				var listItem = button.closest('li');
+				// Toggle the 'expanded' class on the <li>
+				listItem.classList.toggle('expanded');
+				// Change the button text based on expansion state
+				if (listItem.classList.contains('expanded')) {
+					button.textContent = 'Read less';
+				} else {
+					button.textContent = 'Read more';
+				}
+			}
+			
+			
+			function showModal(username, age, yearLevel, date, stressLevel, stressors) {
+				document.getElementById('modalUsername').textContent = username;
+				document.getElementById('modalAge').textContent = age;
+				document.getElementById('modalYearLevel').textContent = yearLevel;
+				document.getElementById('modalDate').textContent = date;
+				document.getElementById('modalStressLevel').textContent = stressLevel;
+				document.getElementById('modalStressors').textContent = stressors;
+			
+				document.getElementById('assessmentModal').style.display = 'block';
+			}
+			
+			function closeModal() {
+				document.getElementById('assessmentModal').style.display = 'none';
+			}
+			
+			// Close the modal if clicked outside
+			window.onclick = function(event) {
+				const modal = document.getElementById('assessmentModal');
+				if (event.target === modal) {
+					closeModal();
+				}
+			}
 		</script>
 
 			<!-- Google Charts Script for Pie Chart -->
@@ -359,13 +445,31 @@
 			</script>
 
 
+			<!-- Modal -->
+			<div id="categoriesModal" class="modal">
+				<div class="modal-content">
+					<span class="close" onclick="closeCategoriesModal()">&times;</span>
+					<h2>Categories</h2>
+					<ul>
+						{% for item in categories %}
+							<li>
+								<strong>{{ item.category }}</strong>
+								<p class="category-description">{{ item.description }}</p>
+								<span class="expand-btn" onclick="toggleDescription(this)">Read more</span>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+
+
+
 	</main>
 	<!-- MAIN -->
 </section>
 	<!-- CONTENT -->
 	
-
-	<script src="{{ url_for('static', filename='script.js') }}"></script>
+	<script src="{{ url_for('static', filename='admin_scripts/data.js') }}"></script>
 
 </body>
 </html>

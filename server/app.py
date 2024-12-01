@@ -1,10 +1,31 @@
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer,
+)
+from reportlab.graphics.shapes import Drawing, Line
+from reportlab.lib.styles import getSampleStyleSheet
+import matplotlib.pyplot as plt
+#pip install reportlab
+#pip install
+import re
+import io
+import math
+
+from io import BytesIO
+
 import re
 
 from bson import ObjectId
 from bson.objectid import ObjectId
 # pip install pymongo
 
-from flask import Flask, render_template, request, redirect, url_for, session, abort, flash
+from flask import Flask, render_template, request, redirect, url_for, session, abort, flash, send_file
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask import jsonify
@@ -27,6 +48,7 @@ from collections import defaultdict
 import calendar
 import pickle
 import os
+from flask_limiter.util import get_remote_address
 
 import pandas as pd
 # pip install pandas
@@ -55,7 +77,7 @@ if not MONGO_URI or not SECRET_KEY:
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='../client', template_folder='../client')
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=get_remote_address, app=app)
 
 # Secure cookies
 app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS
@@ -159,55 +181,74 @@ def role_required(role):
 
 # Route for student login in the root folder
 @app.route('/student_login', methods=['GET'])
-@role_required('user')
 def student_login():
     # Add your login logic here for students
     return render_template('login.html')  # Render the student login page
 
-# Fixed /login Route
+# Helper Function: Calculate Cooldown Time
+def get_cooldown(attempt_count):
+    """Return cooldown time (in seconds) based on the number of failed cycles."""
+    if attempt_count == 1:
+        return 60  # 1 minute
+    elif attempt_count == 2:
+        return 600  # 10 minutes
+    else:
+        return 1800  # 30 minutes (or longer for subsequent attempts)
+
+
+# Login Route for Users
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")  # Use Flask-Limiter for rate-limiting
+@limiter.limit("5 per minute")
 def login():
-    # Retrieve the time of the last attempt from the session
-    last_attempt_time = session.get('last_attempt_time')
-    remaining_time = time_remaining(last_attempt_time)
-
-    # Block login attempts if within cooldown period
-    if remaining_time > 0:
-        flash(f'Too many login attempts. Please try again in {int(remaining_time)} seconds.', 'error')
-        return render_template('login.html', disable_login=True, remaining_time=remaining_time)
-
-    if request.method == 'POST':
-        # Process login
-        username_or_email = request.form.get('username')
-        password = request.form.get('password')
-
-        # Find user by email or username
-        query_field = 'email' if '@' in username_or_email else 'username'
-        existing_user = users_collection.find_one({query_field: username_or_email})
-
-        if existing_user:
-            if check_password_hash(existing_user['password'], password):
-                # Successful login
-                session.clear()
-                session['user_id'] = str(existing_user['_id'])
-                session['username'] = existing_user['username']
-                session['role'] = 'user'
-                flash('Login successful!', 'success')
-                return redirect(url_for('dashboard', username=existing_user['username']))
-            else:
-                # Incorrect password
-                flash('Incorrect password. Please try again.', 'error')
-        else:
-            # User not found
-            flash('No account found with the provided username or email.', 'error')
-
-        # Record the time of the failed login attempt
-        session['last_attempt_time'] = datetime.utcnow().isoformat()
+    if request.method == 'GET':
         return render_template('login.html', disable_login=False)
 
-    # If GET request, show login form without any rate-limit issues
+    # POST logic: Process login
+    username_or_email = request.form.get('username')
+    password = request.form.get('password')
+
+    # Track failed login attempts and cooldown
+    failed_attempts = session.get('user_failed_attempts', 0)
+    first_attempt_time = session.get('user_first_attempt_time')
+    attempt_cycles = session.get('user_attempt_cycles', 0)
+
+    # Check if cooldown applies
+    if first_attempt_time:
+        remaining_cooldown = get_cooldown(attempt_cycles) - (datetime.utcnow() - datetime.fromisoformat(first_attempt_time)).total_seconds()
+        if remaining_cooldown > 0:
+            flash(f'Too many failed attempts. Please try again in {int(remaining_cooldown)} seconds.', 'error')
+            return render_template('login.html', disable_login=True, remaining_time=int(remaining_cooldown))
+
+    # Query database
+    query_field = 'email' if '@' in username_or_email else 'username'
+    existing_user = users_collection.find_one({query_field: username_or_email})
+
+    if existing_user and existing_user.get('role') == 'user':
+        if check_password_hash(existing_user['password'], password):
+            # Successful login: Reset session variables
+            session.clear()
+            session['user_id'] = str(existing_user['_id'])
+            session['username'] = existing_user['username']
+            session['role'] = 'user'
+            flash('Login successful!', 'success')
+            return redirect(url_for('dashboard', username=existing_user['username']))
+
+    # Failed login attempt
+    failed_attempts += 1
+    session['user_failed_attempts'] = failed_attempts
+
+    if failed_attempts >= 5:
+        # Initiate cooldown
+        session['user_first_attempt_time'] = datetime.utcnow().isoformat()
+        session['user_attempt_cycles'] = attempt_cycles + 1
+        session['user_failed_attempts'] = 0  # Reset failed attempts after starting cooldown
+        flash('Too many failed attempts. Please try again later.', 'error')
+    else:
+        flash('Invalid username or password.', 'error')
+
     return render_template('login.html', disable_login=False)
+
+
 
 # Fixed time_remaining Function
 def time_remaining(last_time):
@@ -227,6 +268,10 @@ def time_remaining(last_time):
         remaining = cooldown.total_seconds() - diff.total_seconds()
         return max(0, remaining)
     return 0
+
+
+
+
 
 # Error Handler for Rate Limiting
 @app.errorhandler(429)
@@ -256,83 +301,68 @@ def manage_session():
 
 
 @app.route('/admin_login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")  # Apply rate-limiting for admin login
+@limiter.limit("5 per minute")  # Apply rate-limiting for both GET and POST
 def admin_login():
     if request.method == 'GET':
         return render_template('admin/login.html')  # Render the admin login page
-    
-    if request.method == 'POST':
-        identifier = request.form['identifier']
-        password = request.form['password']
 
-        # Retrieve last attempt time and calculate remaining cooldown
-        last_attempt_time = session.get('admin_last_attempt_time')
-        remaining_time = time_remaining(last_attempt_time)
+    # POST logic: Process admin login
+    identifier = request.form.get('identifier')
+    password = request.form.get('password')
 
-        if remaining_time > 0:
-            return jsonify({'error': f'Too many login attempts. Try again in {int(remaining_time)} seconds.'})
+    # Track failed login attempts and cooldown
+    failed_attempts = session.get('admin_failed_attempts', 0)
+    first_attempt_time = session.get('admin_first_attempt_time')
+    attempt_cycles = session.get('admin_attempt_cycles', 0)
 
-        # Query the database for a username or email match
-        existing_user = users_collection.find_one({
-            '$or': [{'username': identifier}, {'email': identifier}]
-        })
+    # Check if cooldown applies
+    if first_attempt_time:
+        remaining_cooldown = get_cooldown(attempt_cycles) - (datetime.utcnow() - datetime.fromisoformat(first_attempt_time)).total_seconds()
+        if remaining_cooldown > 0:
+            # Rate limit exceeded: Return JSON response
+            return jsonify({'error': f'Too many failed attempts. Please try again in {int(remaining_cooldown)} seconds.'}), 400
 
-        if not existing_user:
-            session['admin_last_attempt_time'] = datetime.utcnow().isoformat()
-            return jsonify({'error': 'Invalid username or email!'})
+    # Query the database for a username or email match
+    existing_user = users_collection.find_one({
+        '$or': [{'username': identifier}, {'email': identifier}]
+    })
 
-        if not check_password_hash(existing_user.get('password'), password):
-            session['admin_last_attempt_time'] = datetime.utcnow().isoformat()
-            return jsonify({'error': 'Invalid password!'})
-
+    if existing_user and check_password_hash(existing_user.get('password'), password):
         # Check for admin role
-        role = existing_user.get('role', '').strip().lower()
-        if role != 'admin':
-            return jsonify({'error': 'Insufficient permissions!'})
+        if existing_user.get('role', '').strip().lower() != 'admin':
+            return jsonify({'error': 'Insufficient permissions!'}), 403  # Forbidden error
 
-        # Successful login: Clear session and set admin user details
+        # Successful login: Reset session variables
         session.clear()
         session['username'] = existing_user.get('username')
-        session['role'] = role
-
+        session['role'] = 'admin'
+        
+        # Return JSON response on successful login
         return jsonify({
             'success': 'Login successful!',
             'redirect_url': url_for('admin_dashboard')
         })
 
+    # Failed login attempt
+    failed_attempts += 1
+    session['admin_failed_attempts'] = failed_attempts
+
+    if failed_attempts >= 5:
+        # Initiate cooldown
+        session['admin_first_attempt_time'] = datetime.utcnow().isoformat()
+        session['admin_attempt_cycles'] = attempt_cycles + 1
+        session['admin_failed_attempts'] = 0  # Reset failed attempts after starting cooldown
+        return jsonify({'error': 'Too many failed attempts. Please try again later.'}), 400
+    else:
+        return jsonify({'error': 'Invalid username or password.'}), 400
 
 
-
-@app.route('/admin_login', methods=['POST'])
-def admin_login_dashboard():
-    if request.method == 'POST':
-        identifier = request.form['identifier']
-        password = request.form['password']
-
-        # Query the database for username or email match
-        existing_user = users_collection.find_one({
-            '$or': [{'username': identifier}, {'email': identifier}]
-        })
-
-        if not existing_user:
-            return jsonify({'error': 'Invalid username or email!'})
-
-        if not check_password_hash(existing_user.get('password'), password):
-            return jsonify({'error': 'Invalid password!'})
-
-        if existing_user.get('role') != 'admin':
-            return jsonify({'error': 'Insufficient permissions!'})
-
-        # Store user data in session
-        session.clear()  # Prevent session fixation
-        session['username'] = existing_user.get('username')
-
-        # Respond with success message and redirect URL
-        return jsonify({
-            'success': 'Login successful!',
-            'redirect_url': url_for('admin_dashboard')
-        })
-
+# Error handler for rate-limiting issues (429 status code)
+@app.errorhandler(429)
+def handle_rate_limit_error(error):
+    return jsonify({
+        'error': 'Rate limit exceeded. Please try again later.'
+    }), 429
 # admin dashboard =====================
     
 # Admin route for admin dashboard
@@ -496,38 +526,111 @@ def home():
                            feedbacks_count=feedback_count)
 
 
+
 @app.route('/admin/data/', methods=['GET', 'POST'])
 @role_required('admin')
 def data():
+    
+    category_descriptions = {
+    "Academic": "Academic stressors are related to the demands and pressures that come with academic life. This can include workload, deadlines, performance expectations, exams, assignments, and balancing academic life with other commitments.",
+    "Environmental": "Environmental stressors refer to external factors in the student's surroundings that can contribute to stress. These can include noisy living conditions, inadequate study environments, lack of green spaces, or issues like overcrowding. Stress can also arise from changes in the environment, such as moving to a new location or dealing with natural disasters or extreme weather conditions. ",
+    "socio_economic": "Socio-economic stressors encompass financial concerns, family support, living conditions, and other socio-economic factors that affect a student's well-being. These stressors can include worries about tuition fees, monthly living expenses, job pressures, or the inability to access resources. Students may experience stress from balancing studies with part-time jobs or dealing with financial instability. ",
+    "psychological": "refers to the emotional and mental aspects of stress that students may experience. It includes issues like anxiety, depression, self-esteem, and mental health challenges. Psychological stressors may arise from personal experiences, internal conflicts, or cognitive patterns, such as worry, fear, or self-doubt.",
+    }   
 
-    # Default filter values
+    # Initialize filter criteria
     filter_criteria = {}
 
-    # Get filters from request (e.g., date range)
+    # Get date range from query parameters
     start_date = request.args.get('start_date')  # Format: YYYY-MM-DD
     end_date = request.args.get('end_date')      # Format: YYYY-MM-DD
 
-    # Build date range filter
-    if start_date and end_date:
-        try:
+    try:
+        # Validate and parse dates if they are provided and not "None"
+        if start_date and start_date.lower() != "none" and end_date and end_date.lower() != "none":
             filter_criteria["date_tested"] = {
                 "$gte": datetime.strptime(start_date, "%Y-%m-%d"),
                 "$lte": datetime.strptime(end_date, "%Y-%m-%d")
             }
-            print("Filter criteria:", filter_criteria)  # Debugging line to check the filter
-        except ValueError:
-            return "Invalid date format. Please use 'YYYY-MM-DD'.", 400
-    else:
-        # Optional: Set a default date range
-        filter_criteria["date_tested"] = {
-            "$gte": datetime(2000, 1, 1),
-            "$lte": datetime.now()
-        }
+        else:
+            # Default range if no filter is applied
+            filter_criteria["date_tested"] = {
+                "$gte": datetime(2000, 1, 1),
+                "$lte": datetime.now()
+            }
+    except ValueError:
+        return "Invalid date format. Please use 'YYYY-MM-DD'.", 400
+        
+   # Bar chart-specific filter
+    stressor_category = request.args.get('stressor')  # Get stressor category from query parameters
+    print(f"Received Stressor Category: '{stressor_category}'")  # Debugging
 
-    print("Final filter criteria:", filter_criteria)  # Debugging line to ensure the filter is correct
+    bar_chart_filter = filter_criteria.copy()  # Start with the general filter
+
+        # Custom mapping of categories to stressors
+    category_to_stressors = {
+        "Academic": ["Program Confidence", "Academic Stress", "Advisor Support"],
+        "Environmental": ["Home Stress", "Commute Stress", "Noise Level", "Weather Conditions"],
+        "Socio-Economic": ["Financial Satisfaction", "Friends Support", "Resources Access"],
+        "Psychological": ["Sadness", "Anxious", "Peer Pressure", "Sleep Quality", "AI Tools", "Family Stress"]
+    }
+
+   # Determine the feature names based on the stressor category
+    if stressor_category and stressor_category.lower() != "none":
+        feature_names = category_to_stressors.get(stressor_category, [])
+    else:
+        feature_names = [stressor for stressors in category_to_stressors.values() for stressor in stressors]
+
+    # Update the filter to include stressors
+    if feature_names:
+        bar_chart_filter["stressors"] = {"$in": feature_names}
+
+    # Debugging
+    print(f"Bar Chart Filter: {bar_chart_filter}")
+    print(f"Feature Names: {feature_names}")
+
+    # Aggregation pipeline for stressor data
+    stressor_data = assessment_collection.aggregate([
+        {"$match": bar_chart_filter},  # Apply the combined filter
+        {"$unwind": "$stressors"},  # Decompose the array of stressors
+        {"$group": {"_id": "$stressors", "count": {"$sum": 1}}},  # Group by stressor and count occurrences
+        {"$project": {"stressor": "$_id", "count": 1, "_id": 0}}  # Format the output
+    ])
+
+    # Convert to list and process
+    stressor_data = list(stressor_data)
+    total_students = sum(item['count'] for item in stressor_data)
+    for item in stressor_data:
+        item['percentage'] = (item['count'] / total_students) * 100
+        item['student_count'] = item['count']
+
+    for item in stressor_data:
+        item['percentage'] = (item['count'] / total_students) * 100
+        item['student_count'] = item['count']  # Keep the raw student count for tooltip
+        print(f"Stressor: {item['stressor']}, Count: {item['count']}, "
+            f"Percentage: {item['percentage']:.2f}%, Category: {stressor_category}")
+
+    # Total questions and unique categories are not filtered anymore
+    # Remove database-derived categories and count logic
+    category_count = len(category_to_stressors)  # Count unique keys in the custom mapping
+
+    # Prepare category descriptions using the custom mapping
+    categories_with_descriptions = [
+        {"category": category, "description": category_descriptions.get(category, "No description available.")}
+        for category in category_to_stressors.keys()
+    ]
+
+
+        # print("Final filter criteria:", filter_criteria)  # Debugging line to ensure the filter is correct
 
     # Use assessment collection for count
     assessment_count = assessment_collection.count_documents(filter_criteria)
+    categories = stress_questions_collection.distinct("category")
+    categories_with_descriptions = [
+        {"category": category, "description": category_descriptions.get(category, "No description available.")}
+        for category in categories
+]
+  
 
     # Calculate average stress level from assessment collection
     pipeline = [
@@ -615,6 +718,7 @@ def data():
                            avg_stress_level=avg_stress_level,
                            question_count=question_count,
                            category_count=category_count,
+                           categories=categories_with_descriptions,
                            chart_data=chart_data,
                            column_chart_data=column_chart_data,
                            year_level_student_counts=year_level_student_counts,
@@ -623,33 +727,414 @@ def data():
                            assessment_count=assessment_count,  # Now using assessment_count
                            start_date=start_date,
                            end_date=end_date)
+
+
+
+@app.route('/admin/generate_report/', methods=['GET'])
+@role_required('admin')
+def generate_report():
+     # Initialize filter criteria
+    filter_criteria = {}
+
+    # Get date range from query parameters
+    start_date = request.args.get('start_date')  # Format: YYYY-MM-DD
+    end_date = request.args.get('end_date')      # Format: YYYY-MM-DD
+
+    # Check if parameters are valid or default to full range
+    if start_date and start_date.lower() != "none" and end_date and end_date.lower() != "none":
+        try:
+            # Parse the provided dates
+            filter_criteria["date_tested"] = {
+                "$gte": datetime.strptime(start_date, "%Y-%m-%d"),
+                "$lte": datetime.strptime(end_date, "%Y-%m-%d")
+            }
+        except ValueError:
+            return "Invalid date format. Please use 'YYYY-MM-DD'.", 400
+    else:
+        # Apply default range if no filter is provided or if "None" is passed
+        filter_criteria["date_tested"] = {
+            "$gte": datetime(2000, 1, 1),
+            "$lte": datetime.now()
+        }
+
+    # Stress Trends Over Time
+    pipeline_for_line_chart = [
+        {"$match": filter_criteria},
+        {"$project": {"month": {"$month": "$date_tested"}, "year": {"$year": "$date_tested"}, "stress_level": 1}},
+        {"$group": {"_id": {"month": "$month", "year": "$year"}, "avgStressLevel": {"$avg": "$stress_level"}}},
+        {"$sort": {"_id.year": 1, "_id.month": 1}}
+    ]
+    avg_stress_result_for_chart = list(assessment_collection.aggregate(pipeline_for_line_chart))
+
+    # Student Stress Levels per Year Level
+    pipeline_for_column_chart = [
+        {"$match": filter_criteria},
+        {"$lookup": {
+            "from": "users",
+            "localField": "user_id",
+            "foreignField": "_id",
+            "as": "user_data"
+        }},
+        {"$unwind": "$user_data"},
+        {"$group": {"_id": "$user_data.year_level", "avgStressLevel": {"$avg": "$stress_level"}}},
+        {"$sort": {"_id": 1}}
+    ]
+    year_level_data = list(assessment_collection.aggregate(pipeline_for_column_chart))
+
+      # Stress Trends Over Time
+    pipeline_for_line_chart = [
+        {"$match": filter_criteria},
+        {"$project": {"month": {"$month": "$date_tested"}, "year": {"$year": "$date_tested"}, "stress_level": 1}},
+        {"$group": {"_id": {"month": "$month", "year": "$year"}, "avgStressLevel": {"$avg": "$stress_level"}}},
+        {"$sort": {"_id.year": 1, "_id.month": 1}}
+    ]
+    avg_stress_result_for_chart = list(assessment_collection.aggregate(pipeline_for_line_chart))
+
+     # Stress Level Distribution (Pie Chart Data)
+    stress_level_data = assessment_collection.aggregate([
+        {"$match": filter_criteria},
+        {"$sort": {"user_id": 1, "date_tested": -1}},
+        {"$group": {"_id": "$user_id", "latest_stress_level": {"$first": "$stress_level"}}},
+        {"$group": {"_id": "$latest_stress_level", "count": {"$sum": 1}}},
+        {"$project": {"stress_level": "$_id", "count": 1, "_id": 0}}
+    ])
+    stress_level_data = sorted(list(stress_level_data), key=lambda x: x['stress_level'])
+    total_assessments = sum(item['count'] for item in stress_level_data)
+    for item in stress_level_data:
+        item['percentage'] = (item['count'] / total_assessments) * 100
+
+    # Stressor Percentage
+    stressor_data = assessment_collection.aggregate([
+        {"$match": filter_criteria},
+        {"$unwind": "$stressors"},
+        {"$group": {"_id": "$stressors", "count": {"$sum": 1}}}
+    ])
+    stressor_data = list(stressor_data)
+    total_students = sum(item['count'] for item in stressor_data)
+    for item in stressor_data:
+        item['percentage'] = (item['count'] / total_students) * 100
+
+
+
+      # Create PDF Output
+    pdf_output = BytesIO()
+    doc = SimpleDocTemplate(pdf_output, pagesize=letter)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    # Define Custom Styles
+    title_style = styles["Title"]
+    title_style.fontSize = 26
+    title_style.textColor = colors.HexColor("#0F4D44")
+    title_style.alignment = 1  # Center Align
+
+    section_title_style = styles["Heading2"]
+    section_title_style.fontSize = 16
+    section_title_style.fontName = "Helvetica-Bold"
+    section_title_style.textColor = colors.HexColor("#0F4D44")
+
+    normal_style = styles["Normal"]
+    normal_style.fontName = "Helvetica"
+    normal_style.fontSize = 12
+    normal_style.leading = 15
+
+    section_header_style = ParagraphStyle(
+    name="SectionHeader",
+    parent=styles["Normal"],
+    fontSize=16,
+    textColor=colors.white,
+    alignment=1,
+    backColor=colors.HexColor("#a3bfb0"),
+    leading=24,
+)
+
+    # Cover Page
+    elements.append(Paragraph("Stress Check Report", title_style))
+    elements.append(Spacer(1, 24))
+
+    # Current date
+    elements.append(Paragraph(f"Date: {datetime.now().strftime('%Y-%m-%d')}", normal_style))
+    elements.append(Spacer(1, 12))
+
+  # Add filtered date range if provided
+    if start_date and end_date and start_date.lower() != 'none' and end_date.lower() != 'none':
+        elements.append(Paragraph(f"Filtered Date Range: {start_date} to {end_date}", normal_style))
+    else:
+        elements.append(Paragraph("Filtered Date Range: All Records", normal_style))
+
+    elements.append(Spacer(1, 12))
+
+
+    # Add horizontal line
+    line = Drawing(500, 1)  # Width of the line (adjust as needed)
+    line.add(Line(0, 0, 500, 0))  # Coordinates of the line (start_x, start_y, end_x, end_y)
+    elements.append(line)
+    elements.append(Spacer(1, 15))  # Add spacing after the line
+
+    # Section 1: Stress Level Distribution
+    elements.append(Paragraph("Stress Level Distribution", section_header_style))
+    elements.append(Spacer(1, 12))
+    stress_level_table = [["Stress Level", "Student Count", "Percentage"]]
+    for item in stress_level_data:
+        stress_level_table.append(
+            [
+                item["stress_level"],
+                item["count"],
+                f"{round(item['percentage'], 2)}%",
+            ]
+        )
+
+    table = Table(stress_level_table, colWidths=[150, 150, 150])
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F4D44")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
+        )
+    )
+    elements.append(table)
+    elements.append(Spacer(1, 24))
+
+   # Section 2: Stress Trends Over Time
+    elements.append(Paragraph("Stress Trends Over Time", section_header_style))
+    elements.append(Spacer(1, 12))
+    trends_table = [["Month", "Year", "Average Stress Level"]]
+
+    for entry in avg_stress_result_for_chart:
+        # Convert month number to month name
+        month_name = calendar.month_name[entry["_id"]["month"]]
+        trends_table.append(
+            [
+                month_name,  # Use the month name instead of the number
+                entry["_id"]["year"],
+                round(entry["avgStressLevel"], 2),
+            ]
+        )
+
+    table = Table(trends_table, colWidths=[150, 150, 150])
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F4D44")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
+        )
+    )
+    elements.append(table)
+    elements.append(Spacer(1, 24))
+
+    # Section 3: Year Level Stress Levels
+    elements.append(
+        Paragraph("Student Stress Levels by Year Level", section_header_style)
+    )
+    elements.append(Spacer(1, 12))
+    year_level_table = [["Year Level", "Average Stress Level"]]
+    for entry in year_level_data:
+        year_level_table.append(
+            [
+                f"Year {entry['_id']}",
+                round(entry["avgStressLevel"], 2),
+            ]
+        )
+
+    table = Table(year_level_table, colWidths=[300, 150])
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F4D44")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
+        )
+    )
+    elements.append(table)
+    elements.append(Spacer(1, 24))
+
+    # Section 4: Stressor Percentages
+    elements.append(Paragraph("Stressor Percentages", section_header_style))
+    elements.append(Spacer(1, 12))
+    stressor_table = [["Stressor", "Assessment Count", "Percentage"]]
+    for item in stressor_data:
+        stressor_table.append(
+            [item["_id"], item["count"], f"{round(item['percentage'], 2)}%"]
+        )
+
+    table = Table(stressor_table, colWidths=[200, 150, 150])
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0F4D44")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.whitesmoke),
+                ("TEXTCOLOR", (0, 1), (-1, -1), colors.black),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]
+        )
+    )
+    elements.append(table)
+    elements.append(Spacer(1, 24))
+
+    # Build and Save PDF
+    doc.build(elements)
+    pdf_output.seek(0)
     
-    
+    # Send the PDF as a response
+    return send_file(
+        pdf_output,
+        as_attachment=True,
+        download_name="stress_check_report.pdf",
+        mimetype="application/pdf"
+    )
+
+
+@app.route('/admin/assessments', methods=['GET', 'POST', 'DELETE'])
+@role_required('admin')
+def assessments():
+    username = session.get('username')
+
+    if not username:
+        return redirect(url_for('login'))
+
+    if request.method == 'DELETE':
+        try:
+            data = request.get_json()  # Parse JSON payload
+            assessment_id = data.get('assessment_id')
+
+            if not assessment_id:
+                return jsonify({'error': 'Assessment ID not provided.'}), 400
+
+            # Attempt to delete the assessment by ObjectId
+            try:
+                object_id = ObjectId(assessment_id)
+            except Exception as e:
+                return jsonify({'error': 'Invalid assessment ID format.'}), 400
+
+            result = assessment_collection.delete_one({'_id': object_id})
+
+            if result.deleted_count == 1:
+                print(f"Assessment {assessment_id} deleted successfully.")
+                return jsonify({'success': 'Assessment deleted successfully.'}), 200
+            else:
+                print(f"Assessment {assessment_id} not found.")
+                return jsonify({'error': 'Assessment not found.'}), 404
+
+        except Exception as e:
+            print(f"Error deleting assessment: {e}")
+            return jsonify({'error': 'Error deleting assessment.'}), 500
+
+    # Handle GET requests for displaying assessments
+    sort_by = request.args.get('sort_by', 'date')  # Default sort by date
+    sort_order = request.args.get('sort_order', 'desc')  # Default to descending
+
+    # Convert sort_order to MongoDB-compatible sort direction
+    sort_direction = ASCENDING if sort_order == 'asc' else DESCENDING
+
+    # Define the sort field based on the sort_by parameter
+    if sort_by == 'date':
+        sort_field = 'date_tested'
+    elif sort_by == 'stress_level':
+        sort_field = 'stress_level'
+    elif sort_by == 'year_level':
+        sort_field = 'year_level'
+    else:
+        sort_field = 'date_tested'
+
+    # Fetch and sort all assessments from the database
+    all_assessments = list(assessment_collection.find().sort(sort_field, sort_direction))
+
+    # Pagination setup
+    per_page = 10  # Maximum number of assessments per page
+    page = request.args.get('page', 1, type=int)  # Get the current page number from the query parameter
+    total_assessments = len(all_assessments)  # Total number of assessments
+    total_pages = math.ceil(total_assessments / per_page)  # Total number of pages
+
+    # Slice the assessments for the current page
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_assessments = all_assessments[start:end]
+
+    # Prepare the paginated data to pass to the template
+    assessments_list = []
+    for assessment in paginated_assessments:
+        user_id = assessment.get('user_id', 'N/A')
+        user = users_collection.find_one({'_id': user_id})
+        user_name = user.get('username', 'N/A') if user else 'N/A'
+        year_level = user.get('year_level', 'N/A') if user else 'N/A'
+        age = user.get('age', 'N/A') if user else 'N/A'  # Add age
+        assessment_date = assessment.get('date_tested', 'N/A')
+        stress_level = assessment.get('stress_level', 'N/A')
+        stressors = assessment.get('stressors', [])  # Add stressors
+
+        assessments_list.append({
+            'id': str(assessment.get('_id')),
+            'username': user_name,
+            'age': age,
+            'year_level': year_level,
+            'date': assessment_date,
+            'stress_level': stress_level,
+            'stressors': stressors,
+        })
+
+    # Pagination controls for the template
+    start_page = max(1, page - 2)  # Show the previous 2 pages, if possible
+    end_page = min(total_pages, page + 2)  # Show the next 2 pages, if possible
+
+    # Render the assessments page with the sorted and paginated data
+    return render_template(
+        'admin/assessments.html',
+        username=username,
+        assessments=assessments_list,
+        page=page,
+        total_pages=total_pages,
+        start_page=start_page,
+        end_page=end_page,
+        sort_order=sort_order,
+        sort_by=sort_by,
+    )
+
+
 @app.route('/admin/feedback/', methods=['GET', 'POST'])
 @role_required('admin')
 def admin_feedback():
-    # Handle date filtering (GET request)
-    date_filter = request.args.get('dateFilter')
+  
+    page = int(request.args.get('page', 1))
+    per_page = 10  # Number of feedback items per page
     query = {}
-
-    if date_filter:
-        try:
-            # Parse the user input in 'YYYY-MM-DD' format
-            filter_date = datetime.strptime(date_filter, "%Y-%m-%d")
-            
-            # Set the start and end of the day
-            start_date = filter_date.replace(hour=0, minute=0, second=0, microsecond=0)
-            end_date = filter_date.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-            # Construct the query to filter feedback by the provided date
-            query = {'timestamp': {'$gte': start_date, '$lte': end_date}}
-
-        except ValueError:
-            print(f"Invalid date format for filter: {date_filter}. Expected format is 'YYYY-MM-DD'.")
-            pass  # Ignore invalid date formats
 
     # Fetch filtered feedback data from the MongoDB feedback collection
     feedback_data = list(feedback_collection.find(query))
+
+    # Implement pagination logic
+    total_feedback = len(feedback_data)
+    total_pages = math.ceil(total_feedback / per_page)
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_feedback = feedback_data[start:end]
 
     if request.method == 'POST':
         # Handle deletion (AJAX POST request)
@@ -673,7 +1158,18 @@ def admin_feedback():
         return jsonify({'error': 'Invalid request type.'}), 400
 
     # Render the page with feedback data for normal GET requests
-    return render_template('admin/feedback.html', feedback_data=feedback_data)
+    start_page = max(1, page - 2)
+    end_page = min(total_pages, page + 2)
+
+    return render_template(
+        'admin/feedback.html',
+        feedback_data=paginated_feedback,
+        page=page,
+        total_pages=total_pages,
+        start_page=start_page,
+        end_page=end_page,
+    )
+
 
 
 
@@ -1683,10 +2179,12 @@ def analytics():
             user_id = user['_id']
             print(f"User ID: {user_id}")  # Debugging print to check user_id
 
-            # Retrieve filter and sort parameters
+            # Retrieve filter, sort, and pagination parameters
             start_date = request.args.get('start_date')
             end_date = request.args.get('end_date')
             sort_order = request.args.get('sort_order', 'des')  # Default to descending
+            page = int(request.args.get('page', 1))  # Current page
+            per_page = 10  # Items per page
 
             # Convert sort_order to MongoDB-compatible sort direction
             sort_direction = ASCENDING if sort_order == 'asc' else DESCENDING
@@ -1698,8 +2196,14 @@ def analytics():
             if end_date:
                 query.setdefault('date_tested', {}).update({'$lte': datetime.strptime(end_date, '%Y-%m-%d')})
 
-            # Fetch and sort assessments
-            assessments = list(assessment_collection.find(query).sort('date_tested', sort_direction))
+            # Fetch and sort assessments with pagination
+            total_assessments = assessment_collection.count_documents(query)  # Total assessments count
+            assessments = list(
+                assessment_collection.find(query)
+                .sort('date_tested', sort_direction)
+                .skip((page - 1) * per_page)
+                .limit(per_page)
+            )
             print(assessments)  # Debugging print to check fetched assessments
 
             # Redirect to no_history.html if there are no assessments
@@ -1748,13 +2252,28 @@ def analytics():
                 else:
                     avg_stress_by_month.append((month, 0))  # No data for this month
 
-            # Pass assessments, average stress, and stressor data to the template
-            return render_template('analytics.html', username=username, assessments=assessments,
-                                   avg_stress_by_month=avg_stress_by_month, stressor_data=stressor_data)
+            # Calculate pagination details
+            total_pages = math.ceil(total_assessments / per_page)
+            start_page = max(1, page - 2)
+            end_page = min(total_pages, page + 2)
+
+            # Pass assessments, average stress, stressor data, and pagination info to the template
+            return render_template(
+                'analytics.html',
+                username=username,
+                assessments=assessments,
+                avg_stress_by_month=avg_stress_by_month,
+                stressor_data=stressor_data,
+                page=page,
+                total_pages=total_pages,
+                start_page=start_page,
+                end_page=end_page
+            )
         else:
             return redirect(url_for('login'))  # User not found
     else:
         return redirect(url_for('login'))  # Not logged in
+
     
 
 
@@ -2049,7 +2568,7 @@ def signin():
             session['username'] = username
             
             # Return success response and the URL to redirect to the login page
-            return jsonify({'success': 'Sign-in successful!', 'redirect_url': url_for('login')})
+            return jsonify({'success': 'Sign up successful!', 'redirect_url': url_for('login')})
 
 @app.route('/signin', methods=['GET'])
 def signup():

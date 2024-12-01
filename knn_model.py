@@ -5,6 +5,8 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_predict
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, classification_report
 from imblearn.over_sampling import SMOTE
 import numpy as np
@@ -18,14 +20,12 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # Set a random seed for reproducibility
 random_seed = 42
 
-# Load data from a CSV file with proper encoding to handle special characters
-csv_file_path = 'data.csv'  # Replace with your actual CSV file path
+csv_file_path = 'data.csv'  
 df = pd.read_csv(csv_file_path, encoding='utf-8-sig')
 
 # Clean up column names by stripping unwanted spaces or newline characters
 df.columns = df.columns.str.strip().str.replace('\n', '', regex=True)
 
-# Keep only relevant features for stress prediction
 relevant_columns = [
     'Sadness', 'Anxious', 'Peer Pressure', 'Sleep Quality', 'AI Tools', 'Family Stress',
     'Financial Satisfaction', 'Friends Support', 'Resources Access', 'Home Stress',
@@ -131,7 +131,17 @@ y_pred = cross_val_predict(best_knn_model, X_res, y_res, cv=cv)
 accuracy = accuracy_score(y_res, y_pred)
 print(f"Best Parameters: {grid_search_knn.best_params_}")
 print(f"Cross-validated Accuracy: {accuracy:.4f}")
-print(f"Classification Report:\n{classification_report(y_res, y_pred)}")
+print(f"Classification Report:\n{classification_report(y_res, y_pred)}") 
+
+conf_matrix = confusion_matrix(y_res, y_pred)
+
+# Display the confusion matrix
+disp = ConfusionMatrixDisplay(conf_matrix, display_labels=best_knn_model.classes_)
+disp.plot(cmap='viridis')  # Choose a color map, e.g., 'viridis'
+plt.title("Confusion Matrix")
+plt.show()
+
+
 
 # Save the model and preprocessor
 os.makedirs('models', exist_ok=True)
@@ -144,7 +154,7 @@ with open('models/preprocessor.pkl', 'wb') as preprocessor_file:
 
 print("Model and preprocessor have been saved.")
 
-# Remove the hardcoded prediction block and allow dynamic inputs through function
+
 def predict_stress(new_student_data):
     # Convert new student data to DataFrame
     new_student_df = pd.DataFrame(new_student_data)
@@ -213,5 +223,6 @@ def identify_common_stressors(new_student_data):
     # Output the count and details of high stressors per category
     return high_stressors
 
+    
 
 

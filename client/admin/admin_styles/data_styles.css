@@ -312,7 +312,74 @@ body {
 /* NAVBAR */
 
 
-
+/* Custom Alert Styling */
+.custom-alert {
+    display: none; /* Hide by default */
+    position: fixed;
+    top: 10%; /* Center at the top */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -100%); /* Start off-screen above */
+    min-width: 320px;
+    padding: 16px 24px;
+    border-radius: 12px; /* More rounded for a soft look */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); /* Soft shadow for a floating effect */
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.5;
+    text-align: center;
+  }
+  
+  /* Show alert when it's active */
+  .custom-alert.active {
+    display: block;
+    opacity: 1;
+    transform: translate(-50%, 0); /* Slide down into view */
+  }
+  
+  /* Add fade-out effect */
+  .custom-alert.fade-out {
+    opacity: 0;
+    transform: translate(-50%, -20%); /* Slide back up slightly during fade-out */
+  }
+  
+  /* Success alert styling */
+  .custom-alert.success-alert {
+    background-color: #c3ebcc;
+    color: #155724;
+    font-weight: 600; /* Bold text for better readability */
+    border-left: 6px solid #155724; /* Soft fresh green left border */
+    border-radius: 12px; /* Rounded edges for a soft appearance */
+  }
+  
+  /* Error alert styling */
+  .custom-alert.error-alert {
+    color: #721c24;
+    background-color: #f8d7da;
+    font-weight: 600;
+    border-left: 6px solid #721c24; /* Soft red left border */
+    border-radius: 12px;
+  }
+  
+  /* Simple slide-in animation */
+  @keyframes slideIn {
+    0% {
+      transform: translate(-50%, -100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+  }
+  
+  /* Apply animation on active */
+  .custom-alert.active {
+    animation: slideIn 0.5s ease-in-out;
+  }
+  
 
 
 /* MAIN */
@@ -346,8 +413,13 @@ body {
 }
 #content main .head-title .left .breadcrumb li a {
 	color: var(--dark-grey);
-	pointer-events: none;
+	
 }
+
+#content main .head-title .left  .breadcrumb li a:hover {
+    color: #1A4D2E; /* Hover color (example) */
+}
+
 #content main .head-title .left .breadcrumb li a.active {
 	color: var(--blue);
 	pointer-events: unset;
@@ -364,7 +436,6 @@ body {
 	grid-gap: 10px;
 	font-weight: 500;
 }
-
 
 
 
@@ -704,5 +775,693 @@ body.dark .overview-card p {
     .filter-form input[type="date"],
     .filter-form select {
         width: 100%;
+    }
+}
+
+/* Style the button */
+.btn-generate-report {
+    height: 40px;
+    padding: 0 30px;
+    border-radius: 20px;
+    background: #1A4D2E;
+    color: var(--light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    grid-gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+/* Hover effect for the button */
+.btn-generate-report:hover {
+    transform: scale(1.05); /* Slightly increase the size */
+    transition: transform 0.2s ease; /* Smooth scaling effect */
+}
+
+/* Focus effect for accessibility */
+.btn-generate-report:focus {
+    outline: 2px solid #218838;
+    outline-offset: 2px;
+}
+/* Modal Container */
+.modal {
+    display: none; /* Default hidden */
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    padding: 20px; /* Optional: Padding around content */
+}
+
+
+/* Modal Content */
+.modal-content {
+    background-color: #ffffff;
+    margin: 5% auto; /* Center vertically and horizontally */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    max-width: 450px; /* Limit width of modal */
+    width: 40%; /* Responsive design */
+    max-height: 80vh; /* Limit the height of the modal */
+    overflow-y: auto; /* Add vertical scroll if content exceeds the height */
+    animation: fadeIn 0.3s ease-out; /* Smooth animation */
+    text-align: center;
+    position: relative;
+}
+
+
+
+/* Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover, 
+.close:focus {
+    color: #ff0000; /* Highlight on hover */
+    text-decoration: none;
+}
+
+/* Modal Header */
+.modal-content h2 {
+    margin: 0 0 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333333;
+    border-bottom: 2px solid #eeeeee;
+    padding-bottom: 10px;
+}
+
+/* Modal List */
+.modal-content ul {
+    list-style: none; /* Remove default bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+.modal-content li {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.modal-content li:hover {
+    background-color: #f3f3f3; /* Slight hover effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow on hover */
+}
+
+/* Category Title */
+.modal-content li strong {
+    font-size: 18px;
+    color: #333333;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Expandable Description Text */
+.modal-content li p {
+    margin: 0;
+    font-size: 14px;
+    color: #666666;
+    line-height: 1.5;
+    max-height: 17px; /* Limit height for collapsed state */
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.modal-content li.expanded p {
+    max-height: none; /* Expand description on click */
+}
+
+/* Expand/Collapse Button */
+.expand-btn {
+    font-size: 14px;
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 5px;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Questionnaire*/
+
+h1 {
+  
+    color: #444;
+}
+
+table.questions {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+table.questions thead {
+    background-color: white;
+    color: black;
+}
+
+table.questions th, table.questions td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table.questions tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+table.questions tr:hover {
+    background-color: #f1f1f1;
+}
+
+table.questions th {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+table.questions td:last-child {
+    text-align: center;
+}
+
+.questionnaire-management {
+    margin-top: 30px;
+}
+
+.questionnaire-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.questionnaire-table {
+    width: 100%;
+    border-collapse: collapse;
+	margin-top: 30px;
+}
+
+.questionnaire-table th,
+.questionnaire-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.questionnaire-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.questionnaire-table td {
+    font-size: 16px;
+}
+
+.btn-add-question,
+.btn-edit-question,
+.btn-delete-question {
+    background-color: #198754;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-add-question:hover,
+.btn-edit-question:hover,
+.btn-delete-question:hover {
+    background-color: #0056b3;
+}
+
+
+
+/* Assessments */
+.user-list-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fbfffb; /* Soft, light background */
+    padding: 20px;
+    border-radius: 18px; /* Softer rounded corners */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); /* Gentle shadow for a lifted effect */
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+/* Header styling */
+.user-list-container h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #31533e; /* Deep green for sophistication */
+    margin-bottom: 25px;
+    text-align: center;
+    letter-spacing: 1px; /* Slight spacing for elegance */
+    text-transform: uppercase;
+    border-bottom: 2px solid #62aea2; /* Subtle line below the header */
+    padding-bottom: 10px;
+}
+
+/* Table Styles */
+.user-list-container table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 15px; /* Slight separation for clarity */
+    margin-top: 15px;
+    border-radius: 12px;
+    overflow: hidden; /* Ensures rounded corners */
+}
+
+/* Table Header */
+.user-list-container thead {
+    background-color: #31533e; /* Dark green header */
+    color: #f2ffef; /* Soft light color for text */
+    border-radius: 12px 12px 0 0;
+}
+
+.user-list-container thead th {
+    padding: 18px 25px;
+    text-align: left;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #62aea2; /* Soft border under the header */
+}
+
+/* Table Body */
+.user-list-container tbody .user-card {
+    background-color: #ffffff; /* Clean white for rows */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* Smooth shadow for lift */
+    border-radius: 10px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+.user-list-container tbody tr {
+    border-bottom: 1px solid #e1e1e1; /* Subtle border between rows */
+}
+
+.user-card td {
+    padding: 18px 25px;
+    vertical-align: middle;
+    font-size: 16px;
+    color: #333; /* Dark gray for text */
+}
+
+/* Hover effect */
+.user-list-container tbody tr:hover {
+    background-color: #e9f7f0; /* Soft green hover effect */
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Subtle hover shadow */
+}
+
+/* Clicked effect */
+.user-list-container tbody tr.clicked {
+    background-color: #d6e4f9; /* Light blue for clicked row */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* Slight elevation on click */
+}
+
+/* User Info */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-card .avatar {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+/* Name styling */
+.user-card .name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #31533e; /* Dark green for names */
+    margin: 0;
+}
+
+/* Status badge */
+.user-card .status {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.user-card .status.in-work {
+    background-color: #ff6b6b; /* Soft red for "in-work" */
+}
+
+.user-card .status.on-check {
+    background-color: #ffa502; /* Orange for "on-check" */
+}
+
+/* Sorting Link Styles */
+.assessment-link {
+    color: #f2ffef; /* Soft light color for links */
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease; /* Smooth transition */
+}
+
+.assessment-link:hover {
+    color: #c2f4b9;
+    text-decoration: underline;
+}
+
+.arrow {
+    font-size: 16px;
+    margin-left: 8px;
+}
+
+.arrow.asc {
+    color: #4caf50; /* Green for ascending */
+}
+
+.arrow.desc {
+    color: #ff6b6b; /* Red for descending */
+}
+
+/* Sort Header for Links */
+.sort-header {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    font-size: 15px;
+}
+
+/* Delete Button Styling */
+.btn-icon.delete-assessment {
+    background-color: transparent; /* Transparent background */
+    border: none; /* No border */
+    cursor: pointer; /* Pointer cursor */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.btn-icon.delete-assessment i {
+    font-size: 22px;
+    color: #1a4d2e; /* Default green color */
+    transition: color 0.3s ease; /* Smooth transition for color */
+}
+
+
+.btn-icon.delete-assessment:hover i {
+    color: #ff0000; /* Red color on hover */
+}
+
+
+
+/* Modal Headings */
+.modal-content h3 {
+    margin-bottom: 16px;
+    font-size: 22px;
+    color: #1a4d2e;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+}
+
+.modal-content p {
+    font-size: 16px;
+    margin-bottom: 24px;
+    color: #475569;
+    line-height: 1.5;
+}
+
+/* Action Buttons */
+.modal-content button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a4d2e;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s ease-in-out;
+    margin: 0 10px;
+}
+
+.modal-content .btnClose:hover {
+    background-color: #35a776;
+    transform: translateY(-2px);
+}
+
+.modal-content .btnConfirm:hover {
+    background-color: #d1433f;
+    transform: translateY(-2px);
+}
+
+
+
+
+
+
+/* Make the arrows responsive */
+@media screen and (max-width: 600px) {
+    .bx.bx-arrow-up, .bx.bx-arrow-down {
+        font-size: 18px;  /* Smaller arrow for smaller screens */
+    }
+
+    .sort-header {
+        font-size: 14px;  /* Adjust text size for small screens */
+    }
+}
+
+/* Pagination */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #7ABA78;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #1A4D2E;
+    background-color: #DEE9E5;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+.pagination-link:hover {
+    background-color: #7ABA78;
+    color: #FFFFFF;
+    border-color: #1A4D2E;
+    transform: translateY(-4px);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pagination-link.active {
+    background-color: #1A4D2E;
+    color: #FFFFFF;
+    border-color: #1A4D2E;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+    cursor: default;
+}
+
+.pagination-link:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.pagination .dots {
+    font-size: 16px;
+    font-weight: bold;
+    color: #7ABA78;
+}
+
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-container .pagination-summary {
+    font-size: 14px;
+    color: #1A4D2E;
+    font-weight: 500;
+}
+
+
+
+/*Assessment Modal */
+/* General styles for the modal */
+#assessmentModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 2000; /* Ensures it stays on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scrolling for small screens */
+    font: var(--poppins);
+
+}
+
+/* Modal content box */
+#assessmentModal .modal-content {
+    position: relative;
+    background-color: #fcfffb; /* Softer light green for background */
+    margin: 5% auto; /* Center the modal */
+    padding: 30px 40px;
+    border-radius: 10px; /* Rounded corners for a softer look */
+    width: 80%; /* Large enough for report content */
+    max-width: 600px; /* Restrict width for better readability */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Softer shadow for depth */
+    border: 1px solid #cde7de; /* Muted green border for structure */
+}
+
+/* Close button */
+#assessmentModal .close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #31533e; /* Dark muted green */
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+#assessmentModal .close:hover {
+    color: #4caf50; /* Bright green on hover for emphasis */
+}
+
+/* Modal title */
+#assessmentModal h3 {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+    color: #31533e; /* Dark green for the title */
+    text-align: center; /* Center the heading */
+    border-bottom: 2px solid #cde7de; /* Light muted green separator */
+    padding-bottom: 10px;
+    text-transform: none; /* Keep it readable without all caps */
+}
+
+/* Section styles for a report-like structure */
+#assessmentModal p {
+    margin: 15px 0;
+    font-size: 1rem;
+    color: #31533e; /* Dark green for text */
+    line-height: 1.6; /* Improved readability */
+}
+
+/* Label styles for emphasis in the report */
+#assessmentModal p strong {
+    display: inline-block;
+    width: 150px; /* Fixed width for labels */
+    font-weight: bold;
+    color: #31533e; /* Softer green for emphasis */
+    text-transform: capitalize; /* Clean look */
+}
+
+/* Organized table-like structure for the report */
+#assessmentModal p span {
+    display: inline-block;
+    color: #31533e;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #assessmentModal .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+
+    #assessmentModal h3 {
+        font-size: 1.5rem;
+    }
+
+    #assessmentModal p {
+        font-size: 0.95rem;
+    }
+
+    #assessmentModal p strong {
+        width: 120px;
+    }
+}
+
+
+/* General Responsive adjustments*/
+@media screen and (max-width: 768px) {
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .filter-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px; /* Space between label and input in stacked view */
+    }
+
+    .filter-form input[type="date"],
+    .filter-form select {
+        width: 100%;
+    }
+
+	.btn-generate-report {
+		padding: 0 20px;
+        font-size: 14px;
     }
 }
