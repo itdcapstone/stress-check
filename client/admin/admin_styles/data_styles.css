@@ -437,6 +437,105 @@ body {
 	font-weight: 500;
 }
 
+/* Media Queries */
+
+/* For screens smaller than 1200px */
+@media (max-width: 1200px) {
+    #content main .head-title {
+        grid-gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    #content main .head-title .left h1 {
+        font-size: 32px;
+    }
+
+    #content main .head-title .left .breadcrumb {
+        grid-gap: 12px;
+    }
+
+    #content main .head-title .left .breadcrumb li {
+        font-size: 14px;
+    }
+
+    #content main .head-title .left .breadcrumb li a {
+        font-size: 14px;
+    }
+}
+
+/* For screens smaller than 992px */
+@media (max-width: 992px) {
+    #content main .head-title {
+        grid-gap: 10px;
+    }
+
+    #content main .head-title .left h1 {
+        font-size: 28px;
+    }
+
+    #content main .head-title .left .breadcrumb {
+        grid-gap: 10px;
+    }
+
+    #content main .head-title .left .breadcrumb li {
+        font-size: 13px;
+    }
+
+    #content main .head-title .left .breadcrumb li a {
+        font-size: 13px;
+    }
+}
+
+/* For screens smaller than 768px */
+@media (max-width: 768px) {
+    #content main .head-title {
+        grid-gap: 8px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #content main .head-title .left h1 {
+        font-size: 24px;
+    }
+
+    #content main .head-title .left .breadcrumb {
+        grid-gap: 8px;
+    }
+
+    #content main .head-title .left .breadcrumb li {
+        font-size: 12px;
+    }
+
+    #content main .head-title .left .breadcrumb li a {
+        font-size: 12px;
+    }
+}
+
+/* For screens smaller than 576px */
+@media (max-width: 576px) {
+    #content main .head-title {
+        grid-gap: 6px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #content main .head-title .left h1 {
+        font-size: 20px;
+    }
+
+    #content main .head-title .left .breadcrumb {
+        grid-gap: 6px;
+    }
+
+    #content main .head-title .left .breadcrumb li {
+        font-size: 11px;
+    }
+
+    #content main .head-title .left .breadcrumb li a {
+        font-size: 11px;
+    }
+}
+
 
 
 #content main .box-info {
@@ -930,6 +1029,104 @@ body.dark .overview-card p {
     }
 }
 
+@media (max-width: 1024px) {
+    .modal-content {
+        width: 50%; /* Slightly wider for tablets */
+        padding: 18px; /* Adjust padding */
+        max-width: 500px; /* Increase max-width */
+    }
+
+    .close {
+        font-size: 22px; /* Slightly smaller close button */
+    }
+
+    .modal-content h2 {
+        font-size: 22px; /* Smaller header for tablets */
+    }
+
+    .modal-content li {
+        padding: 12px; /* Increase padding for readability */
+    }
+
+    .modal-content li strong {
+        font-size: 16px; /* Smaller title */
+    }
+
+    .modal-content li p {
+        font-size: 15px; /* Slightly larger font size */
+    }
+
+    .expand-btn {
+        font-size: 13px; /* Slightly smaller button text */
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 60%; /* Increase width to fill more space on smaller screens */
+        max-width: 450px; /* Ensure width doesn't exceed */
+        padding: 15px; /* Reduce padding for small screens */
+    }
+
+    .close {
+        font-size: 20px; /* Smaller close button */
+    }
+
+    .modal-content h2 {
+        font-size: 20px; /* Smaller header for mobile screens */
+    }
+
+    .modal-content li {
+        padding: 10px; /* Reduce padding */
+    }
+
+    .modal-content li strong {
+        font-size: 15px; /* Adjust font size of titles */
+    }
+
+    .modal-content li p {
+        font-size: 14px; /* Adjust paragraph font size */
+    }
+
+    .expand-btn {
+        font-size: 12px; /* Smaller expand button text */
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 80%; /* Use more width on very small screens */
+        padding: 12px; /* Compact padding */
+        max-width: 400px; /* Further reduce max-width */
+        max-height: 90vh; /* Allow more vertical height on mobile */
+    }
+
+    .close {
+        font-size: 18px; /* Even smaller close button */
+    }
+
+    .modal-content h2 {
+        font-size: 18px; /* Smaller header for small mobile devices */
+    }
+
+    .modal-content li {
+        padding: 8px; /* Further reduce padding */
+    }
+
+    .modal-content li strong {
+        font-size: 14px; /* Adjust title size */
+    }
+
+    .modal-content li p {
+        font-size: 13px; /* Adjust text size for better readability */
+    }
+
+    .expand-btn {
+        font-size: 11px; /* Smaller expand button */
+    }
+}
+
+
 /* Questionnaire*/
 
 h1 {
@@ -983,28 +1180,126 @@ table.questions td:last-child {
     align-items: center;
     margin-bottom: 20px;
 }
-
 .questionnaire-table {
     width: 100%;
-    border-collapse: collapse;
-	margin-top: 30px;
+    border-collapse: separate; /* Separate borders for flexibility */
+    border-spacing: 0 10px; /* Space between rows for clarity */
+    margin-top: 30px;
 }
 
 .questionnaire-table th,
 .questionnaire-table td {
-    padding: 12px;
+    padding: 14px 16px; /* Balanced padding for readability */
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border: none; /* Remove default borders */
+    color: #475569; /* Soft dark text color */
 }
 
 .questionnaire-table th {
-    background-color: #f5f5f5;
-    font-weight: bold;
+    background-color: #DEE9E5; /* Soft green-gray for headers */
+    color: #1A4D2E; /* Deep green for text */
+    font-weight: 600;
+    font-size: 17px;
+    border-top-left-radius: 8px; /* Rounded corners for header */
+    border-top-right-radius: 8px;
+    border-bottom: 2px solid #7ABA78; /* Subtle accent line beneath headers */
 }
 
 .questionnaire-table td {
+    background-color: #FFFFFF; /* Clean white for rows */
     font-size: 16px;
+    border-bottom: 1px solid #F2F2F2; /* Delicate border for separation */
+    color: #1A4D2E; /* Deep green for body text */
+    border-radius: 6px; /* Soft corners for rows */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Minimal shadow for depth */
 }
+
+/* Hover Effect for Rows */
+.questionnaire-table tr:hover td {
+    background-color: #F2F2F2; /* Light gray hover effect */
+    color: #1A4D2E; /* Keep text deep green */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Gentle shadow on hover */
+}
+
+/* First Column Emphasis */
+.questionnaire-table td:first-child {
+    font-weight: 600; /* Subtle emphasis */
+    color: #1A4D2E; /* Muted green for the first column */
+}
+
+@media (max-width: 1024px) {
+    .questionnaire-table {
+        margin-top: 20px; /* Adjust margin for smaller screens */
+    }
+
+    .questionnaire-table th,
+    .questionnaire-table td {
+        padding: 12px 14px; /* Reduce padding for readability */
+        font-size: 15px; /* Slightly smaller font */
+    }
+
+    .questionnaire-table th {
+        font-size: 16px; /* Adjust header font size */
+    }
+
+    .questionnaire-table td {
+        font-size: 14px; /* Adjust body font size */
+    }
+
+    .questionnaire-table td:first-child {
+        font-weight: 500; /* Slightly reduce emphasis */
+    }
+}
+
+@media (max-width: 768px) {
+    .questionnaire-table {
+        border-spacing: 0 6px; /* Reduce spacing between rows */
+    }
+
+    .questionnaire-table th,
+    .questionnaire-table td {
+        padding: 10px 12px; /* Compact padding for smaller screens */
+        font-size: 14px; /* Smaller font size */
+    }
+
+    .questionnaire-table th {
+        font-size: 15px; /* Further reduce header font size */
+    }
+
+    .questionnaire-table td {
+        font-size: 13px; /* Adjust body font size */
+    }
+
+    .questionnaire-table td:first-child {
+        font-weight: 500; /* Maintain consistent emphasis */
+    }
+}
+
+@media (max-width: 480px) {
+    .questionnaire-table {
+        margin-top: 15px; /* Reduce top margin */
+    }
+
+    .questionnaire-table th,
+    .questionnaire-table td {
+        padding: 8px 10px; /* Smaller padding for compact screens */
+        font-size: 13px; /* Small font size for mobile */
+    }
+
+    .questionnaire-table th {
+        font-size: 14px; /* Compact header font size */
+    }
+
+    .questionnaire-table td {
+        font-size: 12px; /* Compact body font size */
+    }
+
+    .questionnaire-table td:first-child {
+        font-weight: 400; /* Reduce emphasis further for mobile */
+    }
+}
+
+
 
 .btn-add-question,
 .btn-edit-question,
@@ -1253,20 +1548,152 @@ table.questions td:last-child {
 }
 
 
+/* Media Queries */
 
-
-
-
-/* Make the arrows responsive */
-@media screen and (max-width: 600px) {
-    .bx.bx-arrow-up, .bx.bx-arrow-down {
-        font-size: 18px;  /* Smaller arrow for smaller screens */
+/* For screens smaller than 1200px */
+@media (max-width: 1200px) {
+    .user-list-container {
+        padding: 15px;
+        max-height: 80vh; /* Limit height to 80% of the viewport */
+        overflow-y: auto; /* Enable vertical scrolling */
     }
 
-    .sort-header {
-        font-size: 14px;  /* Adjust text size for small screens */
+    .user-list-container h2 {
+        font-size: 28px;
+    }
+
+    .user-list-container table th,
+    .user-card td {
+        padding: 15px;
+        font-size: 15px;
+    }
+
+    .user-card .name {
+        font-size: 14px;
+    }
+
+    .modal-content h3 {
+        font-size: 20px;
+    }
+
+    .modal-content p {
+        font-size: 14px;
     }
 }
+
+/* For screens smaller than 992px */
+@media (max-width: 992px) {
+    .user-list-container {
+        padding: 10px;
+        max-height: 75vh; /* Reduce height slightly */
+        overflow-y: auto;
+    }
+
+    .user-list-container h2 {
+        font-size: 24px;
+    }
+
+    .user-list-container table th,
+    .user-card td {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .user-card .avatar {
+        width: 35px;
+        height: 35px;
+    }
+
+    .modal-content button {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}
+
+/* For screens smaller than 768px */
+@media (max-width: 768px) {
+    .user-list-container {
+        padding: 8px;
+        max-height: 70vh; /* Smaller height for smaller screens */
+        overflow-y: auto;
+    }
+
+    .user-list-container h2 {
+        font-size: 22px;
+    }
+
+    .user-list-container table {
+        font-size: 13px;
+    }
+
+    .user-card .name {
+        font-size: 13px;
+    }
+
+    .user-card .status {
+        font-size: 11px;
+    }
+
+    .modal-content button {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .btn-icon.delete-assessment i {
+        font-size: 18px;
+    }
+}
+
+/* For screens smaller than 576px */
+@media (max-width: 576px) {
+    .user-list-container h2 {
+        font-size: 20px;
+    }
+
+    .user-list-container {
+        padding: 5px;
+        max-height: 65vh; /* Maximize visibility on tiny screens */
+        overflow-y: auto;
+    }
+
+    .user-list-container table {
+        display: block; /* Force table to become scrollable horizontally */
+        overflow-x: auto;
+        white-space: nowrap; /* Prevent table rows from wrapping */
+    }
+
+    .user-list-container thead th {
+        font-size: 14px;
+    }
+
+    .user-card td {
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .user-card .avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .modal-content h3 {
+        font-size: 18px;
+    }
+
+    .modal-content button {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    .btn-icon.delete-assessment i {
+        font-size: 16px;
+    }
+}
+
+
+
+
+
 
 /* Pagination */
 
@@ -1338,6 +1765,101 @@ table.questions td:last-child {
     color: #1A4D2E;
     font-weight: 500;
 }
+
+/* Media Queries */
+
+/* For screens smaller than 1200px */
+@media (max-width: 1200px) {
+    .pagination {
+        gap: 10px;
+        padding: 15px 0;
+    }
+
+    .pagination-link {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .pagination .dots {
+        font-size: 14px;
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 13px;
+    }
+}
+
+/* For screens smaller than 992px */
+@media (max-width: 992px) {
+    .pagination {
+        gap: 8px;
+        padding: 12px 0;
+    }
+
+    .pagination-link {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .pagination .dots {
+        font-size: 13px;
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 12px;
+    }
+}
+
+/* For screens smaller than 768px */
+@media (max-width: 768px) {
+    .pagination {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px 0;
+    }
+
+    .pagination-link {
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+    }
+
+    .pagination .dots {
+        font-size: 12px;
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 11px;
+        text-align: center;
+    }
+}
+
+/* For screens smaller than 576px */
+@media (max-width: 576px) {
+    .pagination {
+        flex-wrap: wrap; /* Allow wrapping instead of stacking */
+        flex-direction: row; /* Ensure row direction */
+        gap: 8px; /* Add a small gap for spacing */
+    }
+
+    .pagination-link {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+
+    .pagination .dots {
+        font-size: 11px;
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 10px;
+        text-align: center;
+    }
+}
+
 
 
 

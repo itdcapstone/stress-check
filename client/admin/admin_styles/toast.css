@@ -69,3 +69,28 @@
 #toast.fade-out {
     animation: fade-out 0.5s ease-out forwards !important;
 }
+
+@media (max-width: 1024px) {
+    #toast {
+        min-width: 280px !important; /* Slightly smaller width for tablet screens */
+        padding: 14px 22px !important; /* Adjust padding for better spacing */
+        font-size: 0.9rem !important; /* Reduce font size for better fit on tablets */
+    }
+}
+
+@media (max-width: 768px) {
+    #toast {
+        min-width: 250px !important; /* Further reduce the width for mobile screens */
+        padding: 12px 18px !important; /* Adjust padding for better fit */
+        font-size: 0.85rem !important; /* Reduce font size for mobile screens */
+    }
+}
+
+@media (max-width: 480px) {
+    #toast {
+        min-width: 200px !important; /* Set smaller width for very small mobile screens */
+        padding: 10px 16px !important; /* Tighten padding for small screens */
+        font-size: 0.8rem !important; /* Smaller font size for better readability */
+    }
+}
+

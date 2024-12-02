@@ -1842,6 +1842,106 @@ canvas {
     font-weight: 500;
 }
 
+@media (max-width: 1024px) {
+    .pagination {
+        gap: 10px; /* Reduce the gap between elements */
+        padding: 15px 0; /* Adjust padding */
+    }
+
+    .pagination-link {
+        width: 35px;
+        height: 35px;
+        font-size: 13px; /* Slightly smaller font size */
+    }
+
+    .pagination-link:hover {
+        transform: translateY(-3px); /* Adjust hover effect */
+    }
+
+    .pagination-link.active {
+        transform: scale(1.05); /* Slightly smaller active button scaling */
+    }
+
+    .pagination .dots {
+        font-size: 14px; /* Smaller font size for dots */
+    }
+
+    .pagination-container {
+        gap: 8px; /* Reduce the gap between the summary and pagination links */
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 13px; /* Slightly smaller summary text */
+    }
+}
+
+@media (max-width: 768px) {
+    .pagination {
+        gap: 8px; /* Reduce gap further */
+        padding: 12px 0; /* Adjust padding */
+    }
+
+    .pagination-link {
+        width: 30px;
+        height: 30px;
+        font-size: 12px; /* Smaller font size */
+    }
+
+    .pagination-link:hover {
+        transform: translateY(-2px); /* Reduce hover effect */
+    }
+
+    .pagination-link.active {
+        transform: scale(1.05); /* Keep active button scaling smaller */
+    }
+
+    .pagination .dots {
+        font-size: 12px; /* Smaller font size for dots */
+    }
+
+    .pagination-container {
+        gap: 6px; /* Reduced gap */
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 12px; /* Smaller font size for summary */
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination {
+        gap: 6px; /* Minimal gap for very small screens */
+        padding: 10px 0; /* Compact padding */
+    }
+
+    .pagination-link {
+        width: 28px;
+        height: 28px;
+        font-size: 11px; /* Further reduce font size */
+    }
+
+    .pagination-link:hover {
+        transform: translateY(-1px); /* Very subtle hover effect */
+    }
+
+    .pagination-link.active {
+        transform: scale(1.03); /* Even smaller active button scaling */
+    }
+
+    .pagination .dots {
+        font-size: 10px; /* Reduce font size for dots */
+    }
+
+    .pagination-container {
+        gap: 4px; /* Tight gap for very small screens */
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 11px; /* Smaller summary text */
+    }
+}
+
+
 
 
 

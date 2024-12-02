@@ -65,3 +65,27 @@
 .custom-alert.active {
   animation: slideIn 0.5s ease-in-out;
 }
+
+@media (max-width: 1024px) {
+  .custom-alert {
+      min-width: 280px; /* Reduce width on tablet screens */
+      padding: 14px 20px; /* Adjust padding to fit better */
+      font-size: 0.95rem; /* Slightly smaller font size for tablets */
+  }
+}
+
+@media (max-width: 768px) {
+  .custom-alert {
+      min-width: 250px; /* Further reduce the width for mobile screens */
+      padding: 12px 16px; /* Tighten padding to save space */
+      font-size: 0.9rem; /* Reduce font size for mobile screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-alert {
+      min-width: 220px; /* Set smaller width for very small mobile screens */
+      padding: 10px 14px; /* Compact padding for small screens */
+      font-size: 0.85rem; /* Further reduce font size for small devices */
+  }
+}
