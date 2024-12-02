@@ -145,10 +145,9 @@ def restrict_admin_routes():
         client_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
         app.logger.info(f"Admin access attempt from IP: {client_ip} for route {request.path}")
 
-        if client_ip != ALLOWED_ADMIN_IP:
+        if client_ip not in ALLOWED_ADMIN_IP:
             flash("Access denied: Unauthorized IP address.", "error")
             return abort(403)
-
 
 # Landing page
 @app.route('/')
