@@ -31,7 +31,7 @@
          scales: {
              y: {
                  beginAtZero: true,
-                 max: 20, // Adjust the maximum value for the chart
+                 max: 10, // Adjust the maximum value for the chart
                  title: { display: true, text: 'Percentage (%)' }
              },
              x: {

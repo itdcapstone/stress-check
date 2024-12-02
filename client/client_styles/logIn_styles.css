@@ -45,6 +45,16 @@ header {
   text-decoration: none; /* Remove underline */
 }
 
+@media (max-width: 768px) {
+
+  .nav__logo a {
+    
+    font-size: 2rem;
+   
+    
+  }
+}
+
 .nav__logo {
   display: flex;
   align-items: center;
