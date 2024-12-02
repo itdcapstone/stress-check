@@ -2605,6 +2605,58 @@ a.retake-btn:hover {
     font-weight: 500;
 }
 
+/* For small devices (mobile, less than 600px) */
+@media (max-width: 599px) {
+    .pagination {
+        gap: 10px;
+        padding: 15px 0;
+    }
+
+    .pagination-link {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .pagination .dots {
+        font-size: 14px;
+    }
+
+    .pagination-container {
+        gap: 8px;
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 12px;
+    }
+}
+
+/* For medium devices (tablet, 600px to 1024px) */
+@media (min-width: 600px) and (max-width: 1024px) {
+    .pagination {
+        gap: 12px;
+        padding: 18px 0;
+    }
+
+    .pagination-link {
+        width: 35px;
+        height: 35px;
+        font-size: 13px;
+    }
+
+    .pagination .dots {
+        font-size: 15px;
+    }
+
+    .pagination-container {
+        gap: 9px;
+    }
+
+    .pagination-container .pagination-summary {
+        font-size: 13px;
+    }
+}
+
 
 
 

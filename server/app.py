@@ -127,7 +127,7 @@ else:
 from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1)
 
-ALLOWED_ADMIN_IP = ['223.25.62.251', '175.176.60.65', '216.247.87.221','1.37.89.63']
+ALLOWED_ADMIN_IP = ['223.25.62.251', '175.176.60.65', '216.247.87.221','1.37.89.63', '136.158.78.12']
 
 @app.before_request
 def restrict_admin_routes():
