@@ -125,6 +125,10 @@ if os.path.exists(preprocessor_path):
 else:
     raise FileNotFoundError(f"Preprocessor file not found at {preprocessor_path}")
 
+
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1)
+
 ALLOWED_ADMIN_IP = ['223.25.62.251', '175.176.60.65', '216.247.87.221']
 
 @app.before_request
@@ -142,19 +146,21 @@ def restrict_admin_routes():
     ]
 
     if any(request.path.startswith(route) for route in admin_routes):
-        client_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0]
-        app.logger.info(f"Admin access attempt from IP: {client_ip} for route {request.path}")
+        # Extract client IP
+        forwarded_for = request.headers.get('X-Forwarded-For', request.remote_addr)
+        client_ip = forwarded_for.split(',')[0].strip() if forwarded_for else request.remote_addr
 
+        # Debug logs to verify IPs
+        app.logger.info(f"Admin access attempt from IP: {client_ip} for route {request.path}")
+        app.logger.info(f"Allowed IPs: {ALLOWED_ADMIN_IP}")
+
+        # Check if client_ip is in the allowed list
         if client_ip not in ALLOWED_ADMIN_IP:
+            app.logger.warning(f"Access denied for IP: {client_ip}")
             flash("Access denied: Unauthorized IP address.", "error")
             return abort(403)
-
-# Landing page
-@app.route('/')
-def index():
-    return render_template('landing/landing.html')
-
-# Utility functions
+        
+    # Utility functions
 def validate_object_id(id):
     try:
         return ObjectId(id)
@@ -177,6 +183,12 @@ def role_required(role):
         return wrapper
     return decorator
 
+
+
+# Landing page
+@app.route('/')
+def index():
+    return render_template('landing/landing.html')
 
 # Route for student login in the root folder
 @app.route('/student_login', methods=['GET'])
