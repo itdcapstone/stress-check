@@ -1988,7 +1988,7 @@ def result():
         common_stressors = [
             {"name": key, "class": data['class'], "icon": data['icon']}
             for key, data in stressor_mapping.items()
-            if student_df[key][0] in [4, 5]
+            if student_df[key][0] in [3, 4, 5]
         ]
 
         return render_template(
