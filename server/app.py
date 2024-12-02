@@ -125,7 +125,7 @@ if os.path.exists(preprocessor_path):
 else:
     raise FileNotFoundError(f"Preprocessor file not found at {preprocessor_path}")
 
-ALLOWED_ADMIN_IP = ['223.25.62.251', '175.176.60.65']
+ALLOWED_ADMIN_IP = ['223.25.62.251', '175.176.60.65', '216.247.87.221']
 
 @app.before_request
 def restrict_admin_routes():
