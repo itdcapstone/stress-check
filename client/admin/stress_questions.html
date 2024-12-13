@@ -8,68 +8,366 @@
 	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
 	<!-- My CSS -->
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/data_styles.css') }}">
-	<link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/toast.css') }}">
+	<link rel="icon" href="{{ url_for('static', filename='assets/stress_check.png') }}" type="image/x-icon">
 
 	<title>Questions</title>
+
+	<style>
+		
+		#open-modal-btn {
+			background-color: #1a4d2e;
+			color: #ffffff;
+			border: none;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: background-color 0.3s, transform 0.2s;
+			font-size: 12px;
+			padding: 6px 10px;
+		}
+
+		#open-modal-btn {
+			margin-left: 87%; /* Pushes the button to the right end */
+			width: 110px;
+			text-align: center;
+		}
+
+		/* Hover Effects for Buttons */
+		#open-modal-btn:hover {
+			background-color: #35a776;
+			transform: translateY(-2px);
+		}
+
+		/* General Modal Styling */
+		.modal {
+			display: none; /* Hidden by default */
+			position: fixed;
+			z-index: 3001;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			overflow: auto;
+			background-color: rgba(0, 0, 0, 0.4); /* Black with opacity */
+			padding-top: 60px;
+			font-family: 'Arial', sans-serif;
+		}
+
+		/* Modal Content Styling */
+		.modal-content {
+			background-color: #FFFFFF;
+			margin: 5% auto;
+			padding: 30px;
+			border: 1px solid #DEE9E5;
+			border-radius: 10px;
+			width: 50%;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+		}
+
+		/* Close Button Styling */
+		.close-modal {
+			color: #1A4D2E;
+			font-size: 30px;
+			font-weight: bold;
+			position: absolute;
+			top: 10px;
+			right: 25px;
+			cursor: pointer;
+		}
+
+		.close-modal:hover,
+		.close-modal:focus {
+			color: #7ABA78;
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		/* Heading Styling */
+		.modal-content h2 {
+			color: #1A4D2E;
+			font-size: 24px;
+			margin-bottom: 20px;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		/* Form Section */
+		.modal-content form {
+			display: flex;
+			flex-direction: column;
+			gap: 20px;
+		}
+
+		/* Label Styling */
+		.modal-content label {
+			font-size: 16px;
+			color: #1A4D2E;
+			font-weight: bold;
+		}
+
+		/* Textarea Styling */
+		.modal-content textarea {
+			width: 100%;
+			border: 1px solid #7ABA78;
+			border-radius: 8px;
+			padding: 12px;
+			font-size: 16px;
+			color: #1A4D2E;
+			background-color: #DEE9E5;
+			resize: none;
+			box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+			transition: border-color 0.3s ease;
+		}
+
+		.modal-content textarea:focus {
+			border-color: #1A4D2E;
+			outline: none;
+		}
+
+		/* Select Dropdown Styling */
+		.modal-content select {
+			width: 100%;
+			padding: 12px;
+			border: 1px solid #7ABA78;
+			border-radius: 8px;
+			background-color: #DEE9E5;
+			color: #1A4D2E;
+			font-size: 16px;
+			transition: border-color 0.3s ease;
+		}
+
+		.modal-content select:focus {
+			border-color: #1A4D2E;
+			outline: none;
+		}
+
+		/* Button Styling */
+		.modal-content button {
+			padding: 12px 20px;
+			background-color: #1A4D2E;
+			color: #FFFFFF;
+			font-size: 16px;
+			font-weight: bold;
+			border: none;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+			align-self: center;
+		}
+
+		.modal-content button:hover {
+			background-color: #7ABA78;
+		}
+
+		/* Modal Responsive Design */
+		@media (max-width: 768px) {
+			.modal-content {
+				width: 80%;
+				padding: 20px;
+			}
+		}
+
+
+		/* General Table Styling */
+		table.questionnaire-table {
+			width: 100%;
+			border-collapse: collapse;
+			margin: 20px 0;
+			font-size: 16px;
+			text-align: left;
+			background-color: #FFFFFF;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			border-radius: 8px;
+			overflow: hidden;
+		}
+
+		/* Table Headers */
+		table.questionnaire-table thead tr {
+			background-color: #1A4D2E;
+			color: #FFFFFF;
+			text-transform: uppercase;
+			font-weight: bold;
+			letter-spacing: 0.05em;
+		}
+
+		table.questionnaire-table th,
+		table.questionnaire-table td {
+			padding: 15px;
+			border: 1px solid #DEE9E5;
+			width: 42%;
+		}
+
+		/* Table Rows */
+		table.questionnaire-table tbody tr {
+			background-color: #DEE9E5;
+			transition: background-color 0.3s ease;
+		}
+
+		table.questionnaire-table tbody tr:nth-child(even) {
+			background-color: #FFFFFF;
+		}
+
+		table.questionnaire-table tbody tr:hover {
+			background-color: #7ABA78;
+			color: #FFFFFF;
+		}
+
+		/* Textarea Styling */
+		table.questionnaire-table textarea {
+			width: 100%;
+			border: 1px solid #7ABA78;
+			border-radius: 4px;
+			padding: 8px;
+			font-size: 14px;
+			background-color: #FFFFFF;
+			color: #1A4D2E;
+			resize: none;
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+			height: 75px;
+		}
+
+		table.questionnaire-table textarea:focus {
+			outline: none;
+			border-color: #1A4D2E;
+		}
+
+		/* Select Dropdown Styling */
+		table.questionnaire-table select {
+			width: 100%;
+			padding: 8px;
+			border: 1px solid #7ABA78;
+			border-radius: 4px;
+			background-color: #FFFFFF;
+			color: #1A4D2E;
+			font-size: 14px;
+			appearance: none;
+		}
+
+		table.questionnaire-table select:focus {
+			outline: none;
+			border-color: #1A4D2E;
+		}
+
+		/* Button Styling */
+		table.questionnaire-table button {
+			padding: 8px 12px;
+			margin: 0 5px;
+			font-size: 14px;
+			font-weight: bold;
+			color: #FFFFFF;
+			background-color: #1A4D2E;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		table.questionnaire-table button:hover {
+			background-color: #7ABA78;
+		}
+
+		table.questionnaire-table .delete-button:hover {
+			background-color: #DB504A;
+		  }
+		  
+		  
+
+		/* Aligning Action Buttons to the Center */
+		table.questionnaire-table td:last-child {
+			text-align: center;
+			padding: 10px 0; /* Adjust padding to reduce space */
+		}
+
+		table.questionnaire-table td:last-child button {
+			margin: 0 10px; /* Adjust margin to control button spacing */
+		}
+
+		/* Tooltip Container */
+		.select-tooltip {
+			position: relative;
+			display: inline-block;
+		}
+		
+		.select-tooltip .tooltip-text {
+			visibility: hidden;
+			width: 220px;
+			background-color: #1a4d2e;
+			color: #fff;
+			text-align: center;
+			border-radius: 6px;
+			padding: 5px;
+			position: absolute;
+			z-index: 1;
+			bottom: 100%; /* Position above */
+			left: 50%;
+			transform: translateX(-50%);
+			opacity: 0;
+			transition: opacity 0.3s;
+		}
+		
+		/* Tooltip Visibility */
+		.select-tooltip:hover .tooltip-text {
+			visibility: visible;
+			opacity: 1;
+		}
+		
+
+
+	</style>
 </head>
 <body>
 
-	<!-- SIDEBAR -->
-    <section id="sidebar">
-        <nav>
-        <a href="#" class="brand">
-            <i class='bx bx-badge-check'></i>
-            <span class="text">Stress Check</span>
-        </a>
-        <ul class="side-menu top">
-            <li>
-                <a href="{{ url_for('admin_dashboard', username=username) }}">
+	 <!-- SIDEBAR -->
+	 <section id="sidebar">
+		<nav>
+		<a href="#" class="brand">
+			<i class='bx bx-badge-check'></i>
+			<span class="text">Stress Check</span>
+		</a>
+		<ul class="side-menu top">
+			<li>
+				<a href="{{ url_for('admin_dashboard', username=username) }}">
                     <i class='bx bxs-dashboard' ></i>
                     <span class="text">Dashboard</span>
                 </a>
-            </li>
-            <li>
-                <a href="{{ url_for('management') }}">
-                    <i class='bx bxs-user-detail'></i>
-                    <span class="text">User Management</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ url_for('data') }}">
-                    <i class='bx bxs-data'></i>
-                    <span class="text">Data Management</span>
-                </a>
-            </li>
-            <li>
-				<a href="{{ url_for('edit_recommendation') }}">
-					<i class='bx bxs-check-circle'></i>
-					<span class="text">Recommendation</span>
+			</li>
+			<li>
+				<a href="{{ url_for('management') }}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
 				</a>
 			</li>
 			<li class="active">
-				<a href="{{ url_for('stress_questions') }}">
-					<i class='bx bxs-message-square-edit'></i>
-					<span class="text">Questionnaires</span>
+				<a href="{{ url_for('data_management') }}">
+					<i class='bx bxs-data'></i>
+					<span class="text">Data Management</span>
 				</a>
 			</li>
-            <li>
-                <a href="{{ url_for('admin_feedback') }}">
-                    <i class='bx bxs-user-pin'></i>
-                    <span class="text">User Feedback</span>
-                </a>
-            </li>
-        </ul>
-        <ul class="side-menu">
-           
-            <li>
-                <a href="{{ url_for('admin_logout') }}" class="logout">
-                    <i class='bx bxs-log-out-circle' ></i>
-                    <span class="text">Logout</span>
-                </a>
-            </li>
-        </ul>
-        </nav>
-    </section>
+			<li>
+				<a href="{{ url_for('data') }}">
+					<i class='bx bxs-report'></i>
+					<span class="text">Reports</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('admin_feedback') }}">
+					<i class='bx bxs-user-pin'></i>
+					<span class="text">User Feedback</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			
+			<li>
+				<a href="{{ url_for('admin_logout') }}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+			
+		</ul>
+		</nav>
+	</section>
 	<!-- SIDEBAR -->
 
 	<!-- CONTENT -->
@@ -77,59 +375,265 @@
 		<!-- NAVBAR -->
 		<nav>
 			<i class="bx bx-menu"></i>
-			
 		</nav>
 		<!-- NAVBAR -->
-
-
-	<!-- MAIN -->
-	<main>
-		<div class="head-title">
-			<div class="left">
-				<h1>Stress Questions</h1>
-				<ul class="breadcrumb">
-					<li>
-						<a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
-					</li>
-					<li><i class='bx bx-chevron-right'></i></li>
-					<li>
-						<a href="{{ url_for('data') }}">Data Management</a>
-					</li>
-					<li><i class='bx bx-chevron-right'></i></li>
-					<li>
-						<a class="active" href="#">Stress Questions</a>
-					</li>
-				</ul>
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Stress Questions</h1>
+					<ul class="breadcrumb">
+						<li>
+							<a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+						</li>
+						<li><i class='bx bx-chevron-right'></i></li>
+						<li>
+							<a href="{{ url_for('data_management') }}">Data Management</a>
+						</li>
+						<li><i class='bx bx-chevron-right'></i></li>
+						<li>
+							<a class="active" href="#">Stress Questions</a>
+						</li>
+					</ul>
+				</div>
 			</div>
-		</div>
+
+			<div id="toast"></div>
+
+			<!-- Modal Structure -->
+			<div id="add-question-modal" class="modal">
+				<div class="modal-content">
+					<span class="close-modal">&times;</span>
+					<h2>Add New Question</h2>
+					<form id="add-question-form">
+						<div>
+							<label for="new-question">Question:</label>
+							<textarea id="new-question" name="question" rows="2" cols="50"></textarea>
+						</div>
+						<div>
+							<label>Type:</label>
+							<select id="new-type" name="type">
+							  <option value="likert_scale_frequency" title="Options: Never, Rarely, Sometimes, Often, Always">Frequency-based Scale</option>
+							  <option value="likert_scale_satisfaction" title="Options: Very Satisfied, Satisfied, Neutral, Dissatisfied, Very Dissatisfied">Satisfaction-based Scale</option>
+							  <option value="likert_scale_agreement" title="Options: Strongly Disagree, Disagree, Neutral, Agree, Strongly Agree">Agreement-based Scale</option>
+							  <option value="likert_scale_agreement2" title="Options: Strongly Agree, Agree, Neutral, Disagree, Strongly Disagree">Agreement-based Scale 2</option>
+							  <option value="likert_scale_quality" title="Options: Excellent, Good, Adequate, Poor, Very Poor">Quality-based Scale</option>
+							  <option value="likert_scale_impact" title="Options: Not at all, A little, Moderately, Significantly, Extremely">Impact-based Scale</option>
+							  <option value="likert_scale_disturbance" title="Options: Very Manageable, Manageable, Neutral, Disturbing, Very Disturbing">Disturbance-based Scale</option>
+							  <option value="likert_scale_completeness" title="Options: Completely, Very Much, Moderately, Somewhat, Not at all">Completeness-based Scale</option>
+							  <option value="yes_no" title="Options: Yes, No">Yes/No</option>
+							</select>
+						  </div>
+						  
+						<div>
+							<label>Category:</label>
+							<select id="new-category" name="category">
+								<option value="psychological">Psychological</option>
+								<option value="socio_economic">Socio-Economic</option>
+								<option value="environmental">Environmental</option>
+								<option value="academic">Academic</option>
+							</select>
+						</div>
+						<button type="button" onclick="addQuestion()">Add Question</button>
+					</form>
+				</div>
+			</div>
+
+			<div class="question-list-section">
+				<button type="button" id="open-modal-btn">Add New Question</button>
+				<table class="questionnaire-table">
+					<thead>
+						<tr>
+							<th>Question</th>
+							<th>Category</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for question in stress_questions %}
+						<tr>
+							<!-- Question Section -->
+							<td>
+								<textarea name="question_{{ question._id }}" rows="2">{{ question['question'] }}</textarea>
+							</td>
+							<td>
+								<div>
+									<label>Type:</label>
+									<select name="type_{{ question._id }}">
+									  <option value="likert_scale_frequency" {% if question['type'] == 'likert_scale_frequency' %}selected{% endif %} 
+											  title="Options: Never, Rarely, Sometimes, Often, Always">Frequency-based Scale</option>
+									  <option value="likert_scale_satisfaction" {% if question['type'] == 'likert_scale_satisfaction' %}selected{% endif %} 
+											  title="Options: Very Satisfied, Satisfied, Neutral, Dissatisfied, Very Dissatisfied">Satisfaction-based Scale</option>
+									  <option value="likert_scale_agreement" {% if question['type'] == 'likert_scale_agreement' %}selected{% endif %} 
+											  title="Options: Strongly Disagree, Disagree, Neutral, Agree, Strongly Agree">Agreement-based Scale</option>
+									  <option value="likert_scale_agreement2" {% if question['type'] == 'likert_scale_agreement2' %}selected{% endif %} 
+											  title="Options: Strongly Agree, Agree, Neutral, Disagree, Strongly Disagree">Agreement-based Scale 2</option>
+									  <option value="likert_scale_quality" {% if question['type'] == 'likert_scale_quality' %}selected{% endif %} 
+											  title="Options: Excellent, Good, Adequate, Poor, Very Poor">Quality-based Scale</option>
+									  <option value="likert_scale_impact" {% if question['type'] == 'likert_scale_impact' %}selected{% endif %} 
+											  title="Options: Not at all, A little, Moderately, Significantly, Extremely">Impact-based Scale</option>
+									  <option value="likert_scale_disturbance" {% if question['type'] == 'likert_scale_disturbance' %}selected{% endif %} 
+											  title="Options: Very Manageable, Manageable, Neutral, Disturbing, Very Disturbing">Disturbance-based Scale</option>
+									  <option value="likert_scale_completeness" {% if question['type'] == 'likert_scale_completeness' %}selected{% endif %} 
+											  title="Options: Completely, Very Much, Moderately, Somewhat, Not at all">Completeness-based Scale</option>
+									  <option value="yes_no" {% if question['type'] == 'yes_no' %}selected{% endif %} 
+											  title="Options: Yes, No">Yes/No</option>
+									</select>
+								  </div>
+								  
+								<div>
+									<label>Category:</label>
+									<select name="category_{{ question._id }}">
+										<option value="psychological" {% if question['category'] == 'psychological' %}selected{% endif %}>Psychological</option>
+										<option value="socio_economic" {% if question['category'] == 'socio_economic' %}selected{% endif %}>Socio-Economic</option>
+										<option value="environmental" {% if question['category'] == 'environmental' %}selected{% endif %}>Environmental</option>
+										<option value="academic" {% if question['category'] == 'academic' %}selected{% endif %}>Academic</option>
+									</select>
+								</div>
+							</td>
+							<td>
+								<button type="button" onclick="updateQuestion('{{ question._id }}')">Update</button>
+								<button type="button" class="delete-button" onclick="deleteQuestion('{{ question._id }}')">Delete</button>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<!-- MAIN -->
+	</section>
+	<!-- CONTENT -->
+
+	<script>
+		// Get modal elements
+		const modal = document.getElementById("add-question-modal");
+		const openModalBtn = document.getElementById("open-modal-btn");
+		const closeModalBtn = document.querySelector(".close-modal");
 	
+		// Open modal when button is clicked
+		openModalBtn.addEventListener("click", () => {
+			modal.style.display = "block";
+		});
 	
+		// Close modal when the close button is clicked
+		closeModalBtn.addEventListener("click", () => {
+			modal.style.display = "none";
+		});
+	
+		// Close modal when clicking outside of the modal content
+		window.addEventListener("click", (event) => {
+			if (event.target === modal) {
+				modal.style.display = "none";
+			}
+		});
+	
+		async function addQuestion() {
+			const question = document.getElementById('new-question').value;
+			const type = document.getElementById('new-type').value;
+			const category = document.getElementById('new-category').value;
+	
+			const response = await fetch('/admin/stress_questions', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					new_question: { question, type, category }
+				}),
+			});
+	
+			const result = await response.json();
+			showToast(result.message || result.error, response.ok ? 'success' : 'error');
+			if (response.ok) location.reload();
+		}
+	
+		async function updateQuestion(id) {
+			const question = document.querySelector(`textarea[name="question_${id}"]`).value;
+			const type = document.querySelector(`select[name="type_${id}"]`).value;
+			const category = document.querySelector(`select[name="category_${id}"]`).value;
+	
+			console.log({ id, question, type, category });
+	
+			const response = await fetch('/admin/stress_questions', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					update_question: true,
+					_id: id,
+					updated_fields: { question, type, category },
+				}),
+			});
+	
+			const result = await response.json();
+			showToast(result.message || result.error, response.ok ? 'success' : 'error');
+			if (response.ok) location.reload();
+		}
+	
+		async function deleteQuestion(id) {
+			const response = await fetch('/admin/stress_questions', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ delete_question: true, question_id: id }),
+			});
+	
+			const result = await response.json();
+			showToast(result.message || result.error, response.ok ? 'success' : 'error');
+			if (response.ok) location.reload();
+		}
+	
+		// Function to show toast and persist message on refresh
+		function showToast(message, type) {
+			const toast = document.getElementById('toast');
+			if (!toast) {
+				console.error('Toast element not found!');
+				return;
+			}
+
+			if (!message) {
+				console.error('Toast message is undefined!');
+				return;
+			}
+
+			toast.innerText = message;
+
+			// Reset classes and add the appropriate type class
+			toast.className = ''; // Remove any existing classes
+			toast.classList.add('show', type); // Add show and type (success/error)
+
+			console.log('Toast is shown with message:', message); // Debugging log
+
+			// Save the message and type to localStorage
+			localStorage.setItem('toastMessage', message);
+			localStorage.setItem('toastType', type);
+
+			// Ensure toast stays visible for 3 seconds before fading out
+			setTimeout(() => {
+				// Add fade-out class after 3 seconds to begin disappearing
+				toast.classList.add('fade-out');
+			}, 3000); // Show duration
+
+			setTimeout(() => {
+				// Remove both 'show' and 'fade-out' classes after fade-out animation ends (500ms)
+				toast.classList.remove('show', 'fade-out');
+				toast.innerText = ''; // Clear the message after hiding
+
+				// Clear stored toast message after it's shown
+				localStorage.removeItem('toastMessage');
+				localStorage.removeItem('toastType');
+			}, 3500); // Total duration (3s for show, 0.5s for fade-out)
+		}
+
+		// Check for stored toast message and display on page load
+		window.addEventListener('load', () => {
+			const storedMessage = localStorage.getItem('toastMessage');
+			const storedType = localStorage.getItem('toastType');
+
+			if (storedMessage && storedType) {
+				showToast(storedMessage, storedType);
+			}
+		});
 
 		
-		<table class="questionnaire-table">
-			<thead>
-				<tr>
-					<th>Question</th>
-					<th>Category</th>
-					
-				</tr>
-			</thead>
-			<tbody>
-				{% for question in stress_questions %}
-				<tr>
-					<td>{{ question['question'] }}</td>
-					<td>{{ question['category'] }}</td>
-					
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</main>
-	<!-- MAIN -->
-</section>
-	<!-- CONTENT -->
-	<script src="{{ url_for('static', filename='script.js') }}"></script>
-	<script src="{{ url_for('static', filename='admin_scripts/data.js') }}"></script>
-
+	</script>
+	
 </body>
 </html>

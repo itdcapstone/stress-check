@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons -->
+	<link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/data_management.css') }}">
+
+	<title>AdminHub</title>
+</head>
+<body>
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<nav>
+		<a href="#" class="brand">
+			<i class='bx bx-badge-check'></i>
+			<span class="text">Stress Check</span>
+		</a>
+		<ul class="side-menu top">
+			<li>
+				<a href="{{ url_for('admin_dashboard', username=username) }}">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+			</li>
+			<li>
+				<a href="{{ url_for('management') }}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			<li class="active">
+				<a href="{{ url_for('data_management') }}">
+					<i class='bx bxs-data'></i>
+					<span class="text">Data Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('data') }}">
+					<i class='bx bxs-report'></i>
+					<span class="text">Reports</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('admin_feedback') }}">
+					<i class='bx bxs-user-pin'></i>
+					<span class="text">User Feedback</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			
+			<li>
+				<a href="{{ url_for('admin_logout') }}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+			
+		</ul>
+		</nav>
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			<form action="#">
+				<div class="form-input">
+					<input type="search" placeholder="Search...">
+					<button type="submit" class="search-btn"><i class='bx bx-search' ></i></button>
+				</div>
+			</form>
+			<input type="checkbox" id="switch-mode" hidden>
+			<label for="switch-mode" class="switch-mode"></label>
+		</nav>
+		<!-- NAVBAR -->
+
+
+	<!-- MAIN -->
+	<main>
+		<div class="head-title">
+			<div class="left">
+				<h1>Stress Data</h1>
+				<ul class="breadcrumb">
+					<li>
+						<a href="{{ url_for('admin_dashboard', username=username) }}">Dashboard</a>
+					</li>
+					<li><i class='bx bx-chevron-right' ></i></li>
+					<li>
+						<a class="active" href="{{ url_for('data_management') }}">Data Management</a>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+
+		<div class="data-overview">
+			<a href="{{ url_for('stress_questions') }}" class="data-card card-link">
+				<i class='bx bx-question-mark'></i>
+				<p class="score-title">Questionnaire Management</p>
+			</a>
+			<a href="{{ url_for('faqs_management') }}" class="data-card card-link">
+				<i class='bx bx-conversation'></i>
+				<p class="score-title">FAQ's Management</p>
+			</a>
+			<a href="{{ url_for('edit_recommendation') }}" class="data-card card-link">
+				<i class='bx bx-receipt'></i>
+				<p class="score-title">Recommendation Management</p>
+			</a>
+		</div>
+		
+
+
+
+	</main>
+	<!-- MAIN -->
+</section>
+	<!-- CONTENT -->
+	
+
+    <script src="{{ url_for('static', filename='admin_scripts/data.js') }}"></script>
+	<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

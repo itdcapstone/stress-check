@@ -78,68 +78,24 @@
 			  
 		  </nav>
 		  
+		<!-- MAIN -->
 		<main>
 			<div class="head-title">
 				<div class="left">
 					<h1>Frequently Asked Questions</h1>
-				</div>
+				</div>				
 			</div>
-	
+
 			<!-- FAQ Section -->
 			<section class="faq-section">
-				<details>
-					<summary>What is the purpose of this system?</summary>
-					<p>The system helps students assess their stress levels, identify key stressors, and receive recommendations to manage stress.</p>
-				</details>
-	
-				<details>
-					<summary>Who can use this system?</summary>
-					<p>The system is available to all college students at the University of Cabuyao.</p>
-				</details>
 				
+				{% for faq in faqs %}
 				<details>
-					<summary>How do I start a stress assessment?</summary>
-					<p>
-						<ol class="faq-list">
-							<li>Log in to your account.</li>
-							<li>Navigate to the "Test Stress" section on your dashboard.</li>
-							<li>Answer all the questions in the assessment form.</li>
-							<li>Submit your responses to view your results.</li>
-						</ol>
-					</p>
+					<summary>{{ faq.question }}</summary>
+					<p>{{ faq.answer }}</p>
 				</details>
-	
-				<details>
-					<summary>Can I view my stress history?</summary>
-					<p>Yes, you can view your history in the "Historical Data" section, where you’ll find records of previous stress assessments and track your progress over time.</p>
-				</details>
-	
-				<details>
-					<summary>How does the recommendation feature work?</summary>
-					<p>The system provides personalized strategies based on your assessment, such as time management tips, relaxation techniques, and counseling.</p>
-				</details>
-	
-				<details>
-					<summary>Are the recommendations reliable?</summary>
-					<p>Yes, the recommendations are validated by licensed psychometrician and psychologist to ensure accuracy and relevance.</p>
-				</details>
-	
-				<details>
-					<summary>Is my data secure?</summary>
-					<p>We prioritize user privacy and ensure that all data is stored securely with encryption methods. Your information will not be shared with third parties.</p>
-				</details>
-	
-				<details>
-					<summary>What should I do if the system isn’t working?</summary>
-					<p>
-						<ul class="faq-list">
-							<li>Check your internet connection.</li>
-							<li>Try using a different browser.</li>
-							<li>Clear your browser cache and cookies.</li>
-						</ul>
-					</p>
-				</details>
-	
+				{% endfor %}
+
 				<details>
 					<summary>Can I talk to someone about my stress?</summary>
 					<p>Yes, you can reach out to the university’s counseling center. For more details, use the following contact information:</p>
@@ -157,10 +113,6 @@
 					</div>
 				</details>
 			</section>
-		</main>
-	</section>
-	
-
 		</main>
 		<!-- MAIN -->
 	</section>

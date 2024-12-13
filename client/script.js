@@ -354,10 +354,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 const data = await response.json();
                 updateStressorsInDOM(data.common_stressors);
             } else {
-                console.warn("Failed to fetch common stressors. Status:", response.status);
+                console.warn("Failed to fetch Contributing Stressors. Status:", response.status);
             }
         } catch (error) {
-            console.error("Error fetching common stressors:", error);
+            console.error("Error fetching Contributing Stressors:", error);
         }
     }
 

@@ -1,124 +1,124 @@
-google.charts.load('current', { packages: ['corechart', 'bar'] });
-google.charts.setOnLoadCallback(drawColumnChart);
-
-let columnChart;
-
-function drawColumnChart() {
-    const data = google.visualization.arrayToDataTable(columnChartData);
-
-    const options = {
-        title: 'Average Stress Level by Year Level',
-        backgroundColor: 'transparent',
-        hAxis: { title: 'Year Level' },
-        vAxis: { title: 'Average Stress Level', minValue: 0 },
-        legend: { position: 'none' },
-        colors: ['#4285F4'],
-        chartArea: {
-            left: '10%',
-            top: '10%',
-            width: '80%',
-            height: '70%',
-            backgroundColor: 'transparent',
-        },
-    };
-
-    const chartContainer = document.getElementById('column_chart_div');
-    columnChart = new google.visualization.ColumnChart(chartContainer);
-    columnChart.draw(data, options);
+function showCategoriesModal() {
+    document.getElementById('categoriesModal').style.display = 'flex';
 }
 
-window.addEventListener('resize', () => {
-    if (columnChart) drawColumnChart();
+function closeCategoriesModal() {
+    document.getElementById('categoriesModal').style.display = 'none';
+}
+
+// Close the modal if the user clicks outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('categoriesModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('myModal');
+    
+    // Ensure modal is hidden on load
+    modal.style.display = 'none';
+
+    // Example: Show modal only on button click
+    document.getElementById('showModalBtn').addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    // Example: Close modal when close button is clicked
+    document.querySelector('.close').addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    // Example: Close modal when clicking outside of it
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
 });
 
-google.charts.load('current', { packages: ['corechart', 'line'] });
-google.charts.setOnLoadCallback(drawLineChart);
-
-let lineChart;
-
-function drawLineChart() {
-    const data = google.visualization.arrayToDataTable(lineChartData);
-
-    const options = {
-        title: 'Average Stress Levels Over Time',
-        backgroundColor: 'transparent',
-        hAxis: { title: 'Month', titleTextStyle: { color: '#333' } },
-        vAxis: { title: 'Average Stress Level', minValue: 0 },
-        curveType: 'function',
-        legend: { position: 'bottom' },
-        chartArea: { left: '10%', top: '10%', width: '80%', height: '65%' },
-    };
-
-    const chartContainer = document.getElementById('chart_div');
-    lineChart = new google.visualization.LineChart(chartContainer);
-    lineChart.draw(data, options);
+function toggleDescription(button) {
+    // Find the <li> that the button belongs to
+    var listItem = button.closest('li');
+    // Toggle the 'expanded' class on the <li>
+    listItem.classList.toggle('expanded');
+    // Change the button text based on expansion state
+    if (listItem.classList.contains('expanded')) {
+        button.textContent = 'Read less';
+    } else {
+        button.textContent = 'Read more';
+    }
 }
 
-window.addEventListener('resize', () => {
-    if (lineChart) drawLineChart();
-});
 
-google.charts.load('current', { packages: ['corechart'] });
-google.charts.setOnLoadCallback(drawPieChart);
+function showModal(username, age, yearLevel, date, stressLevel, stressors) {
+    document.getElementById('modalUsername').textContent = username;
+    document.getElementById('modalAge').textContent = age;
+    document.getElementById('modalYearLevel').textContent = yearLevel;
+    document.getElementById('modalDate').textContent = date;
+    document.getElementById('modalStressLevel').textContent = stressLevel;
+    document.getElementById('modalStressors').textContent = stressors;
 
-function drawPieChart() {
-    const chartData = [['Stress Level', 'Number of Students']].concat(
-        stressLevelData.map(item => [`Level ${item.stress_level}`, item.count])
-    );
-
-    const data = google.visualization.arrayToDataTable(chartData);
-
-    const options = {
-        chartArea: { width: '100%', height: '80%' },
-        backgroundColor: 'transparent',
-        colors: ['#e74c3c', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'],
-        legend: { position: 'bottom', textStyle: { color: '#333', fontSize: 14 } },
-    };
-
-    const chart = new google.visualization.PieChart(document.getElementById('piechart'));
-    chart.draw(data, options);
-
-    window.addEventListener('resize', drawPieChart);
+    document.getElementById('assessmentModal').style.display = 'block';
 }
 
-const labels = stressorData.map(item => item.stressor);
-const percentages = stressorData.map(item => item.percentage);
-const studentCounts = stressorData.map(item => item.student_count);
+function closeModal() {
+    document.getElementById('assessmentModal').style.display = 'none';
+}
 
-const ctx = document.getElementById('stressorBarChart').getContext('2d');
+// Close the modal if clicked outside
+window.onclick = function(event) {
+    const modal = document.getElementById('assessmentModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
 
-const stressorBarChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: labels,
-        datasets: [{
-            label: 'Stressor Percentage',
-            data: percentages,
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: { beginAtZero: true, max: 10, title: { display: true, text: 'Percentage (%)' } },
-            x: { title: { display: true, text: 'Stressors' } },
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Data for the bar chart (from backend)
+    const stressorData = {{ stressor_data|tojson }};
+    
+    // Prepare data for the chart
+    const labels = stressorData.map(item => item.stressor);
+    const data = stressorData.map(item => item.percentage);
+    const tooltipData = stressorData.map(item => `${item.student_count} students`);
+
+    // Create the bar chart
+    const ctx = document.getElementById('stressorBarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Percentage',
+                data: data,
+                backgroundColor: '#4285F4',
+                borderColor: '#3367D6',
+                borderWidth: 1,
+            }]
         },
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: context => {
-                        const percentage = context.raw;
-                        const count = studentCounts[context.dataIndex];
-                        return `${context.label}: ${percentage.toFixed(2)}% (${count} assessments)`;
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.raw.toFixed(2)}% (${tooltipData[context.dataIndex]})`;
+                        }
                     }
+                }
+            },
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Percentage (%)' }
+                },
+                x: {
+                    title: { display: true, text: 'Stressors' }
                 }
             }
         }
-    }
+    });
 });
-
-window.addEventListener('resize', () => stressorBarChart.resize());

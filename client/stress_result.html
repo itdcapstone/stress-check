@@ -81,7 +81,9 @@
         <!-- Result Container -->
         <div class="result-container">
             <h1>Stress Prediction Result</h1>
-            <p>Hello, {{ username }}! Based on your responses, your predicted stress level is:</p>
+            <p id="stress-level-description" class="dynamic-description">
+                Hello, {{ username }}! Based on your responses, your predicted stress level is <strong>{{ predicted_stress_level }}</strong>.
+            </p>
 
             <!-- Circular Progress Indicator -->
             <div class="progress-container">
@@ -96,7 +98,7 @@
             </div>
 
             <!-- Stressors Section -->
-            <h2>Common Stressors</h2>
+            <h2>Contributing Stressors</h2>
             <p class="click-instruction">Click on any stressor to view personalized recommendations.</p>
             {% if common_stressors %}
             <div class="stressors-container">
@@ -255,6 +257,24 @@
                  // Initial check
                  centerModal();
              });
+
+             document.addEventListener("DOMContentLoaded", () => {
+                const stressDescriptions = {
+                    1: "You're feeling calm and centered. Keep nurturing this balance!",
+                    2: "You're experiencing light stress. Small breaks and self-care can go a long way.",
+                    3: "You're managing some stress. Remember to breathe and prioritize rest when needed.",
+                    4: "You're feeling quite stressed. Be kind to yourself and reach out if you need support.",
+                    5: "You're under significant stress. It's okay to seek help—you're not alone."
+                };
+            
+                const stressLevelElement = document.getElementById("stress-level-description");
+                const currentStressLevel = parseInt("{{ predicted_stress_level }}", 10);
+            
+                // Add dynamic descriptive text
+                const additionalText = stressDescriptions[currentStressLevel] || "Description not available.";
+                stressLevelElement.textContent += ` ${additionalText}`;
+            });
+            
  
  
          </script>

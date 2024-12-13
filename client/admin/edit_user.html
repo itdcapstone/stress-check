@@ -25,11 +25,11 @@
 			<span class="text">Stress Check</span>
 		</a>
 		<ul class="side-menu top">
-			<li >
+			<li>
 				<a href="{{ url_for('admin_dashboard', username=username) }}">
-					<i class='bx bxs-dashboard' ></i>
-					<span class="text">Dashboard</span>
-				</a>
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
 			</li>
 			<li class="active">
 				<a href="{{ url_for('management') }}">
@@ -38,21 +38,15 @@
 				</a>
 			</li>
 			<li>
-				<a href="{{ url_for('data') }}">
+				<a href="{{ url_for('data_management') }}">
 					<i class='bx bxs-data'></i>
 					<span class="text">Data Management</span>
 				</a>
 			</li>
 			<li>
-				<a href="{{ url_for('edit_recommendation') }}">
-					<i class='bx bxs-check-circle'></i>
-					<span class="text">Recommendation</span>
-				</a>
-			</li>
-			<li>
-				<a href="{{ url_for('stress_questions') }}">
-					<i class='bx bxs-message-square-edit'></i>
-					<span class="text">Questionnaires</span>
+				<a href="{{ url_for('data') }}">
+					<i class='bx bxs-report'></i>
+					<span class="text">Reports</span>
 				</a>
 			</li>
 			<li>
@@ -63,16 +57,14 @@
 			</li>
 		</ul>
 		<ul class="side-menu">
-			<li>
-				<a href="#">
-				</a>
-			</li>
+			
 			<li>
 				<a href="{{ url_for('admin_logout') }}" class="logout">
 					<i class='bx bxs-log-out-circle' ></i>
 					<span class="text">Logout</span>
 				</a>
 			</li>
+			
 		</ul>
 		</nav>
 	</section>

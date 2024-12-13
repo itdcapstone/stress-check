@@ -101,6 +101,7 @@ responses_collection = db.response
 recommendation_collection = db.recommendations
 response_collection = db['response']
 stress_questions_collection = db['stress_questions']
+faqs_collection = db.faqs
 
 # Create index for responses collection (if necessary)
 responses_collection.create_index([('timestamp', pymongo.DESCENDING)])
@@ -1033,7 +1034,8 @@ def assessments():
             assessment_id = data.get('assessment_id')
 
             if not assessment_id:
-                return jsonify({'error': 'Assessment ID not provided.'}), 400
+                return 
+            ({'error': 'Assessment ID not provided.'}), 400
 
             # Attempt to delete the assessment by ObjectId
             try:
@@ -1123,6 +1125,7 @@ def assessments():
         sort_order=sort_order,
         sort_by=sort_by,
     )
+
 
 
 @app.route('/admin/feedback/', methods=['GET', 'POST'])
@@ -1376,6 +1379,7 @@ def submit_question():
     
 
 @app.route('/admin/stress_questions', methods=['GET', 'POST'])
+@role_required('admin')  # Ensure only admins can access this route
 def stress_questions():
     try:
         # Retrieve all stress questions from MongoDB
@@ -1384,33 +1388,78 @@ def stress_questions():
 
         if request.method == 'POST':
             data = request.get_json()  # Get JSON data sent via AJAX
-            app.logger.info(f"Received data for deletion: {data}")  # Log received data
+            app.logger.info(f"Received data: {data}")  # Log received data
 
-            if data and 'delete_question' in data:
-                # Get the question ID from the JSON payload
-                question_id = data['question_id']
+            if data:
+                if 'delete_question' in data:
+                    # Handle deletion
+                    question_id = data.get('question_id')
+                    app.logger.info(f"Deleting question with ID: {question_id}")
 
-                # Log the question ID to check if it is correct
-                app.logger.info(f"Deleting question with ID: {question_id}")
+                    try:
+                        object_id = ObjectId(question_id)
+                    except Exception as e:
+                        app.logger.error(f"Invalid ObjectId: {str(e)}")
+                        return jsonify({'status': 'error', 'message': 'Invalid question ID.'}), 400
 
-                # Delete the question from the database
-                result = questionnaires.delete_one({'_id': ObjectId(question_id)})
+                    result = questionnaires.delete_one({'_id': object_id})
+                    app.logger.info(f"Delete result: {result.deleted_count}")
 
-                # Log the result of the deletion
-                app.logger.info(f"Delete result: {result.deleted_count}")
+                    if result.deleted_count == 1:
+                        return jsonify({'status': 'success', 'message': 'Question successfully deleted.'}), 200
+                    else:
+                        return jsonify({'status': 'error', 'message': 'Failed to delete question. It may not exist.'}), 400
 
-                if result.deleted_count == 1:
-                    return jsonify({'status': 'success', 'message': 'Question successfully deleted.'}), 200
-                else:
-                    return jsonify({'status': 'error', 'message': 'Failed to delete question. It may not exist.'}), 400
+                elif 'update_question' in data:
+                    question_id = data.get('_id')
+                    updated_fields = data.get('updated_fields', {})
+                    print(f"Updating question {question_id} with fields {updated_fields}")
 
-        # If no POST request, just render the page with the list of questions
+                    if question_id and updated_fields:
+                        object_id = ObjectId(question_id)
+                        result = questionnaires.update_one(
+                            {'_id': object_id},
+                            {'$set': updated_fields}
+                        )
+                        if result.modified_count > 0:
+                            return jsonify({'message': 'Question updated successfully!'}), 200
+                        return jsonify({'message': 'No changes were made to the question.'}), 200
+                    return jsonify({'error': 'Invalid update request.'}), 400
+
+
+                elif 'new_question' in data:
+                    # Handle adding a new question
+                    new_question = data.get('new_question', {})
+                    question_text = new_question.get('question')
+                    question_type = new_question.get('type')
+                    question_category = new_question.get('category')
+
+                    # Validate inputs
+                    if not question_text or not question_type or not question_category:
+                        return jsonify({'status': 'error', 'message': 'All fields (question, type, category) are required.'}), 400
+
+                    question_document = {
+                        'question': question_text,
+                        'type': question_type,
+                        'category': question_category
+                    }
+
+                    try:
+                        result = questionnaires.insert_one(question_document)
+                        app.logger.info(f"Added new question with ID: {result.inserted_id}")
+                        return jsonify({'status': 'success', 'message': 'Question added successfully!', 'id': str(result.inserted_id)}), 201
+                    except Exception as e:
+                        app.logger.error(f"Error adding new question: {str(e)}")
+                        return jsonify({'status': 'error', 'message': 'Failed to add the new question.'}), 500
+
+        # Render the page with the list of questions
         return render_template('admin/stress_questions.html', stress_questions=stress_questions)
 
     except Exception as e:
-        app.logger.error(f'Error retrieving stress questions: {str(e)}')
-        return 'An error occurred while retrieving data.'
-    
+        app.logger.error(f'Error managing stress questions: {str(e)}')
+        return jsonify({'error': 'An error occurred while processing your request.'}), 500
+
+
 # Route for editing recommendations
 @app.route('/admin/edit_recommendation', methods=['GET', 'POST'])
 @role_required('admin')
@@ -1790,6 +1839,9 @@ def stress_result():
     student_transformed = preprocessor.transform(student_df)
     predicted_stress_level = knn_model.predict(student_transformed)[0]
 
+    if predicted_stress_level == 1:
+        predicted_stress_level = 0
+        
     common_stressors, detailed_recommendations, primary_recommendation = [], [], None
 
     # Stressor mapping with icons
@@ -1951,9 +2003,14 @@ def result():
         # Predict stress level
         try:
             predicted_stress_level = knn_model.predict(student_transformed)[0]
+            
+            # If stress level is 1, set it to 0
+            if predicted_stress_level == 1:
+                predicted_stress_level = 0
         except Exception as e:
             print(f"ERROR: Prediction failed - {str(e)}")
             return "Error during stress level prediction."
+
 
         # DEBUG: Check neighbors of the KNN model for this prediction
         try:
@@ -2043,7 +2100,17 @@ def recommendation():
             student_df[col] = 3  # Default to neutral if missing
 
     student_transformed = preprocessor.transform(student_df)
-    predicted_stress_level = knn_model.predict(student_transformed)[0]
+    # Predict stress level
+    try:
+        predicted_stress_level = knn_model.predict(student_transformed)[0]
+        
+        # If stress level is 1, set it to 0
+        if predicted_stress_level == 1:
+            predicted_stress_level = 0
+    except Exception as e:
+        print(f"ERROR: Prediction failed - {str(e)}")
+        return "Error during stress level prediction."
+
 
     common_stressors, detailed_recommendations, primary_recommendation = [], [], None
 
@@ -2584,19 +2651,91 @@ def signup():
 # faqs
 
 @app.route('/faqs/')
-@role_required('user')
 def faqs():
     # Fetch username from session
     username = session.get('username')
 
     if username:
-        # Fetch assessment data for the user
-        user = users_collection.find_one({'username': username})
+        # Use the faqs_collection to fetch FAQ data
+        faqs = list(faqs_collection.find({}, {"_id": 0}))  # Fetch all FAQs, exclude the _id field
 
-        return render_template('faqs.html', username=username)
+        # Pass the FAQs and username to the template
+        return render_template('faqs.html', username=username, faqs=faqs)
     else:
         # Redirect to login if the user is not logged in
         return redirect(url_for('login'))
+    
+@app.route('/admin/faqs_management/', methods=['GET'])
+def faqs_management():
+    # Fetch all FAQs from the MongoDB collection
+    faqs = list(faqs_collection.find())
+    return render_template('admin/faqs_management.html', faqs=faqs)
+
+@app.route('/admin/faqs_management/edit', methods=['POST'])
+def edit_faq():
+    faq_id = request.form.get('faq_id')
+    question = request.form.get('question')
+    answer = request.form.get('answer')
+
+    if not all([faq_id, question, answer]):
+        return jsonify({'success': False, 'message': 'Missing required fields'}), 400
+
+    try:
+        # Update the FAQ in the MongoDB collection
+        faqs_collection.update_one(
+            {'_id': ObjectId(faq_id)},
+            {'$set': {'question': question, 'answer': answer}}
+        )
+        return jsonify({'success': True, 'message': 'FAQ updated successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/faqs_management/delete', methods=['POST'])
+def delete_faq():
+    faq_id = request.form.get('faq_id')
+
+    if not faq_id:
+        return jsonify({'success': False, 'message': 'Missing FAQ ID'}), 400
+
+    try:
+        # Delete the FAQ from the MongoDB collection
+        faqs_collection.delete_one({'_id': ObjectId(faq_id)})
+        return jsonify({'success': True, 'message': 'FAQ deleted successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@app.route('/admin/faqs_management/view/<faq_id>', methods=['GET'])
+def view_faq(faq_id):
+    faq = faqs_collection.find_one({'_id': ObjectId(faq_id)})
+    return jsonify({'question': faq['question'], 'answer': faq['answer']})
+
+@app.route('/admin/create_faq/', methods=['GET', 'POST'])
+def create_faq():
+    if request.method == 'GET':
+        # Render the create_faq.html form
+        return render_template('admin/create_faq.html')
+
+    if request.method == 'POST':
+        # Handle form submission
+        question = request.form.get('question')
+        answer = request.form.get('answer')
+
+        # Validate inputs
+        if not question or not answer:
+            return jsonify({"error": "Both question and answer are required"}), 400
+
+        # Insert FAQ into MongoDB
+        faq_data = {"question": question, "answer": answer}
+        faqs_collection.insert_one(faq_data)
+
+        return redirect(url_for('faqs_management'))  # Redirect back to FAQs management page
+
+@app.route('/data_management')
+def data_management():
+   
+    return render_template('admin/data_management.html')  # Render the admin login page
 
 
 

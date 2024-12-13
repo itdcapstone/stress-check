@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+	<!-- Boxicons -->
+	<link href='https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	
+
+	<!-- My CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/styles.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/admin_styles/edit_recommendation.css') }}">
+	<link rel="icon" href="{{ url_for('static', filename='assets/stress check.png') }}" type="image/x-icon">
+
+	<title>mjn</title>
+
+    <style>
+        /* Optional: Add a tooltip style for better UX */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 100%; /* Position above the element */
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+
+</head>
+<body>
+
+	 <!-- SIDEBAR -->
+     <section id="sidebar">
+		<nav>
+		<a href="#" class="brand">
+			<i class='bx bx-badge-check'></i>
+			<span class="text">Stress Check</span>
+		</a>
+		<ul class="side-menu top">
+			<li>
+				<a href="{{ url_for('admin_dashboard', username=username) }}">
+                    <i class='bx bxs-dashboard' ></i>
+                    <span class="text">Dashboard</span>
+                </a>
+			</li>
+			<li class="active">
+				<a href="{{ url_for('management') }}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('data_management') }}">
+					<i class='bx bxs-data'></i>
+					<span class="text">Data Management</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('data') }}">
+					<i class='bx bxs-report'></i>
+					<span class="text">Reports</span>
+				</a>
+			</li>
+			<li>
+				<a href="{{ url_for('admin_feedback') }}">
+					<i class='bx bxs-user-pin'></i>
+					<span class="text">User Feedback</span>
+				</a>
+			</li>
+		</ul>
+		<ul class="side-menu">
+			
+			<li>
+				<a href="{{ url_for('admin_logout') }}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+			
+		</ul>
+		</nav>
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class="bx bx-menu"></i>
+			
+		</nav>
+		<!-- NAVBAR -->
+
+	<!-- MAIN -->
+	<main>
+		<div class="head-title">
+			<div class="left">
+				<h1>Modify Stress Questions</h1>
+				<ul class="breadcrumb">
+					<li>
+						<a href="{{ url_for('admin_dashboard', username=username) }}">Dashboard</a>
+					</li>
+					<li><i class='bx bx-chevron-right'></i></li>
+					<li>
+						<a class="active" href="#">Recommendation</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		 <!-- Flash Messages -->
+		 {% with messages = get_flashed_messages(with_categories=true) %}
+		 {% if messages %}
+			 <div id="flash-messages">
+				 {% for category, message in messages %}
+				 <div class="custom-alert {% if category == 'error' %}error-alert{% else %}success-alert{% endif %}">
+					 {{ message }}
+				 </div>
+				 {% endfor %}
+			 </div>
+		 {% endif %}
+		 {% endwith %}
+         <h1>Modify Stress Questions</h1>
+
+         <!-- Add New Question Form -->
+         <h2>Add New Question</h2>
+         <form id="add-question-form">
+             <div>
+                 <label>Question:</label>
+                 <textarea name="question" rows="2" cols="50"></textarea>
+             </div>
+             <div>
+                 <label>Type:</label>
+                 <select name="type">
+                     <option value="likert_scale_frequency">Frequency-based Scale</option>
+                     <option value="likert_scale_satisfaction">Satisfaction-based Scale</option>
+                     <option value="likert_scale_agreement">Agreement-based Scale</option>
+                     <option value="likert_scale_agreement2">Agreement-based Scale 2</option>
+                     <option value="likert_scale_quality">Quality-based Scale</option>
+                     <option value="likert_scale_impact">Impact-based Scale</option>
+                     <option value="likert_scale_disturbance">Disturbance-based Scale</option>
+                     <option value="likert_scale_completeness">Completeness-based Scale</option>
+                     <option value="yes_no">Yes/No</option>
+                 </select>
+             </div>
+             <div>
+                 <label>Category:</label>
+                 <select name="category">
+                     <option value="psychological">Psychological</option>
+                     <option value="socio_economic">Socio-Economic</option>
+                     <option value="environmental">Environmental</option>
+                     <option value="academic">Academic</option>
+                 </select>
+             </div>
+             <button type="button" onclick="addQuestion()">Add Question</button>
+         </form>
+     
+         <hr>
+     
+   
+         <form id="modify-form">
+             {% for question in questions %}
+             <div>
+                 <label>Question:</label>
+                 <textarea name="question_{{ question._id }}" rows="2" cols="50">{{ question.question }}</textarea>
+             </div>
+             <div>
+                <label>Type:</label>
+                <select name="type_{{ question._id }}">
+                <option value="likert_scale_frequency" title="Choices: Never, Rarely, Sometimes, Often, Always" {% if question.type == 'likert_scale_frequency' %}selected{% endif %}>
+                    Frequency-based Scale
+                </option>
+                <option value="likert_scale_satisfaction" title="Choices: Very Dissatisfied, Dissatisfied, Neutral, Satisfied, Very Satisfied" {% if question.type == 'likert_scale_satisfaction' %}selected{% endif %}>
+                    Satisfaction-based Scale
+                </option>
+                <option value="likert_scale_agreement" title="Choices: Strongly Disagree, Disagree, Neutral, Agree, Strongly Agree" {% if question.type == 'likert_scale_agreement' %}selected{% endif %}>
+                    Agreement-based Scale
+                </option>
+                <option value="likert_scale_agreement2" title="Choices: Strongly Disagree, Disagree, Neutral, Agree, Strongly Agree" {% if question.type == 'likert_scale_agreement2' %}selected{% endif %}>
+                    Agreement-based Scale 2
+                </option>
+                <option value="likert_scale_quality" title="Choices: Very Poor, Poor, Adequate, Good, Excellent" {% if question.type == 'likert_scale_quality' %}selected{% endif %}>
+                    Quality-based Scale
+                </option>
+                <option value="likert_scale_impact" title="Choices: Not at all, A little, Moderately, Significantly, Extremely" {% if question.type == 'likert_scale_impact' %}selected{% endif %}>
+                    Impact-based Scale
+                </option>
+                <option value="likert_scale_disturbance" title="Choices: Very Manageable, Manageable, Neutral, Disturbing, Very Disturbing" {% if question.type == 'likert_scale_disturbance' %}selected{% endif %}>
+                    Disturbance-based Scale
+                </option>
+                <option value="likert_scale_completeness" title="Choices: Not at all, Somewhat, Moderately, Very Much, Completely" {% if question.type == 'likert_scale_completeness' %}selected{% endif %}>
+                    Completeness-based Scale
+                </option>
+                <option value="yes_no" title="Choices: Yes, No" {% if question.type == 'yes_no' %}selected{% endif %}>
+                    Yes/No
+                </option>
+                </select>
+            </div>
+            <div>
+                <label>Category:</label>
+                <select name="category_{{ question._id }}">
+                    <option value="psychological" {% if question.category == 'psychological' %}selected{% endif %}>Psychological</option>
+                    <option value="socio_economic" {% if question.category == 'socio_economic' %}selected{% endif %}>Socio-Economic</option>
+                    <option value="environmental" {% if question.category == 'environmental' %}selected{% endif %}>Environmental</option>
+                    <option value="academic" {% if question.category == 'academic' %}selected{% endif %}>Academic</option>
+                </select>
+            </div>
+             <button type="button" onclick="updateQuestion('{{ question._id }}')">Update</button>
+             {% endfor %}
+         </form>
+     
+        <script>
+            async function addQuestion() {
+                const form = document.getElementById('add-question-form');
+                const question = form.querySelector('textarea[name="question"]').value;
+                const type = form.querySelector('select[name="type"]').value;
+                const category = form.querySelector('select[name="category"]').value;
+    
+                const response = await fetch('/admin/modify_stress_questions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        new_question: {
+                            question,
+                            type,
+                            category
+                        }
+                    }),
+                });
+    
+                const result = await response.json();
+                alert(result.message || result.error);
+                if (response.ok) {
+                    location.reload(); // Reload the page to show the updated questions
+                }
+            }
+    
+            async function updateQuestion(id) {
+                const form = document.getElementById('modify-form');
+                const question = form.querySelector(`textarea[name="question_${id}"]`).value;
+                const type = form.querySelector(`select[name="type_${id}"]`).value;
+                const category = form.querySelector(`select[name="category_${id}"]`).value;
+    
+                const response = await fetch('/admin/modify_stress_questions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        _id: id,
+                        updated_fields: { question, type, category },
+                    }),
+                });
+    
+                const result = await response.json();
+                alert(result.message || result.error);
+            }
+        </script>
+		
+		
+		<script src="{{ url_for('static', filename='script.js') }}"></script>
+		
+  </body>
+  </html>
+  

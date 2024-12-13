@@ -165,7 +165,12 @@ def predict_stress(new_student_data):
     # Predict the stress level
     predicted_stress_level = best_knn_model.predict(new_student_transformed)
 
+    # If stress level is 1, print 0
+    if predicted_stress_level[0] == 1:
+        print(0)
+
     return predicted_stress_level[0]
+
 
 # Function for identifying stressors and providing details
 def identify_common_stressors(new_student_data):
@@ -198,7 +203,7 @@ def identify_common_stressors(new_student_data):
 
     # Function to check if the stressor response indicates high stress (4: 'Often' or 5: 'Always')
     def is_high_stress(val):
-        return val in [3, 4, 5]
+        return val in [4, 5]
 
     # Initialize the dictionary to store stressor counts and details
     high_stressors = {}

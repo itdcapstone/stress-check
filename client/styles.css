@@ -2282,14 +2282,6 @@ a.retake-btn:hover {
     color: #7ABA78; /* Soft green on hover */
 }
 
-.faq-section summary::after {
-    content: '\25BC'; /* Downward arrow */
-    font-size: 1rem;
-    position: absolute;
-    right: 0;
-    transition: transform 0.3s, color 0.3s ease;
-}
-
 .faq-section details[open] summary::after {
     transform: rotate(180deg);
     color: #7ABA78; /* Change arrow color on open */
