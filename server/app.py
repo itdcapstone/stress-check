@@ -71,8 +71,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 if not MONGO_URI or not SECRET_KEY:
     raise ValueError("MONGO_URI and SECRET_KEY must be set in the environment.")
 
-
-
 # Initialize Flask app
 app = Flask(__name__, static_folder='../client', template_folder='../client')
 limiter = Limiter(key_func=get_remote_address, app=app)
@@ -106,7 +104,7 @@ faqs_collection = db.faqs
 # Create index for responses collection (if necessary)
 responses_collection.create_index([('timestamp', pymongo.DESCENDING)])
 
-# Path to your saved models
+# Path to saved models
 model_path = 'models/knn_model.pkl'
 preprocessor_path = 'models/preprocessor.pkl'
 
@@ -159,7 +157,7 @@ else:
 #             flash("Access denied: Unauthorized IP address.", "error")
 #             return abort(403)
         
-    # Utility functions
+# Utility functions
 def validate_object_id(id):
     try:
         return ObjectId(id)
@@ -1475,7 +1473,7 @@ def edit_recommendation():
         
         # Create a mapping of stressor to its related questions
         stressor_questions = {
-            question['feature_name']: question['question']
+            question.get('feature_name', 'Unknown Feature'): question.get('question', 'No Question Provided')
             for question in stress_questions
         }
 
